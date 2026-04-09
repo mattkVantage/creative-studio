@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Creative Studio — Banner Builder</title>
+<script src="https://unpkg.com/konva@9/konva.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Calibri, 'Segoe UI', sans-serif; background: #EDF1F5; min-height: 100vh; color: #1E3A5F; font-size: 13px; }
+.app-shell { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+
+/* ── Topbar ── */
+.topbar { background: #1E3A5F; color: #fff; padding: 0 20px; height: 52px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 16px; }
+.topbar-logo { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; }
+.topbar-logo span { color: #F97316; }
+.topbar-meta { display: flex; align-items: center; gap: 14px; font-size: 12px; opacity: 0.85; }
+.topbar-divider { width: 1px; height: 14px; background: rgba(255,255,255,0.2); }
+.view-toggle { display: flex; background: rgba(255,255,255,0.12); border-radius: 6px; padding: 3px; gap: 2px; }
+.vtoggle { padding: 4px 14px; font-size: 12px; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; background: transparent; color: rgba(255,255,255,0.7); transition: all 0.15s; white-space: nowrap; }
+.vtoggle.active { background: #fff; color: #1E3A5F; }
+#statusTopbar { background: rgba(255,255,255,0.15); padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+
+/* ── Shared workspace ── */
+.workspace { display: flex; flex: 1; overflow: hidden; }
+
+/* ═══════════════════════════════════════════
+   BUILDER VIEW
+═══════════════════════════════════════════ */
+.panel-left { width: 260px; flex-shrink: 0; background: #fff; border-right: 1px solid #DDE3EA; display: flex; flex-direction: column; overflow: hidden; }
+.panel-section { border-bottom: 1px solid #EDF1F5; }
+.panel-section-header { padding: 10px 14px 8px; font-size: 11px; font-weight: 700; color: #6B7B8D; letter-spacing: 0.6px; text-transform: uppercase; display: flex; align-items: center; justify-content: space-between; }
+.platform-tabs { display: flex; gap: 4px; padding: 10px 14px; flex-wrap: wrap; }
+.ptab { flex: 1; min-width: 52px; padding: 6px 4px; font-size: 11px; font-weight: 600; border: 1px solid #DDE3EA; border-radius: 6px; background: #F5F7FA; color: #6B7B8D; cursor: pointer; text-align: center; font-family: inherit; transition: all 0.15s; }
+.ptab:hover { border-color: #1E3A5F; color: #1E3A5F; }
+.ptab.active { background: #1E3A5F; color: #fff; border-color: #1E3A5F; }
+.ptab.active.meta { background: #1877F2; border-color: #1877F2; }
+.ptab.active.google { background: #EA4335; border-color: #EA4335; }
+.ptab.active.reddit { background: #FF4500; border-color: #FF4500; }
+.size-list { display: flex; flex-direction: column; gap: 4px; padding: 0 14px 12px; }
+.size-item { padding: 7px 10px; border: 1px solid #DDE3EA; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.15s; }
+.size-item:hover { border-color: #1E3A5F; background: #F5F7FA; }
+.size-item.selected { border-color: #1E3A5F; background: #EEF2F7; }
+.size-item .size-label { font-size: 12px; font-weight: 600; }
+.size-item .size-dims { font-size: 11px; color: #6B7B8D; }
+.size-item .size-tag { font-size: 10px; padding: 1px 6px; border-radius: 3px; background: #F0FDF4; color: #43A047; font-weight: 600; }
+.upload-zone { border: 2px dashed #DDE3EA; border-radius: 8px; padding: 16px 10px; text-align: center; cursor: pointer; transition: all 0.15s; margin: 0 14px 10px; }
+.upload-zone:hover, .upload-zone.dragover { border-color: #1E3A5F; background: #F0F4FA; }
+.upload-zone .upload-icon { font-size: 22px; margin-bottom: 6px; }
+.upload-zone .upload-label { font-size: 12px; font-weight: 600; color: #1E3A5F; }
+.upload-zone .upload-sub { font-size: 11px; color: #6B7B8D; margin-top: 3px; }
+.asset-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; padding: 0 14px 12px; }
+.asset-thumb { aspect-ratio: 1; border-radius: 5px; border: 2px solid transparent; cursor: pointer; overflow: hidden; position: relative; }
+.asset-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.asset-thumb.selected { border-color: #1E3A5F; }
+.asset-thumb .asset-check { position: absolute; top: 3px; right: 3px; width: 16px; height: 16px; background: #1E3A5F; border-radius: 50%; display: none; align-items: center; justify-content: center; color: #fff; font-size: 10px; }
+.asset-thumb.selected .asset-check { display: flex; }
+.panel-left-scroll { flex: 1; overflow-y: auto; }
+.copy-search { padding: 8px 14px 6px; }
+.copy-search input { width: 100%; padding: 6px 10px; font-size: 12px; border: 1px solid #DDE3EA; border-radius: 6px; font-family: inherit; color: #1E3A5F; }
+.copy-list { padding: 0 14px 12px; display: flex; flex-direction: column; gap: 5px; }
+.copy-item { padding: 8px 10px; border: 1px solid #DDE3EA; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+.copy-item:hover { border-color: #1E3A5F; background: #F5F7FA; }
+.copy-item.in-use { border-color: #43A047; background: #F0FDF4; }
+.copy-item .copy-tag { font-size: 10px; font-weight: 600; color: #6B7B8D; margin-bottom: 3px; letter-spacing: 0.4px; }
+.copy-item .copy-tag.headline { color: #1E3A5F; }
+.copy-item .copy-tag.cta { color: #F97316; }
+.copy-item .copy-tag.legal { color: #9B59B6; }
+.copy-item .copy-text { font-size: 12px; color: #1E3A5F; line-height: 1.4; }
+.copy-item .copy-approved { font-size: 10px; color: #43A047; font-weight: 600; margin-top: 3px; }
+.panel-center { flex: 1; display: flex; flex-direction: column; align-items: center; background: #DDE3EA; overflow: auto; padding: 24px; gap: 16px; }
+.canvas-toolbar { width: 100%; max-width: 900px; background: #fff; border-radius: 8px; padding: 10px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); flex-shrink: 0; }
+.toolbar-group { display: flex; align-items: center; gap: 6px; }
+.toolbar-sep { width: 1px; height: 20px; background: #DDE3EA; }
+.tbtn { padding: 5px 10px; font-size: 11px; font-weight: 600; border: 1px solid #DDE3EA; border-radius: 5px; background: #fff; color: #1E3A5F; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 4px; }
+.tbtn:hover { background: #F5F7FA; }
+.tbtn.active { background: #EEF2F7; border-color: #1E3A5F; }
+.tbtn.primary { background: #1E3A5F; color: #fff; border-color: #1E3A5F; }
+.canvas-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+.canvas-outer { background: #fff; box-shadow: 0 4px 24px rgba(0,0,0,0.14); border-radius: 4px; overflow: hidden; position: relative; transition: all 0.2s; }
+.canvas-bg-placeholder { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #EDF1F5 0%, #DDE3EA 100%); z-index: 1; pointer-events: none; }
+#konvaStage { position: absolute; top: 0; left: 0; cursor: default; }
+.canvas-text-overlay { position: absolute; padding: 12px 16px; cursor: move; user-select: none; }
+.canvas-text-overlay .overlay-headline { font-size: 22px; font-weight: 800; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,0.4); line-height: 1.2; }
+.canvas-text-overlay .overlay-sub { font-size: 14px; color: rgba(255,255,255,0.9); margin-top: 4px; text-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+.canvas-cta-btn { position: absolute; bottom: 16px; right: 16px; background: #F97316; color: #fff; padding: 8px 18px; border-radius: 4px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.canvas-brand-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 36px; background: #F96302; display: flex; align-items: center; padding: 0 14px; }
+.canvas-brand-logo { color: #fff; font-size: 15px; font-weight: 900; letter-spacing: -0.5px; }
+.canvas-legal { position: absolute; bottom: 40px; left: 0; right: 0; text-align: center; font-size: 9px; color: rgba(255,255,255,0.6); padding: 0 12px; }
+.canvas-size-info { font-size: 11px; color: #6B7B8D; text-align: center; }
+
+/* ── Image adjust panel ── */
+.adj-row { padding: 0 14px 9px; }
+.adj-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.adj-label { font-size: 11px; font-weight: 600; color: #1E3A5F; }
+.adj-value { font-size: 11px; color: #6B7B8D; font-weight: 700; min-width: 38px; text-align: right; font-variant-numeric: tabular-nums; }
+.adj-slider { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px; background: #DDE3EA; cursor: pointer; outline: none; display: block; }
+.adj-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 15px; height: 15px; border-radius: 50%; background: #1E3A5F; cursor: pointer; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+.adj-slider::-moz-range-thumb { width: 15px; height: 15px; border-radius: 50%; background: #1E3A5F; cursor: pointer; border: 2px solid #fff; }
+.adj-btn-row { display: flex; gap: 5px; padding: 2px 14px 12px; }
+.adj-btn { flex: 1; padding: 5px 4px; font-size: 11px; font-weight: 600; border: 1px solid #DDE3EA; border-radius: 5px; background: #fff; color: #1E3A5F; cursor: pointer; font-family: inherit; text-align: center; transition: all 0.12s; }
+.adj-btn:hover { background: #F5F7FA; }
+.adj-btn.flip-active { background: #EEF2F7; border-color: #1E3A5F; color: #1E3A5F; }
+.adj-btn.reset-btn { color: #E53935; border-color: #FFCDD2; }
+.adj-btn.reset-btn:hover { background: #FFEBEE; }
+.adj-section-divider { height: 1px; background: #EDF1F5; margin: 2px 14px 10px; }
+.img-select-hint { font-size: 11px; color: #6B7B8D; text-align: center; padding: 6px 14px 10px; }
+/* Konva canvas sits above HTML overlays need to come above it */
+.canvas-text-overlay, .canvas-cta-btn, .canvas-legal, .canvas-brand-bar { z-index: 2; }
+
+/* ── Shared right-panel styles ── */
+.panel-right { width: 300px; flex-shrink: 0; background: #fff; border-left: 1px solid #DDE3EA; display: flex; flex-direction: column; overflow: hidden; }
+.workflow-header { padding: 14px 16px 10px; border-bottom: 1px solid #EDF1F5; }
+.workflow-title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.workflow-sub { font-size: 11px; color: #6B7B8D; }
+.status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-bottom: 12px; }
+.status-draft { background: #F5F7FA; color: #6B7B8D; }
+.status-submitted { background: #DCEEFB; color: #1E88E5; }
+.status-review { background: #FFF3E0; color: #F57C00; }
+.status-revision { background: #FFEBEE; color: #E53935; }
+.status-approved { background: #E8F5E9; color: #43A047; }
+.status-trafficked { background: #EDE7F6; color: #7B1FA2; }
+.lifecycle { padding: 14px 16px; border-bottom: 1px solid #EDF1F5; }
+.lifecycle-steps { display: flex; flex-direction: column; gap: 2px; }
+.lc-step { display: flex; align-items: center; gap: 10px; padding: 6px 0; position: relative; }
+.lc-step:not(:last-child)::after { content: ''; position: absolute; left: 11px; top: 26px; bottom: -2px; width: 2px; background: #EDF1F5; z-index: 0; }
+.lc-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #DDE3EA; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; z-index: 1; }
+.lc-dot.done { background: #43A047; border-color: #43A047; color: #fff; }
+.lc-dot.active { background: #1E3A5F; border-color: #1E3A5F; color: #fff; }
+.lc-dot.warn { background: #E53935; border-color: #E53935; color: #fff; }
+.lc-label { font-size: 12px; font-weight: 600; }
+.lc-label.muted { color: #6B7B8D; font-weight: 400; }
+.lc-date { font-size: 10px; color: #6B7B8D; margin-left: auto; }
+.approver-section { padding: 12px 16px; border-bottom: 1px solid #EDF1F5; }
+.approver-section-title { font-size: 11px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.approver-card { background: #F5F7FA; border-radius: 7px; padding: 10px 12px; margin-bottom: 8px; }
+.approver-name { font-size: 12px; font-weight: 700; }
+.approver-role { font-size: 11px; color: #6B7B8D; }
+.approver-status { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; margin-top: 6px; }
+.approver-status.pending { color: #F57C00; }
+.approver-status.approved { color: #43A047; }
+.approver-status.revision { color: #E53935; }
+.action-area { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid #EDF1F5; }
+.action-area textarea { width: 100%; padding: 8px 10px; font-size: 12px; border: 1px solid #DDE3EA; border-radius: 6px; font-family: inherit; resize: vertical; color: #1E3A5F; }
+.action-btn { padding: 8px 14px; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; font-family: inherit; border: none; width: 100%; }
+.action-btn.approve { background: #43A047; color: #fff; }
+.action-btn.submit { background: #1E3A5F; color: #fff; }
+.action-btn.revision { background: #fff; color: #E53935; border: 1px solid #FFCDD2; }
+.action-btn.traffic { background: #7B1FA2; color: #fff; }
+.comments-area { flex: 1; overflow-y: auto; padding: 12px 16px; }
+.comment { margin-bottom: 10px; }
+.comment-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; }
+.comment-author { font-size: 11px; font-weight: 700; }
+.comment-time { font-size: 10px; color: #6B7B8D; }
+.comment-body { font-size: 12px; color: #1E3A5F; background: #F5F7FA; border-radius: 6px; padding: 7px 9px; line-height: 1.4; }
+.comment-body.revision-note { background: #FFEBEE; border-left: 3px solid #E53935; }
+.version-strip { padding: 10px 16px; background: #F5F7FA; border-top: 1px solid #EDF1F5; display: flex; align-items: center; gap: 6px; }
+.version-badge { font-size: 11px; padding: 2px 8px; background: #DDE3EA; border-radius: 4px; font-weight: 600; color: #1E3A5F; cursor: pointer; }
+.version-badge.current { background: #1E3A5F; color: #fff; }
+.independent-badge { font-size: 10px; background: #FFF3E0; color: #F57C00; border: 1px solid #FFCC80; border-radius: 4px; padding: 2px 7px; font-weight: 600; }
+
+/* ═══════════════════════════════════════════
+   APPROVAL VIEW
+═══════════════════════════════════════════ */
+#approvalView { display: none; flex: 1; overflow: hidden; }
+#approvalView.active { display: flex; }
+
+/* Left: variant list */
+.av-left { width: 280px; flex-shrink: 0; background: #fff; border-right: 1px solid #DDE3EA; display: flex; flex-direction: column; overflow: hidden; }
+.av-left-header { padding: 16px 16px 12px; border-bottom: 1px solid #EDF1F5; }
+.av-left-header h2 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.av-left-header p { font-size: 11px; color: #6B7B8D; }
+.av-meta-block { margin: 12px 16px 0; background: #F5F7FA; border-radius: 8px; padding: 10px 12px; }
+.av-meta-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.av-meta-row:last-child { margin-bottom: 0; }
+.av-meta-label { font-size: 11px; color: #6B7B8D; }
+.av-meta-value { font-size: 11px; font-weight: 600; color: #1E3A5F; text-align: right; }
+.av-variants-scroll { flex: 1; overflow-y: auto; padding: 12px 0 16px; }
+.av-platform-group { margin-bottom: 4px; }
+.av-platform-label { padding: 6px 16px 4px; font-size: 10px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.6px; display: flex; align-items: center; gap: 6px; }
+.av-platform-dot { width: 8px; height: 8px; border-radius: 50%; }
+.av-variant-item { margin: 0 10px; padding: 8px 10px; border: 1px solid #DDE3EA; border-radius: 7px; margin-bottom: 5px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.15s; }
+.av-variant-item:hover { border-color: #1E3A5F; background: #F5F7FA; }
+.av-variant-item.selected { border-color: #1E3A5F; background: #EEF2F7; }
+.av-variant-thumb { width: 40px; height: 26px; border-radius: 3px; overflow: hidden; flex-shrink: 0; position: relative; }
+.av-variant-thumb-inner { width: 100%; height: 100%; }
+.av-variant-info { flex: 1; min-width: 0; }
+.av-variant-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.av-variant-dims { font-size: 10px; color: #6B7B8D; }
+.av-variant-status { flex-shrink: 0; }
+.vs-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.vs-dot.approved { background: #43A047; }
+.vs-dot.pending { background: #F57C00; }
+.vs-dot.revision { background: #E53935; }
+.vs-dot.draft { background: #DDE3EA; }
+
+/* Center: review canvas */
+.av-center { flex: 1; display: flex; flex-direction: column; background: #DDE3EA; overflow: auto; }
+.av-center-top { background: #fff; border-bottom: 1px solid #DDE3EA; padding: 10px 20px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.av-role-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 4px; }
+.av-role-reviewer { background: #FFF3E0; color: #F57C00; }
+.av-readonly-badge { font-size: 11px; background: #EDF1F5; color: #6B7B8D; padding: 4px 10px; border-radius: 4px; font-weight: 600; }
+.av-canvas-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 28px 20px; gap: 20px; }
+.av-canvas-card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.09); display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; max-width: 640px; }
+.av-canvas-label { font-size: 11px; color: #6B7B8D; align-self: flex-start; }
+.av-banner-frame { position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.13); border-radius: 4px; overflow: hidden; }
+.av-dims-note { font-size: 11px; color: #6B7B8D; align-self: center; }
+
+/* Compliance checklist */
+.compliance-card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.09); width: 100%; max-width: 640px; }
+.compliance-title { font-size: 13px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+.compliance-score { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
+.compliance-score.pass { background: #E8F5E9; color: #43A047; }
+.compliance-score.partial { background: #FFF3E0; color: #F57C00; }
+.compliance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.compliance-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; border-radius: 6px; border: 1px solid #EDF1F5; cursor: pointer; transition: background 0.12s; }
+.compliance-item:hover { background: #F5F7FA; }
+.compliance-item.checked { background: #F0FDF4; border-color: #A5D6A7; }
+.compliance-item.flagged { background: #FFEBEE; border-color: #FFCDD2; }
+.compliance-check { width: 18px; height: 18px; border-radius: 4px; border: 2px solid #DDE3EA; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; margin-top: 1px; transition: all 0.12s; }
+.compliance-item.checked .compliance-check { background: #43A047; border-color: #43A047; color: #fff; }
+.compliance-item.flagged .compliance-check { background: #E53935; border-color: #E53935; color: #fff; }
+.compliance-check-label { font-size: 12px; font-weight: 600; line-height: 1.3; }
+.compliance-check-sub { font-size: 11px; color: #6B7B8D; margin-top: 2px; }
+.compliance-item.flagged .compliance-check-sub { color: #E53935; }
+
+/* Copy audit */
+.copy-audit-card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.09); width: 100%; max-width: 640px; }
+.copy-audit-title { font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+.copy-audit-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.copy-audit-table th { text-align: left; font-size: 10px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.5px; padding: 0 8px 8px 8px; border-bottom: 1px solid #EDF1F5; }
+.copy-audit-table td { padding: 8px 8px; border-bottom: 1px solid #F5F7FA; vertical-align: top; }
+.copy-audit-table tr:last-child td { border-bottom: none; }
+.copy-audit-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; }
+.cab-approved { background: #E8F5E9; color: #43A047; }
+.cab-library { background: #DCEEFB; color: #1E88E5; }
+.cab-custom { background: #FFF3E0; color: #F57C00; }
+
+/* Right: approval panel (wider in approval view) */
+.av-right { width: 340px; flex-shrink: 0; background: #fff; border-left: 1px solid #DDE3EA; display: flex; flex-direction: column; overflow: hidden; }
+.av-right .workflow-header { padding: 16px 18px 12px; }
+.av-right .workflow-title { font-size: 15px; }
+.av-right .lifecycle { padding: 14px 18px; }
+.av-right .approver-section { padding: 12px 18px; }
+.av-right .action-area { padding: 14px 18px; gap: 10px; }
+.av-right .action-area textarea { min-height: 70px; font-size: 13px; }
+.av-right .action-btn { padding: 10px 16px; font-size: 13px; }
+.av-right .comments-area { padding: 14px 18px; }
+.av-right .version-strip { padding: 12px 18px; }
+.av-notify-bar { margin: 0 18px 10px; background: #FFF3E0; border: 1px solid #FFCC80; border-radius: 7px; padding: 9px 12px; display: flex; align-items: flex-start; gap: 8px; }
+.av-notify-bar .nb-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.av-notify-bar .nb-text { font-size: 12px; color: #7B4F00; line-height: 1.4; }
+.av-notify-bar .nb-text strong { color: #1E3A5F; }
+
+/* ── Modal ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; }
+.modal { background: #fff; border-radius: 12px; padding: 24px; width: 480px; max-width: 90vw; box-shadow: 0 8px 40px rgba(0,0,0,0.18); }
+.modal h3 { font-size: 16px; margin-bottom: 6px; }
+.modal p { font-size: 13px; color: #6B7B8D; margin-bottom: 16px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-thumb { background: #DDE3EA; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- ═══ TOPBAR ═══ -->
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:16px;min-width:0">
+      <div class="topbar-logo">Vantage <span>Creative Studio</span></div>
+      <div class="topbar-divider"></div>
+      <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="bannerNameDisplay">Spring Power Tools — 300×250</div>
+    </div>
+    <div class="view-toggle">
+      <button class="vtoggle active" id="vtBuilder" onclick="switchView('builder')">Builder</button>
+      <button class="vtoggle" id="vtApproval" onclick="switchView('approval')">Approval View</button>
+    </div>
+    <div class="topbar-meta">
+      <span>Home Depot OAM</span>
+      <div class="topbar-divider"></div>
+      <span>Bosch Tools Inc.</span>
+      <div class="topbar-divider"></div>
+      <span id="statusTopbar">● IN REVIEW</span>
+    </div>
+  </div>
+
+  <!-- ═══ BUILDER VIEW ═══ -->
+  <div class="workspace" id="builderView">
+
+    <!-- Left panel -->
+    <div class="panel-left">
+      <div style="padding:0">
+        <div style="padding:10px 14px 6px;font-size:11px;font-weight:700;color:#6B7B8D;letter-spacing:0.6px;text-transform:uppercase">Placement</div>
+        <div class="platform-tabs">
+          <button class="ptab active" id="ptab-onsite" onclick="selectPlatform('onsite')">Onsite</button>
+          <button class="ptab meta" id="ptab-meta" onclick="selectPlatform('meta')">Meta</button>
+          <button class="ptab google" id="ptab-google" onclick="selectPlatform('google')">Google</button>
+          <button class="ptab reddit" id="ptab-reddit" onclick="selectPlatform('reddit')">Reddit</button>
+        </div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-header">Ad Size</div>
+        <div class="size-list" id="sizeList"></div>
+      </div>
+      <div class="panel-left-scroll">
+        <div class="panel-section">
+          <div class="panel-section-header">Images <span style="font-size:10px;color:#43A047;font-weight:600;cursor:pointer" onclick="triggerUpload()">+ Upload</span></div>
+          <div class="upload-zone" id="uploadZone" onclick="triggerUpload()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+            <div class="upload-icon">🖼️</div>
+            <div class="upload-label">Drop images here</div>
+            <div class="upload-sub">PNG, JPG, WebP · Max 10MB</div>
+          </div>
+          <input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="handleFileSelect(event)">
+          <div class="asset-grid" id="assetGrid"></div>
+          <div class="img-select-hint" id="imgSelectHint">Click an image above or click<br>the canvas photo to adjust it</div>
+        </div>
+
+        <!-- Image Adjust Panel -->
+        <div class="panel-section" id="imgAdjSection" style="display:none">
+          <div class="panel-section-header" style="padding-bottom:10px">
+            Adjust Image
+            <span onclick="closeImgAdj()" style="cursor:pointer;color:#9BA8B5;font-size:14px;line-height:1" title="Close">✕</span>
+          </div>
+          <!-- Zoom -->
+          <div class="adj-row">
+            <div class="adj-label-row"><span class="adj-label">Zoom</span><span class="adj-value" id="adjZoomVal">100%</span></div>
+            <input type="range" class="adj-slider" id="adjZoom" min="50" max="250" value="100" oninput="updateAdj('zoom',+this.value)">
+          </div>
+          <!-- Pan X -->
+          <div class="adj-row">
+            <div class="adj-label-row"><span class="adj-label">Pan X</span><span class="adj-value" id="adjPosXVal">0</span></div>
+            <input type="range" class="adj-slider" id="adjPosX" min="-50" max="50" value="0" oninput="updateAdj('posX',+this.value)">
+          </div>
+          <!-- Pan Y -->
+          <div class="adj-row">
+            <div class="adj-label-row"><span class="adj-label">Pan Y</span><span class="adj-value" id="adjPosYVal">0</span></div>
+            <input type="range" class="adj-slider" id="adjPosY" min="-50" max="50" value="0" oninput="updateAdj('posY',+this.value)">
+          </div>
+          <div class="adj-section-divider"></div>
+          <!-- Brightness -->
+          <div class="adj-row">
+            <div class="adj-label-row"><span class="adj-label">Brightness</span><span class="adj-value" id="adjBrVal">100%</span></div>
+            <input type="range" class="adj-slider" id="adjBr" min="20" max="180" value="100" oninput="updateAdj('brightness',+this.value)">
+          </div>
+          <!-- Contrast -->
+          <div class="adj-row">
+            <div class="adj-label-row"><span class="adj-label">Contrast</span><span class="adj-value" id="adjCtVal">100%</span></div>
+            <input type="range" class="adj-slider" id="adjCt" min="20" max="180" value="100" oninput="updateAdj('contrast',+this.value)">
+          </div>
+          <!-- Saturation -->
+          <div class="adj-row">
+            <div class="adj-label-row"><span class="adj-label">Saturation</span><span class="adj-value" id="adjSatVal">100%</span></div>
+            <input type="range" class="adj-slider" id="adjSat" min="0" max="200" value="100" oninput="updateAdj('saturation',+this.value)">
+          </div>
+          <!-- Flip + Reset -->
+          <div class="adj-btn-row">
+            <button class="adj-btn" id="adjFlipH" onclick="toggleFlip('flipH')">⇄ Flip H</button>
+            <button class="adj-btn" id="adjFlipV" onclick="toggleFlip('flipV')">⇅ Flip V</button>
+            <button class="adj-btn reset-btn" onclick="resetAdj()">↺ Reset</button>
+          </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-section-header">Approved Copy <span class="independent-badge">Brand Approved</span></div>
+          <div class="copy-search"><input type="text" placeholder="Search copy..." oninput="filterCopy(this.value)"/></div>
+          <div class="copy-list" id="copyList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center canvas -->
+    <div class="panel-center">
+      <div class="canvas-toolbar">
+        <div class="toolbar-group">
+          <button class="tbtn active" onclick="setTool('select')">↖ Select</button>
+          <button class="tbtn" onclick="setTool('text')">T Text</button>
+          <button class="tbtn" onclick="setTool('image')">⊞ Image</button>
+        </div>
+        <div class="toolbar-sep"></div>
+        <div class="toolbar-group">
+          <button class="tbtn" onclick="showAIAssist()">✦ AI Extend</button>
+          <button class="tbtn" onclick="showAIAssist()">⚙ Resize All</button>
+        </div>
+        <div class="toolbar-group" style="margin-left:auto">
+          <button class="tbtn" onclick="showVersionModal()">⟳ Versions</button>
+          <button class="tbtn" onclick="showExportModal()">↓ Export</button>
+          <button class="tbtn primary" onclick="submitForApproval()">Submit for Approval →</button>
+        </div>
+      </div>
+      <div class="canvas-wrap">
+        <div class="canvas-outer" id="canvasOuter">
+          <div class="canvas-bg-placeholder" id="canvasBgPlaceholder">
+            <div style="text-align:center">
+              <div style="font-size:36px;opacity:0.3">🖼️</div>
+              <div style="font-size:12px;color:#6B7B8D;margin-top:8px">Select or upload an image</div>
+            </div>
+          </div>
+          <div id="konvaStage"></div>
+          <div class="canvas-text-overlay" id="textOverlay" style="top:16px;left:16px;max-width:60%">
+            <div class="overlay-headline" id="overlayHeadline">Spring Into Savings</div>
+            <div class="overlay-sub" id="overlaySub">Up to 40% off power tools</div>
+          </div>
+          <div class="canvas-cta-btn" id="ctaBtn">Shop Now</div>
+          <div class="canvas-legal" id="legalText">Prices valid while supplies last. homedepot.com</div>
+          <div class="canvas-brand-bar"><div class="canvas-brand-logo">THE HOME DEPOT®</div></div>
+        </div>
+      </div>
+      <div class="canvas-size-info" id="canvasSizeInfo">300 × 250 px — Medium Rectangle (Onsite)</div>
+    </div>
+
+    <!-- Right workflow panel (builder) -->
+    <div class="panel-right" id="builderWorkflow">
+      <div class="workflow-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div class="workflow-title">Banner Approval</div>
+          <span class="independent-badge">Independent of Campaign</span>
+        </div>
+        <div class="workflow-sub">Banner is a first-class object — approved separately from campaign trafficking.</div>
+      </div>
+      <div class="lifecycle">
+        <div style="margin-bottom:10px"><span class="status-badge status-review" id="currentStatusBadge">● In Review</span></div>
+        <div class="lifecycle-steps" id="builderLcSteps"></div>
+      </div>
+      <div class="approver-section">
+        <div class="approver-section-title">Retailer Review (OAM)</div>
+        <div class="approver-card"><div class="approver-name">Susan Berenson</div><div class="approver-role">QA / Brand Compliance · Orange Apron Media</div><div class="approver-status pending" id="susanStatus">⏳ Awaiting Review</div></div>
+        <div class="approver-card"><div class="approver-name">Amanda Bowman</div><div class="approver-role">Sr. Manager, Offsite Product Strategy</div><div class="approver-status approved">✓ Approved · Apr 9, 2:14pm</div></div>
+      </div>
+      <div class="approver-section">
+        <div class="approver-section-title">Supplier (Bosch Tools)</div>
+        <div class="approver-card"><div class="approver-name">James Ridler</div><div class="approver-role">Trade Marketing Manager</div><div class="approver-status approved">✓ Submitted · Apr 8, 9:45am</div></div>
+      </div>
+      <div class="action-area" id="builderActionArea">
+        <div style="font-size:11px;font-weight:700;color:#6B7B8D;text-transform:uppercase;letter-spacing:0.5px">Your Action (Reviewer)</div>
+        <textarea id="reviewComment" rows="2" placeholder="Add comment or revision note..."></textarea>
+        <button class="action-btn approve" onclick="takeAction('approve','builder')">✓ Approve Banner</button>
+        <button class="action-btn revision" onclick="takeAction('revision','builder')">⚠ Request Revision</button>
+      </div>
+      <div class="comments-area" id="builderComments">
+        <div style="font-size:11px;font-weight:700;color:#6B7B8D;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Activity</div>
+        <div id="builderCommentList"></div>
+      </div>
+      <div class="version-strip">
+        <span style="font-size:11px;color:#6B7B8D;font-weight:600">Versions:</span>
+        <span class="version-badge current">v2 (current)</span>
+        <span class="version-badge" onclick="showVersionModal()">v1</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ APPROVAL VIEW ═══ -->
+  <div id="approvalView">
+
+    <!-- Left: variant list -->
+    <div class="av-left">
+      <div class="av-left-header">
+        <h2>Review Package</h2>
+        <p>Spring Power Tools · v2 · 13 variants</p>
+      </div>
+      <div class="av-meta-block">
+        <div class="av-meta-row"><span class="av-meta-label">Campaign</span><span class="av-meta-value">Spring Savings 2026</span></div>
+        <div class="av-meta-row"><span class="av-meta-label">Supplier</span><span class="av-meta-value">Bosch Tools Inc.</span></div>
+        <div class="av-meta-row"><span class="av-meta-label">Submitted</span><span class="av-meta-value">Apr 8, 9:45am</span></div>
+        <div class="av-meta-row"><span class="av-meta-label">Due by</span><span class="av-meta-value" style="color:#E53935">Apr 11, 5:00pm</span></div>
+      </div>
+      <div class="av-variants-scroll" id="avVariantList"></div>
+    </div>
+
+    <!-- Center: review canvas + checklist -->
+    <div class="av-center">
+      <div class="av-center-top">
+        <span class="av-role-badge av-role-reviewer">Reviewing as: Susan Berenson (OAM Brand Compliance)</span>
+        <span class="av-readonly-badge">Read-Only Preview</span>
+        <span style="margin-left:auto;font-size:11px;color:#6B7B8D" id="avSelectedLabel">Onsite · 300×250</span>
+      </div>
+      <div class="av-canvas-area" id="avCanvasArea">
+
+        <!-- Banner preview -->
+        <div class="av-canvas-card">
+          <div class="av-canvas-label" id="avCanvasLabel">Preview — 300 × 250 px (scaled)</div>
+          <div id="avBannerPreview"></div>
+          <div class="av-dims-note" id="avDimsNote">Actual size: 300 × 250 px · Medium Rectangle</div>
+        </div>
+
+        <!-- Compliance checklist -->
+        <div class="compliance-card">
+          <div class="compliance-title">
+            Brand Compliance Checklist
+            <span class="compliance-score pass" id="complianceScore">6 / 7 Passed</span>
+          </div>
+          <div class="compliance-grid" id="complianceGrid"></div>
+        </div>
+
+        <!-- Copy audit -->
+        <div class="copy-audit-card">
+          <div class="copy-audit-title">Copy Audit — Elements in Use</div>
+          <table class="copy-audit-table">
+            <thead>
+              <tr>
+                <th>Element</th>
+                <th>Text Used</th>
+                <th>Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color:#6B7B8D;font-weight:600">Headline</td>
+                <td>Spring Into Savings</td>
+                <td><span class="copy-audit-badge cab-approved">Approved Library</span></td>
+              </tr>
+              <tr>
+                <td style="color:#6B7B8D;font-weight:600">Subhead</td>
+                <td>Up to 40% off power tools</td>
+                <td><span class="copy-audit-badge cab-approved">Approved Library</span></td>
+              </tr>
+              <tr>
+                <td style="color:#6B7B8D;font-weight:600">CTA</td>
+                <td>Shop Now</td>
+                <td><span class="copy-audit-badge cab-approved">Approved Library</span></td>
+              </tr>
+              <tr>
+                <td style="color:#6B7B8D;font-weight:600">Legal</td>
+                <td style="font-size:11px;color:#6B7B8D">Prices valid while supplies last…</td>
+                <td><span class="copy-audit-badge cab-approved">Approved Library</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right: approval action panel -->
+    <div class="av-right panel-right">
+      <div class="workflow-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div class="workflow-title">Banner Approval</div>
+          <span class="independent-badge">Independent of Campaign</span>
+        </div>
+        <div class="workflow-sub">This banner must be approved before it can be trafficked to the ad server. Campaign approval is a separate workflow.</div>
+      </div>
+
+      <!-- Notification context -->
+      <div class="av-notify-bar">
+        <div class="nb-icon">⏰</div>
+        <div class="nb-text">You have <strong>1 pending action</strong> on this banner. Amanda Bowman approved on Apr 9 — your brand compliance review is the final step before trafficking.</div>
+      </div>
+
+      <div class="lifecycle">
+        <div style="margin-bottom:10px"><span class="status-badge status-review" id="avCurrentStatusBadge">● In Review</span></div>
+        <div class="lifecycle-steps" id="avLcSteps"></div>
+      </div>
+
+      <div class="approver-section">
+        <div class="approver-section-title">Retailer Review (OAM)</div>
+        <div class="approver-card">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div><div class="approver-name">Susan Berenson</div><div class="approver-role">QA / Brand Compliance</div></div>
+            <div style="width:28px;height:28px;border-radius:50%;background:#FFF3E0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#F57C00">SB</div>
+          </div>
+          <div class="approver-status pending" id="avSusanStatus">⏳ Your review pending</div>
+        </div>
+        <div class="approver-card">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div><div class="approver-name">Amanda Bowman</div><div class="approver-role">Sr. Manager, Offsite Product Strategy</div></div>
+            <div style="width:28px;height:28px;border-radius:50%;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#43A047">AB</div>
+          </div>
+          <div class="approver-status approved">✓ Approved · Apr 9, 2:14pm</div>
+        </div>
+      </div>
+
+      <div class="approver-section">
+        <div class="approver-section-title">Supplier (Bosch Tools)</div>
+        <div class="approver-card">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div><div class="approver-name">James Ridler</div><div class="approver-role">Trade Marketing Manager</div></div>
+            <div style="width:28px;height:28px;border-radius:50%;background:#DCEEFB;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#1E88E5">JR</div>
+          </div>
+          <div class="approver-status approved">✓ Submitted · Apr 8, 9:45am</div>
+        </div>
+      </div>
+
+      <div class="action-area" id="avActionArea">
+        <div style="font-size:11px;font-weight:700;color:#6B7B8D;text-transform:uppercase;letter-spacing:0.5px">Your Decision</div>
+        <textarea id="avReviewComment" rows="3" placeholder="Add brand compliance notes or revision instructions..."></textarea>
+        <button class="action-btn approve" onclick="takeAction('approve','approval')">✓ Approve — Brand Compliant</button>
+        <button class="action-btn revision" onclick="takeAction('revision','approval')">⚠ Request Revision</button>
+        <div style="font-size:10px;color:#6B7B8D;text-align:center">Approving will notify James Ridler and queue for trafficking</div>
+      </div>
+
+      <div class="comments-area" id="avComments">
+        <div style="font-size:11px;font-weight:700;color:#6B7B8D;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Activity</div>
+        <div id="avCommentList"></div>
+      </div>
+
+      <div class="version-strip">
+        <span style="font-size:11px;color:#6B7B8D;font-weight:600">Versions:</span>
+        <span class="version-badge current">v2 (current)</span>
+        <span class="version-badge" onclick="showVersionModal()">v1</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div id="modal" class="modal-overlay" style="display:none" onclick="closeModal(event)">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- Toast -->
+<div id="toast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:#1E3A5F;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,0.2);transition:transform 0.3s;z-index:200;pointer-events:none"></div>
+
+<script>
+// ── Data ──
+const PLATFORMS = {
+  onsite: { label: 'Onsite (OAM)', color: '#1E3A5F',
+    sizes: [
+      { label: 'Medium Rectangle', dims: '300×250', w: 300, h: 250, tag: 'Most Used' },
+      { label: 'Leaderboard',      dims: '728×90',  w: 728, h: 90,  tag: '' },
+      { label: 'Billboard',        dims: '970×250', w: 970, h: 250, tag: '' },
+      { label: 'Half Page',        dims: '300×600', w: 300, h: 600, tag: '' },
+      { label: 'Mobile Banner',    dims: '320×50',  w: 320, h: 50,  tag: '' },
+    ]},
+  meta: { label: 'Meta', color: '#1877F2',
+    sizes: [
+      { label: 'Feed (1.91:1)', dims: '1200×628',  w: 1200, h: 628,  tag: 'Most Used' },
+      { label: 'Square Feed',   dims: '1080×1080', w: 1080, h: 1080, tag: '' },
+      { label: 'Story / Reel',  dims: '1080×1920', w: 1080, h: 1920, tag: '' },
+      { label: 'Carousel Card', dims: '1080×1080', w: 1080, h: 1080, tag: '' },
+    ]},
+  google: { label: 'Google Display', color: '#EA4335',
+    sizes: [
+      { label: 'Medium Rectangle', dims: '300×250', w: 300, h: 250, tag: 'Most Used' },
+      { label: 'Leaderboard',      dims: '728×90',  w: 728, h: 90,  tag: '' },
+      { label: 'Wide Skyscraper',  dims: '160×600', w: 160, h: 600, tag: '' },
+      { label: 'Half Page',        dims: '300×600', w: 300, h: 600, tag: '' },
+    ]},
+  reddit: { label: 'Reddit', color: '#FF4500',
+    sizes: [
+      { label: 'Promoted Post', dims: '1200×628', w: 1200, h: 628, tag: 'Most Used' },
+      { label: 'Display',       dims: '300×250',  w: 300,  h: 250, tag: '' },
+    ]},
+};
+
+const APPROVED_COPY = [
+  { id:1, tag:'HEADLINE', tagClass:'headline', text:'Spring Into Savings',              approved:'Approved — Susan B.',  inUse:true  },
+  { id:2, tag:'HEADLINE', tagClass:'headline', text:'Power Up Your Projects',           approved:'Approved — Susan B.',  inUse:false },
+  { id:3, tag:'HEADLINE', tagClass:'headline', text:'Tools Built for the Job',          approved:'Approved — Susan B.',  inUse:false },
+  { id:4, tag:'HEADLINE', tagClass:'headline', text:'Up to 40% Off This Weekend',       approved:'Approved — Amanda B.', inUse:false },
+  { id:5, tag:'SUBHEAD',  tagClass:'headline', text:'Up to 40% off power tools',        approved:'Approved — Susan B.',  inUse:true  },
+  { id:6, tag:'SUBHEAD',  tagClass:'headline', text:'Shop top brands online & in-store',approved:'Approved — Susan B.',  inUse:false },
+  { id:7, tag:'CTA',      tagClass:'cta',      text:'Shop Now',                         approved:'Approved — OAM Brand', inUse:true  },
+  { id:8, tag:'CTA',      tagClass:'cta',      text:'See All Deals',                    approved:'Approved — OAM Brand', inUse:false },
+  { id:9, tag:'CTA',      tagClass:'cta',      text:'Learn More',                       approved:'Approved — OAM Brand', inUse:false },
+  { id:10,tag:'LEGAL',    tagClass:'legal',    text:'Prices valid while supplies last. homedepot.com', approved:'Approved — Legal', inUse:true },
+  { id:11,tag:'LEGAL',    tagClass:'legal',    text:'Valid online only. Select items.',  approved:'Approved — Legal',    inUse:false },
+];
+
+const DEMO_ASSETS = [
+  { id:'a1', label:'Bosch Drill Scene',    color:'#2C3E50', selected:true  },
+  { id:'a2', label:'Workshop Lifestyle',   color:'#F39C12', selected:false },
+  { id:'a3', label:'Product White BG',     color:'#BDC3C7', selected:false },
+  { id:'a4', label:'Spring Orange',        color:'#E67E22', selected:false },
+  { id:'a5', label:'HD Store Interior',    color:'#E74C3C', selected:false },
+  { id:'a6', label:'Tool Belt Close',      color:'#8E44AD', selected:false },
+];
+
+// Generate colored canvas thumbnails
+function makeColorBlock(color, w, h) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = color; ctx.fillRect(0,0,w,h);
+  ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(w*0.12,h*0.12,w*0.76,h*0.76);
+  return c.toDataURL();
+}
+DEMO_ASSETS.forEach(a => { a.src = makeColorBlock(a.color, 80, 80); });
+
+// Compliance items
+const COMPLIANCE_ITEMS = [
+  { id:'logo',   label:'Logo Placement',        sub:'THE HOME DEPOT® bar present',              checked:true,  flagged:false },
+  { id:'colors', label:'Brand Colors',           sub:'Orange #F96302 — confirmed',               checked:true,  flagged:false },
+  { id:'copy',   label:'Approved Copy Used',     sub:'All 4 elements from approved library',     checked:true,  flagged:false },
+  { id:'asset',  label:'Image from Library',     sub:'Bosch Drill Scene — pre-approved asset',   checked:true,  flagged:false },
+  { id:'legal',  label:'Legal Disclaimer',       sub:'Present and legible',                      checked:true,  flagged:false },
+  { id:'cta',    label:'CTA Button Present',     sub:'"Shop Now" — approved CTA copy',           checked:true,  flagged:false },
+  { id:'safe',   label:'Safe Zone Clear',        sub:'Text may be clipped on mobile — review', checked:false, flagged:true  },
+];
+
+// Variants for approval panel
+const AV_VARIANTS = [
+  { platform:'onsite', color:'#1E3A5F', label:'Medium Rectangle', dims:'300×250',  status:'pending'  },
+  { platform:'onsite', color:'#1E3A5F', label:'Leaderboard',       dims:'728×90',   status:'approved' },
+  { platform:'onsite', color:'#1E3A5F', label:'Half Page',          dims:'300×600',  status:'draft'    },
+  { platform:'meta',   color:'#1877F2', label:'Feed',               dims:'1200×628', status:'pending'  },
+  { platform:'meta',   color:'#1877F2', label:'Square Feed',        dims:'1080×1080',status:'approved' },
+  { platform:'meta',   color:'#1877F2', label:'Story',              dims:'1080×1920',status:'draft'    },
+  { platform:'google', color:'#EA4335', label:'Medium Rectangle',   dims:'300×250',  status:'approved' },
+  { platform:'google', color:'#EA4335', label:'Leaderboard',        dims:'728×90',   status:'approved' },
+  { platform:'google', color:'#EA4335', label:'Half Page',          dims:'300×600',  status:'pending'  },
+  { platform:'reddit', color:'#FF4500', label:'Promoted Post',      dims:'1200×628', status:'draft'    },
+  { platform:'reddit', color:'#FF4500', label:'Display',            dims:'300×250',  status:'draft'    },
+];
+
+const INITIAL_COMMENTS = [
+  { author:'Amanda Bowman', time:'Apr 9, 2:14pm', body:'Headline copy looks great. Approved from strategy side — passing to Susan for brand compliance check.', type:'normal' },
+  { author:'James Ridler (Bosch)', time:'Apr 8, 9:45am', body:'Submitted v1. Used approved headline "Spring Into Savings" and CTA "Shop Now". Background from approved brand asset library.', type:'normal' },
+];
+
+// ── State ──
+const state = {
+  view: 'builder',
+  platform: 'onsite',
+  sizeIdx: 0,
+  selectedAsset: 'a1',
+  copyFilter: '',
+  workflowStatus: 'review',
+  avSelectedVariant: 0,
+  comments: [...INITIAL_COMMENTS],
+  complianceItems: COMPLIANCE_ITEMS.map(i => ({...i})),
+  imgAdj: { zoom:100, posX:0, posY:0, brightness:100, contrast:100, saturation:100, flipH:false, flipV:false },
+};
+
+// ── View switcher ──
+function switchView(v) {
+  state.view = v;
+  document.getElementById('builderView').style.display = v === 'builder' ? 'flex' : 'none';
+  const av = document.getElementById('approvalView');
+  av.style.display = v === 'approval' ? 'flex' : 'none';
+  document.getElementById('vtBuilder').classList.toggle('active', v === 'builder');
+  document.getElementById('vtApproval').classList.toggle('active', v === 'approval');
+  if (v === 'approval') renderApprovalView();
+}
+
+// ── Init ──
+function init() {
+  renderLcSteps('builderLcSteps');
+  renderLcSteps('avLcSteps');
+  renderSizes();
+  renderAssets();
+  renderCopy();
+  renderComments();
+  updateCanvas();
+}
+
+// ── Lifecycle steps ──
+const LC_STEPS = [
+  { key:'draft',     label:'Draft',              date:'Apr 7' },
+  { key:'submitted', label:'Submitted',           date:'Apr 8' },
+  { key:'review',    label:'In Review',           date:'Apr 9' },
+  { key:'revision',  label:'Revision Requested',  date:''      },
+  { key:'approved',  label:'Approved',            date:''      },
+  { key:'trafficked',label:'Trafficked',          date:''      },
+];
+const STATUS_ORDER = ['draft','submitted','review','revision','approved','trafficked'];
+
+function renderLcSteps(containerId) {
+  const idx = STATUS_ORDER.indexOf(state.workflowStatus);
+  let h = '';
+  LC_STEPS.forEach((step, i) => {
+    const done = i < idx;
+    const active = i === idx;
+    const warn = step.key === 'revision' && state.workflowStatus === 'revision';
+    const cls = warn ? 'warn' : done ? 'done' : active ? 'active' : '';
+    const icon = warn ? '!' : done ? '✓' : active ? '●' : '';
+    const labelCls = (done || active || warn) ? 'lc-label' : 'lc-label muted';
+    const date = step.date || (done && step.key === 'approved' ? 'Today' : '');
+    h += `<div class="lc-step"><div class="lc-dot ${cls}">${icon}</div><div class="${labelCls}">${step.label}</div><div class="lc-date">${date}</div></div>`;
+  });
+  document.getElementById(containerId).innerHTML = h;
+}
+
+// ── Platform / size ──
+function selectPlatform(p) {
+  state.platform = p; state.sizeIdx = 0;
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  document.getElementById('ptab-'+p).classList.add('active');
+  renderSizes(); updateCanvas();
+}
+function renderSizes() {
+  const sizes = PLATFORMS[state.platform].sizes;
+  document.getElementById('sizeList').innerHTML = sizes.map((s,i) =>
+    `<div class="size-item${i===state.sizeIdx?' selected':''}" onclick="selectSize(${i})">
+      <div><div class="size-label">${s.label}</div><div class="size-dims">${s.dims}</div></div>
+      ${s.tag?`<span class="size-tag">${s.tag}</span>`:''}
+    </div>`
+  ).join('');
+}
+function selectSize(i) { state.sizeIdx = i; renderSizes(); updateCanvas(); }
+
+// ── Canvas (builder) ──
+const MAX_W = 560, MAX_H = 420;
+function updateCanvas() {
+  const s = PLATFORMS[state.platform].sizes[state.sizeIdx];
+  const scale = Math.min(MAX_W/s.w, MAX_H/s.h, 1);
+  const dw = Math.round(s.w*scale), dh = Math.round(s.h*scale);
+  const outer = document.getElementById('canvasOuter');
+  outer.style.width = dw+'px'; outer.style.height = dh+'px';
+  const overlay = document.getElementById('textOverlay');
+  const headline = document.getElementById('overlayHeadline');
+  const sub = document.getElementById('overlaySub');
+  const cta = document.getElementById('ctaBtn');
+  const legal = document.getElementById('legalText');
+  const bar = document.querySelector('.canvas-brand-bar');
+  if (dh < 120) {
+    overlay.style.display = 'none'; cta.style.display = 'none';
+    legal.style.display = 'none'; bar.style.height = '20px';
+    bar.querySelector('.canvas-brand-logo').style.fontSize = '9px';
+  } else {
+    overlay.style.display = ''; cta.style.display = '';
+    legal.style.display = dh > 150 ? '' : 'none';
+    bar.style.height = ''; bar.querySelector('.canvas-brand-logo').style.fontSize = '';
+    const hSize = Math.max(10, Math.min(22, dh*0.09));
+    headline.style.fontSize = hSize+'px'; sub.style.fontSize = Math.max(9,hSize*0.6)+'px';
+    cta.style.fontSize = Math.max(9,hSize*0.55)+'px'; cta.style.bottom = dh<150?'24px':'';
+  }
+  document.getElementById('canvasSizeInfo').textContent = `${s.w} × ${s.h} px — ${s.label} (${PLATFORMS[state.platform].label})`;
+  document.getElementById('bannerNameDisplay').textContent = `Spring Power Tools — ${s.dims}`;
+  initKonvaStage(dw, dh);
+}
+
+// ── Assets ──
+function renderAssets() {
+  document.getElementById('assetGrid').innerHTML = DEMO_ASSETS.map(a =>
+    `<div class="asset-thumb${a.selected?' selected':''}" onclick="selectAsset('${a.id}')" title="${a.label}">
+      <img src="${a.src}" alt="${a.label}"><div class="asset-check">✓</div>
+    </div>`
+  ).join('');
+}
+function selectAsset(id) {
+  DEMO_ASSETS.forEach(a => a.selected = a.id === id);
+  state.selectedAsset = id; renderAssets();
+  const asset = DEMO_ASSETS.find(a => a.id === id);
+  state.imgAdj = { zoom:100, posX:0, posY:0, brightness:100, contrast:100, saturation:100, flipH:false, flipV:false };
+  loadKonvaImage(asset.src);
+  openImgAdj();
+}
+// ── Image adjustments ──
+function openImgAdj() {
+  const sec = document.getElementById('imgAdjSection');
+  const hint = document.getElementById('imgSelectHint');
+  if (sec) sec.style.display = '';
+  if (hint) hint.style.display = 'none';
+  syncAdjSliders();
+}
+function closeImgAdj() {
+  const sec = document.getElementById('imgAdjSection');
+  const hint = document.getElementById('imgSelectHint');
+  if (sec) sec.style.display = 'none';
+  if (hint) hint.style.display = '';
+  if (K.transformer) { K.transformer.nodes([]); K.layer && K.layer.batchDraw(); }
+}
+function syncAdjSliders() {
+  const a = state.imgAdj;
+  const set = (id, v) => { const el = document.getElementById(id); if(el) el.value = v; };
+  set('adjZoom', a.zoom); set('adjPosX', a.posX); set('adjPosY', a.posY);
+  set('adjBr', a.brightness); set('adjCt', a.contrast); set('adjSat', a.saturation);
+  updateAdjLabels();
+  document.getElementById('adjFlipH').classList.toggle('flip-active', a.flipH);
+  document.getElementById('adjFlipV').classList.toggle('flip-active', a.flipV);
+}
+function updateAdj(key, val) {
+  state.imgAdj[key] = val;
+  updateAdjLabels();
+  // Defer cache-heavy ops (brightness/contrast/saturation) slightly for smooth dragging
+  const heavy = ['brightness','contrast','saturation'].includes(key);
+  applyImageAdj(!heavy);
+  if (heavy) { clearTimeout(updateAdj._t); updateAdj._t = setTimeout(() => applyImageAdj(true), 80); }
+}
+function updateAdjLabels() {
+  const a = state.imgAdj;
+  const set = (id, t) => { const el = document.getElementById(id); if(el) el.textContent = t; };
+  set('adjZoomVal',  a.zoom + '%');
+  set('adjPosXVal',  (a.posX > 0 ? '+' : '') + a.posX);
+  set('adjPosYVal',  (a.posY > 0 ? '+' : '') + a.posY);
+  set('adjBrVal',    a.brightness + '%');
+  set('adjCtVal',    a.contrast + '%');
+  set('adjSatVal',   a.saturation + '%');
+}
+function toggleFlip(axis) {
+  state.imgAdj[axis] = !state.imgAdj[axis];
+  document.getElementById(axis === 'flipH' ? 'adjFlipH' : 'adjFlipV')
+    .classList.toggle('flip-active', state.imgAdj[axis]);
+  applyImageAdj();
+}
+function resetAdj() {
+  state.imgAdj = { zoom:100, posX:0, posY:0, brightness:100, contrast:100, saturation:100, flipH:false, flipV:false };
+  syncAdjSliders();
+  applyImageAdj();
+  showToast('Image adjustments reset');
+}
+// ── Konva engine (Polotno layer) ──
+const K = { stage: null, layer: null, imgNode: null, transformer: null };
+
+function initKonvaStage(w, h) {
+  if (K.stage) {
+    // Resize existing stage
+    K.stage.width(w); K.stage.height(h);
+    const bgRect = K.layer.findOne('#bgRect');
+    if (bgRect) { bgRect.width(w); bgRect.height(h); }
+    if (K.imgNode) fitImageToStage(w, h);
+    K.layer.batchDraw();
+    return;
+  }
+  K.stage = new Konva.Stage({ container: 'konvaStage', width: w, height: h });
+  K.layer = new Konva.Layer();
+  K.stage.add(K.layer);
+
+  // Grey background
+  const bgRect = new Konva.Rect({ id:'bgRect', width:w, height:h, fill:'#CBD5E1', listening:false });
+  K.layer.add(bgRect);
+
+  // Transformer for selection handles
+  K.transformer = new Konva.Transformer({
+    rotateEnabled: false,
+    keepRatio: false,
+    borderStroke: '#1E88E5',
+    borderStrokeWidth: 2,
+    anchorStroke: '#1E88E5',
+    anchorFill: '#fff',
+    anchorSize: 10,
+    anchorCornerRadius: 3,
+    anchorStyleFunc: anchor => {
+      anchor.cornerRadius(anchor.hasName('top-center') || anchor.hasName('bottom-center') ? 2 : 5);
+    },
+  });
+  K.layer.add(K.transformer);
+
+  // Deselect on stage click
+  K.stage.on('click tap', e => {
+    if (e.target === K.stage || e.target.id() === 'bgRect') {
+      K.transformer.nodes([]); K.layer.batchDraw();
+    }
+  });
+
+  K.layer.draw();
+
+  // Load initial asset
+  const asset = DEMO_ASSETS.find(a => a.id === state.selectedAsset);
+  if (asset) loadKonvaImage(asset.src);
+}
+
+function fitImageToStage(sw, sh) {
+  if (!K.imgNode) return;
+  const iw = K.imgNode.image().width, ih = K.imgNode.image().height;
+  const scale = Math.max(sw / iw, sh / ih);
+  const nw = iw * scale, nh = ih * scale;
+  K.imgNode.setAttrs({ x: (sw - nw) / 2, y: (sh - nh) / 2, width: nw, height: nh, scaleX: 1, scaleY: 1 });
+  state.imgAdj.zoom = 100; state.imgAdj.posX = 0; state.imgAdj.posY = 0;
+  syncAdjSliders();
+}
+
+function loadKonvaImage(src) {
+  const imgEl = new Image();
+  imgEl.onload = () => {
+    if (K.imgNode) { K.imgNode.destroy(); K.imgNode = null; }
+    K.transformer.nodes([]);
+    const sw = K.stage.width(), sh = K.stage.height();
+    const scale = Math.max(sw / imgEl.width, sh / imgEl.height);
+    const nw = imgEl.width * scale, nh = imgEl.height * scale;
+
+    K.imgNode = new Konva.Image({
+      image: imgEl, x: (sw - nw) / 2, y: (sh - nh) / 2,
+      width: nw, height: nh, draggable: true,
+    });
+
+    // Click → select + open adj panel
+    K.imgNode.on('click tap', () => {
+      K.transformer.nodes([K.imgNode]); K.layer.batchDraw();
+      openImgAdj();
+    });
+
+    // Scroll wheel → zoom in/out
+    K.stage.off('wheel');
+    K.stage.on('wheel', e => {
+      e.evt.preventDefault();
+      if (!K.imgNode) return;
+      const factor = e.evt.deltaY < 0 ? 1.08 : 0.93;
+      const cur = Math.abs(K.imgNode.scaleX()) / (state.imgAdj.zoom / 100) * (state.imgAdj.zoom / 100);
+      const newZoom = Math.round(Math.max(50, Math.min(300, state.imgAdj.zoom * factor)));
+      state.imgAdj.zoom = newZoom;
+      applyImageAdj(false); // don't re-cache on every wheel tick
+      const sl = document.getElementById('adjZoom');
+      if (sl) sl.value = newZoom;
+      updateAdjLabels();
+    });
+
+    K.layer.add(K.imgNode);
+    K.imgNode.moveToBottom();
+    K.layer.findOne('#bgRect').moveToBottom();
+
+    applyImageAdj();
+    K.layer.batchDraw();
+    document.getElementById('canvasBgPlaceholder').style.display = 'none';
+  };
+  imgEl.onerror = () => showToast('Could not load image');
+  imgEl.src = src;
+}
+
+function applyImageAdj(doCache = true) {
+  if (!K.imgNode || !K.stage) return;
+  const a = state.imgAdj;
+  const sw = K.stage.width(), sh = K.stage.height();
+
+  // Scale + flip around image center
+  const sc = a.zoom / 100;
+  K.imgNode.scaleX(sc * (a.flipH ? -1 : 1));
+  K.imgNode.scaleY(sc * (a.flipV ? -1 : 1));
+
+  // Pan: offset from the "fit" center position
+  const iw = K.imgNode.width(), ih = K.imgNode.height();
+  const fitScale = Math.max(sw / K.imgNode.image().width, sh / K.imgNode.image().height);
+  const fitW = K.imgNode.image().width * fitScale, fitH = K.imgNode.image().height * fitScale;
+  const baseX = (sw - fitW * sc) / 2;
+  const baseY = (sh - fitH * sc) / 2;
+  K.imgNode.x(baseX + (a.posX / 100) * sw);
+  K.imgNode.y(baseY + (a.posY / 100) * sh);
+
+  // Filters (cache required)
+  if (doCache) {
+    K.imgNode.cache();
+    K.imgNode.filters([Konva.Filters.Brighten, Konva.Filters.Contrast, Konva.Filters.HSL]);
+  }
+  K.imgNode.brightness((a.brightness - 100) / 100);  // -1 to 1
+  K.imgNode.contrast(a.contrast - 100);               // -80 to 80
+  K.imgNode.saturation((a.saturation - 100) / 100);   // -1 to 1
+
+  K.layer && K.layer.batchDraw();
+}
+
+function triggerUpload() { document.getElementById('fileInput').click(); }
+function handleFileSelect(e) { Array.from(e.target.files).forEach(addUploadedAsset); }
+function handleDragOver(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('dragover'); }
+function handleDragLeave() { document.getElementById('uploadZone').classList.remove('dragover'); }
+function handleDrop(e) {
+  e.preventDefault(); document.getElementById('uploadZone').classList.remove('dragover');
+  Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/')).forEach(addUploadedAsset);
+}
+function addUploadedAsset(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const id = 'up-'+Date.now();
+    DEMO_ASSETS.push({ id, label: file.name, src: ev.target.result, selected: false, color: '#555' });
+    renderAssets(); showToast('Uploaded: '+file.name);
+    selectAsset(id);
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── Copy ──
+function filterCopy(q) { state.copyFilter = q.toLowerCase(); renderCopy(); }
+function renderCopy() {
+  const items = APPROVED_COPY.filter(c =>
+    !state.copyFilter || c.text.toLowerCase().includes(state.copyFilter) || c.tag.toLowerCase().includes(state.copyFilter)
+  );
+  document.getElementById('copyList').innerHTML = items.length
+    ? items.map(c => `<div class="copy-item${c.inUse?' in-use':''}" onclick="useCopy(${c.id})">
+        <div class="copy-tag ${c.tagClass}">${c.tag}${c.inUse?' · IN USE':''}</div>
+        <div class="copy-text">${c.text}</div>
+        <div class="copy-approved">✓ ${c.approved}</div>
+      </div>`).join('')
+    : '<div style="padding:8px 0;font-size:12px;color:#6B7B8D">No matching copy.</div>';
+}
+function useCopy(id) {
+  const item = APPROVED_COPY.find(c => c.id === id); if (!item) return;
+  if (item.tag === 'HEADLINE' || item.tag === 'SUBHEAD') {
+    APPROVED_COPY.filter(c => c.tag === item.tag).forEach(c => c.inUse = false);
+    item.inUse = true;
+    if (item.tag === 'HEADLINE') document.getElementById('overlayHeadline').textContent = item.text;
+    if (item.tag === 'SUBHEAD')  document.getElementById('overlaySub').textContent = item.text;
+  } else if (item.tag === 'CTA') {
+    APPROVED_COPY.filter(c => c.tag === 'CTA').forEach(c => c.inUse = false);
+    item.inUse = true; document.getElementById('ctaBtn').textContent = item.text;
+  } else if (item.tag === 'LEGAL') {
+    APPROVED_COPY.filter(c => c.tag === 'LEGAL').forEach(c => c.inUse = false);
+    item.inUse = true; document.getElementById('legalText').textContent = item.text;
+  }
+  renderCopy(); showToast('Applied: ' + item.text);
+}
+
+// ── Approval view ──
+function renderApprovalView() {
+  renderAVVariants();
+  selectAVVariant(state.avSelectedVariant);
+  renderComplianceGrid();
+  renderComments();
+}
+
+function renderAVVariants() {
+  const groups = ['onsite','meta','google','reddit'];
+  const platformNames = { onsite:'Onsite (OAM)', meta:'Meta', google:'Google Display', reddit:'Reddit' };
+  let h = '';
+  groups.forEach(p => {
+    const vars = AV_VARIANTS.map((v,i)=>({...v,idx:i})).filter(v => v.platform === p);
+    if (!vars.length) return;
+    const col = PLATFORMS[p].color;
+    h += `<div class="av-platform-group">
+      <div class="av-platform-label"><div class="av-platform-dot" style="background:${col}"></div>${platformNames[p]}</div>`;
+    vars.forEach(v => {
+      const thumbSrc = makeColorBlock(col, 40, 26);
+      const statusDot = `<div class="vs-dot ${v.status}" title="${v.status}"></div>`;
+      h += `<div class="av-variant-item${v.idx===state.avSelectedVariant?' selected':''}" onclick="selectAVVariant(${v.idx})">
+        <div class="av-variant-thumb"><img src="${thumbSrc}" style="width:100%;height:100%;display:block"></div>
+        <div class="av-variant-info"><div class="av-variant-name">${v.label}</div><div class="av-variant-dims">${v.dims}</div></div>
+        <div class="av-variant-status">${statusDot}</div>
+      </div>`;
+    });
+    h += '</div>';
+  });
+  document.getElementById('avVariantList').innerHTML = h;
+}
+
+function selectAVVariant(idx) {
+  state.avSelectedVariant = idx;
+  renderAVVariants();
+  const v = AV_VARIANTS[idx];
+  const scale = Math.min(520 / v.dims.split('×')[0], 360 / v.dims.split('×')[1], 1);
+  const [nw, nh] = v.dims.split('×').map(Number);
+  const dw = Math.round(nw*scale), dh = Math.round(nh*scale);
+  const col = PLATFORMS[v.platform].color;
+  const src = makeColorBlock(col, dw, dh);
+
+  const textVisible = dh >= 80;
+  const barH = dh < 80 ? 14 : 28;
+  const hl = Math.max(9, Math.min(20, dh * 0.09));
+
+  document.getElementById('avBannerPreview').innerHTML = `
+    <div class="av-banner-frame" style="width:${dw}px;height:${dh}px">
+      <img src="${src}" style="width:100%;height:100%;display:block;object-fit:cover">
+      ${textVisible ? `<div style="position:absolute;top:${Math.round(dh*0.08)}px;left:${Math.round(dw*0.05)}px;max-width:60%">
+        <div style="font-size:${hl}px;font-weight:800;color:#fff;text-shadow:0 2px 5px rgba(0,0,0,0.5);line-height:1.2">Spring Into Savings</div>
+        <div style="font-size:${Math.round(hl*0.6)}px;color:rgba(255,255,255,0.9);margin-top:3px;text-shadow:0 1px 3px rgba(0,0,0,0.4)">Up to 40% off power tools</div>
+      </div>
+      <div style="position:absolute;bottom:${barH+4}px;right:${Math.round(dw*0.04)}px;background:#F97316;color:#fff;padding:${dh<150?'3px 8px':'6px 14px'};border-radius:3px;font-size:${Math.round(hl*0.55)}px;font-weight:700">Shop Now</div>` : ''}
+      <div style="position:absolute;bottom:0;left:0;right:0;height:${barH}px;background:#F96302;display:flex;align-items:center;padding:0 ${Math.round(dw*0.04)}px">
+        <span style="color:#fff;font-size:${Math.max(8,Math.round(barH*0.45))}px;font-weight:900;letter-spacing:-0.3px">THE HOME DEPOT®</span>
+      </div>
+    </div>`;
+
+  document.getElementById('avCanvasLabel').textContent = `Preview — ${v.dims} px (scaled to fit)`;
+  document.getElementById('avDimsNote').textContent = `Actual size: ${v.dims} px · ${v.label} · ${PLATFORMS[v.platform].label}`;
+  document.getElementById('avSelectedLabel').textContent = `${PLATFORMS[v.platform].label} · ${v.dims}`;
+}
+
+// ── Compliance checklist ──
+function renderComplianceGrid() {
+  const items = state.complianceItems;
+  const passed = items.filter(i => i.checked && !i.flagged).length;
+  const score = document.getElementById('complianceScore');
+  score.textContent = `${passed} / ${items.length} Passed`;
+  score.className = 'compliance-score ' + (passed === items.length ? 'pass' : 'partial');
+  document.getElementById('complianceGrid').innerHTML = items.map(item =>
+    `<div class="compliance-item${item.checked&&!item.flagged?' checked':item.flagged?' flagged':''}" onclick="toggleCompliance('${item.id}')">
+      <div class="compliance-check">${item.checked||item.flagged?(item.flagged?'✗':'✓'):''}</div>
+      <div>
+        <div class="compliance-check-label">${item.label}</div>
+        <div class="compliance-check-sub">${item.sub}</div>
+      </div>
+    </div>`
+  ).join('');
+}
+function toggleCompliance(id) {
+  const item = state.complianceItems.find(i => i.id === id);
+  if (!item) return;
+  if (item.flagged) { item.flagged = false; item.checked = true; }
+  else if (item.checked) { item.checked = false; item.flagged = true; }
+  else { item.checked = true; item.flagged = false; }
+  renderComplianceGrid();
+}
+
+// ── Comments ──
+function renderComments() {
+  const html = state.comments.map(c =>
+    `<div class="comment">
+      <div class="comment-meta"><span class="comment-author">${c.author}</span><span class="comment-time">${c.time}</span></div>
+      <div class="comment-body${c.type==='revision'?' revision-note':''}">${c.body}</div>
+    </div>`
+  ).join('');
+  ['builderCommentList','avCommentList'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.innerHTML = html;
+  });
+}
+
+// ── Workflow actions ──
+function submitForApproval() {
+  if (state.workflowStatus === 'draft') { state.workflowStatus = 'submitted'; showToast('Submitted for review!'); }
+  else showToast('Already submitted — status: ' + state.workflowStatus);
+}
+
+function takeAction(action, panel) {
+  const commentEl = document.getElementById(panel === 'approval' ? 'avReviewComment' : 'reviewComment');
+  const comment = commentEl ? commentEl.value.trim() : '';
+  const now = 'Apr 9, ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+
+  if (action === 'approve') {
+    state.workflowStatus = 'approved';
+    state.comments.unshift({ author:'Susan Berenson (OAM)', time:now,
+      body: '✓ Brand compliance confirmed. ' + (comment || 'All elements cleared — approved for trafficking.'), type:'normal' });
+    updateStatusUI('approved','● Approved');
+    // Update Susan's status in both panels
+    ['susanStatus','avSusanStatus'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.className = 'approver-status approved'; el.textContent = '✓ Approved · ' + now; }
+    });
+    // Replace action areas
+    const approvedAction = `<div style="font-size:12px;color:#43A047;font-weight:700;padding:4px 0">✓ Banner approved — ready to traffic</div>
+      <button class="action-btn traffic" onclick="takeAction('traffic','${panel}')">▶ Traffic to Ad Server</button>`;
+    ['builderActionArea','avActionArea'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.innerHTML = approvedAction;
+    });
+    if (panel === 'approval') updateVariantStatus(state.avSelectedVariant, 'approved');
+    showToast('Banner approved! Supplier notified.');
+
+  } else if (action === 'revision') {
+    if (!comment) { showToast('Please add a revision note first.'); return; }
+    state.workflowStatus = 'revision';
+    state.comments.unshift({ author:'Susan Berenson (OAM)', time:now,
+      body: '⚠ Revision requested: ' + comment, type:'revision' });
+    updateStatusUI('revision','⚠ Revision Requested');
+    if (commentEl) commentEl.value = '';
+    if (panel === 'approval') updateVariantStatus(state.avSelectedVariant, 'revision');
+    showToast('Revision requested — supplier notified.');
+
+  } else if (action === 'traffic') {
+    state.workflowStatus = 'trafficked';
+    state.comments.unshift({ author:'System', time:now,
+      body:'Banner trafficked to Vantage ad server. Serving begins at campaign flight start.', type:'normal' });
+    updateStatusUI('trafficked','▶ Trafficked');
+    ['builderActionArea','avActionArea'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = `<div style="font-size:12px;color:#7B1FA2;font-weight:700;padding:4px 0">✓ Trafficked to Vantage Ad Server</div>`;
+    });
+    showToast('Banner trafficked to ad server!');
+  }
+
+  renderLcSteps('builderLcSteps');
+  renderLcSteps('avLcSteps');
+  renderComments();
+}
+
+function updateStatusUI(status, label) {
+  const cls = 'status-badge status-' + status;
+  ['currentStatusBadge','avCurrentStatusBadge'].forEach(id => {
+    const el = document.getElementById(id); if (el) { el.className = cls; el.textContent = label; }
+  });
+  document.getElementById('statusTopbar').textContent = '● ' + label.replace('● ','').replace('⚠ ','').replace('▶ ','').toUpperCase();
+}
+
+function updateVariantStatus(idx, status) {
+  AV_VARIANTS[idx].status = status;
+  renderAVVariants();
+}
+
+// ── Tools ──
+function setTool(t) { showToast('Tool: ' + t.charAt(0).toUpperCase() + t.slice(1)); }
+
+// ── Modals ──
+function showAIAssist() {
+  showModal(`<h3>✦ AI Assistant</h3><p>Generate or extend assets — powered by AWS Bedrock (BYOK).</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer;font-size:13px" onclick="closeModalEl();showToast('Background extended via AI')">🖼️ <strong>Extend Background</strong> — Fill image to fit ad dimensions</div>
+      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer;font-size:13px" onclick="closeModalEl();showToast('All size variants generated')">⊞ <strong>Resize to All Sizes</strong> — Auto-generate all platform variants</div>
+      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer;font-size:13px" onclick="closeModalEl();showToast('Copy suggestions generated')">✦ <strong>Generate Copy Suggestions</strong> — Based on OAM brand voice</div>
+    </div>
+    <div class="modal-actions"><button class="tbtn" onclick="closeModalEl()">Cancel</button></div>`);
+}
+function showVersionModal() {
+  showModal(`<h3>Version History</h3><p>All versions preserved.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+      <div style="padding:10px 12px;border:1px solid #1E3A5F;border-radius:8px;background:#EEF2F7"><div style="font-weight:700;font-size:13px">v2 — Current</div><div style="font-size:11px;color:#6B7B8D;margin-top:3px">Apr 9, 9:12am · James Ridler · Updated headline + image</div></div>
+      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer" onclick="closeModalEl();showToast('v1 preview loaded')"><div style="font-weight:700;font-size:13px">v1</div><div style="font-size:11px;color:#6B7B8D;margin-top:3px">Apr 8, 9:30am · James Ridler · Initial submission</div></div>
+    </div>
+    <div class="modal-actions"><button class="tbtn" onclick="closeModalEl()">Close</button></div>`);
+}
+function showExportModal() {
+  showModal(`<h3>Export Banner</h3><p>HTML5 banners include click-through tracking via Vantage ad server.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer" onclick="closeModalEl();showToast('PNG exported')">📷 PNG — Static image</div>
+      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer" onclick="closeModalEl();showToast('HTML5 bundle exported')">⚡ HTML5 — Animated (IAB compliant)</div>
+      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer" onclick="closeModalEl();showToast('All sizes exported as ZIP')">📦 ZIP — All sizes for this platform</div>
+    </div>
+    <div class="modal-actions"><button class="tbtn" onclick="closeModalEl()">Cancel</button></div>`);
+}
+function showModal(html) { document.getElementById('modalContent').innerHTML = html; document.getElementById('modal').style.display = 'flex'; }
+function closeModalEl() { document.getElementById('modal').style.display = 'none'; }
+function closeModal(e) { if (e.target.id === 'modal') closeModalEl(); }
+
+// ── Toast ──
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg;
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(60px)'; }, 2200);
+}
+
+init();
+</script>
+</body>
+</html>
