@@ -108,6 +108,85 @@ body { font-family: Calibri, 'Segoe UI', sans-serif; background: #EDF1F5; min-he
 /* Konva canvas sits above HTML overlays need to come above it */
 .canvas-text-overlay, .canvas-cta-btn, .canvas-legal, .canvas-brand-bar { z-index: 2; }
 
+/* ═══════════════════════════════════════════
+   DCO + AI VIEW
+═══════════════════════════════════════════ */
+#dcoView { display: none; flex: 1; overflow: hidden; }
+
+/* DCO Left — atomic element list */
+.dco-left { width: 260px; flex-shrink: 0; background: #fff; border-right: 1px solid #DDE3EA; display: flex; flex-direction: column; overflow: hidden; }
+.dco-section-head { padding: 11px 14px 8px; font-size: 11px; font-weight: 700; color: #6B7B8D; letter-spacing: 0.6px; text-transform: uppercase; border-bottom: 1px solid #EDF1F5; display: flex; align-items: center; justify-content: space-between; }
+.ai-engine-badge { font-size: 10px; padding: 2px 7px; border-radius: 4px; background: #F3E8FF; color: #7B1FA2; font-weight: 700; border: 1px solid #E1BEF8; }
+.dco-left-scroll { flex: 1; overflow-y: auto; }
+.dco-element-row { padding: 10px 14px; border-bottom: 1px solid #F5F7FA; display: flex; align-items: center; gap: 10px; }
+.dco-el-icon { width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.dco-el-info { flex: 1; min-width: 0; }
+.dco-el-name { font-size: 12px; font-weight: 700; }
+.dco-el-type { font-size: 10px; color: #6B7B8D; margin-top: 1px; }
+.dco-toggle { display: flex; border: 1px solid #DDE3EA; border-radius: 5px; overflow: hidden; flex-shrink: 0; }
+.dco-toggle-btn { padding: 3px 8px; font-size: 10px; font-weight: 700; border: none; background: #fff; color: #6B7B8D; cursor: pointer; font-family: inherit; transition: all 0.12s; }
+.dco-toggle-btn.on.dynamic { background: #7B1FA2; color: #fff; }
+.dco-toggle-btn.on.static  { background: #EDF1F5; color: #1E3A5F; }
+.dco-gen-btn { margin-left: 4px; padding: 4px 8px; font-size: 10px; font-weight: 700; border: 1px solid #E1BEF8; border-radius: 5px; background: #F3E8FF; color: #7B1FA2; cursor: pointer; font-family: inherit; white-space: nowrap; flex-shrink: 0; transition: all 0.12s; }
+.dco-gen-btn:hover { background: #EDD6FF; }
+.dco-gen-btn:disabled { opacity: 0.5; cursor: default; }
+.dco-variants-section { padding: 10px 14px 0; }
+.dco-variant-chip { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border: 1px solid #DDE3EA; border-radius: 6px; margin-bottom: 5px; cursor: pointer; transition: all 0.12s; }
+.dco-variant-chip:hover { border-color: #7B1FA2; background: #FAFAFA; }
+.dco-variant-chip.in-use { border-color: #7B1FA2; background: #F3E8FF; }
+.dco-variant-chip .vc-aud { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; color: #fff; flex-shrink: 0; }
+.dco-variant-chip .vc-text { font-size: 11px; color: #1E3A5F; flex: 1; }
+.dco-variant-chip .vc-apply { font-size: 10px; color: #7B1FA2; font-weight: 700; flex-shrink: 0; }
+.dco-byok { margin: 10px 14px 12px; padding: 8px 10px; background: #F3E8FF; border-radius: 7px; border: 1px solid #E1BEF8; }
+.dco-byok-label { font-size: 10px; font-weight: 700; color: #7B1FA2; margin-bottom: 4px; letter-spacing: 0.4px; text-transform: uppercase; }
+.dco-byok select { width: 100%; font-size: 11px; border: 1px solid #E1BEF8; border-radius: 5px; padding: 4px 7px; font-family: inherit; color: #1E3A5F; background: #fff; }
+
+/* DCO Center */
+.dco-center { flex: 1; display: flex; flex-direction: column; background: #DDE3EA; overflow: hidden; }
+.dco-aud-bar { background: #fff; border-bottom: 1px solid #DDE3EA; padding: 10px 16px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+.dco-aud-label { font-size: 11px; font-weight: 700; color: #6B7B8D; margin-right: 4px; white-space: nowrap; }
+.aud-tab { padding: 5px 12px; font-size: 11px; font-weight: 600; border: 1px solid #DDE3EA; border-radius: 20px; cursor: pointer; font-family: inherit; background: #fff; color: #6B7B8D; display: flex; align-items: center; gap: 5px; transition: all 0.15s; white-space: nowrap; }
+.aud-tab:hover { border-color: #1E3A5F; }
+.aud-tab.active { color: #fff; border-color: transparent; }
+.aud-tab .aud-pct { font-size: 10px; opacity: 0.8; }
+.dco-canvas-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; overflow: auto; }
+.dco-canvas-card { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.dco-banner-wrap { position: relative; box-shadow: 0 4px 24px rgba(0,0,0,0.14); border-radius: 4px; overflow: hidden; }
+.dco-aud-indicator { position: absolute; top: 8px; right: 8px; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; color: #fff; z-index: 10; pointer-events: none; }
+.dco-dynamic-badge { position: absolute; bottom: 44px; left: 8px; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 3px; background: rgba(123,31,162,0.85); color: #fff; z-index: 10; pointer-events: none; display: none; }
+.dco-canvas-card.show-dynamic .dco-dynamic-badge { display: block; }
+.dco-dim-note { font-size: 11px; color: #6B7B8D; }
+
+/* DCO Right — matrix + stats */
+.dco-right { width: 340px; flex-shrink: 0; background: #fff; border-left: 1px solid #DDE3EA; display: flex; flex-direction: column; overflow: hidden; }
+.dco-right-head { padding: 14px 18px 10px; border-bottom: 1px solid #EDF1F5; }
+.dco-right-head h3 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.dco-right-head p { font-size: 11px; color: #6B7B8D; }
+.dco-matrix-scroll { flex: 1; overflow-y: auto; padding: 14px 18px; }
+.matrix-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 18px; }
+.matrix-table th { text-align: left; font-size: 10px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.5px; padding: 0 6px 8px 6px; border-bottom: 2px solid #EDF1F5; }
+.matrix-table th:first-child { padding-left: 0; }
+.matrix-table td { padding: 7px 6px; border-bottom: 1px solid #F5F7FA; vertical-align: middle; }
+.matrix-table td:first-child { padding-left: 0; }
+.matrix-table tr:last-child td { border-bottom: none; }
+.aud-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+.matrix-cell { font-size: 11px; padding: 3px 6px; border-radius: 4px; cursor: pointer; border: 1px solid transparent; transition: all 0.12s; line-height: 1.3; }
+.matrix-cell:hover { border-color: #7B1FA2; background: #F3E8FF; }
+.matrix-cell.is-static { font-style: italic; color: #6B7B8D; cursor: default; }
+.matrix-cell.is-static:hover { border-color: transparent; background: transparent; }
+.mc-dyn { background: #EDE7F6; color: #4A148C; }
+.mc-ai { background: #F3E8FF; color: #7B1FA2; border: 1px dashed #CE93D8; }
+.dco-stats { background: #F5F7FA; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; }
+.dco-stats-title { font-size: 11px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.dco-stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.dco-stat-row:last-child { margin-bottom: 0; }
+.dco-stat-label { font-size: 12px; color: #1E3A5F; }
+.dco-stat-val { font-size: 12px; font-weight: 700; color: #1E3A5F; }
+.dco-stat-bar { height: 4px; border-radius: 2px; margin-top: 3px; }
+.dco-publish-btn { width: 100%; padding: 10px; font-size: 13px; font-weight: 700; border: none; border-radius: 7px; background: #7B1FA2; color: #fff; cursor: pointer; font-family: inherit; margin-top: 4px; }
+.dco-publish-btn:hover { background: #6A1B9A; }
+.dco-publish-btn:disabled { background: #DDE3EA; color: #6B7B8D; cursor: default; }
+
 /* ── Shared right-panel styles ── */
 .panel-right { width: 300px; flex-shrink: 0; background: #fff; border-left: 1px solid #DDE3EA; display: flex; flex-direction: column; overflow: hidden; }
 .workflow-header { padding: 14px 16px 10px; border-bottom: 1px solid #EDF1F5; }
@@ -275,6 +354,7 @@ body { font-family: Calibri, 'Segoe UI', sans-serif; background: #EDF1F5; min-he
     </div>
     <div class="view-toggle">
       <button class="vtoggle active" id="vtBuilder" onclick="switchView('builder')">Builder</button>
+      <button class="vtoggle" id="vtDco" onclick="switchView('dco')">✦ DCO + AI</button>
       <button class="vtoggle" id="vtApproval" onclick="switchView('approval')">Approval View</button>
     </div>
     <div class="topbar-meta">
@@ -448,6 +528,68 @@ body { font-family: Calibri, 'Segoe UI', sans-serif; background: #EDF1F5; min-he
         <span class="version-badge" onclick="showVersionModal()">v1</span>
       </div>
     </div>
+  </div>
+
+  <!-- ═══ DCO + AI VIEW ═══ -->
+  <div id="dcoView">
+
+    <!-- Left: atomic element list + AI engine -->
+    <div class="dco-left">
+      <div class="dco-section-head">
+        Atomic Elements
+        <span class="ai-engine-badge" id="aiEngineBadge">✦ Bedrock</span>
+      </div>
+      <div class="dco-left-scroll">
+        <div id="dcoElementList"></div>
+        <div id="dcoVariantSection" style="display:none">
+          <div class="dco-section-head" style="margin-top:4px">AI Variants Generated</div>
+          <div class="dco-variants-section" id="dcoVariantChips"></div>
+        </div>
+        <div class="dco-byok">
+          <div class="dco-byok-label">AI Engine (BYOK)</div>
+          <select onchange="updateAIEngine(this.value)">
+            <option value="bedrock">AWS Bedrock (Claude 3.5)</option>
+            <option value="spectra">Spectra (OAM Internal)</option>
+            <option value="openai">OpenAI GPT-4o</option>
+            <option value="custom">Custom Endpoint</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center: audience-switched canvas -->
+    <div class="dco-center">
+      <div class="dco-aud-bar">
+        <span class="dco-aud-label">Audience:</span>
+        <div id="audTabs"></div>
+        <button class="tbtn" style="margin-left:auto;font-size:11px" onclick="toggleDynamicHighlight()">⬡ Show Dynamic</button>
+      </div>
+      <div class="dco-canvas-area">
+        <div class="dco-canvas-card" id="dcoCanvasCard">
+          <div style="font-size:11px;color:#6B7B8D" id="dcoCanvasLabel">300 × 250 px — Medium Rectangle</div>
+          <div class="dco-banner-wrap" id="dcoBannerWrap">
+            <div id="dcoBannerInner"></div>
+            <div class="dco-aud-indicator" id="dcoAudIndicator"></div>
+            <div class="dco-dynamic-badge" id="dcoDynBadge">⬡ Dynamic elements active</div>
+          </div>
+          <div class="dco-dim-note" id="dcoDimNote"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: variant matrix + publish -->
+    <div class="dco-right">
+      <div class="dco-right-head">
+        <h3>Variant Matrix</h3>
+        <p>All audience × element combinations. Click any cell to preview.</p>
+      </div>
+      <div class="dco-matrix-scroll">
+        <div id="dcoMatrix"></div>
+        <div class="dco-stats" id="dcoStats"></div>
+        <button class="dco-publish-btn" id="dcoPublishBtn" onclick="publishDCO()">⬡ Publish DCO Campaign →</button>
+      </div>
+    </div>
+
   </div>
 
   <!-- ═══ APPROVAL VIEW ═══ -->
@@ -723,15 +865,289 @@ const state = {
   imgAdj: { zoom:100, posX:0, posY:0, brightness:100, contrast:100, saturation:100, flipH:false, flipV:false },
 };
 
+// ══════════════════════════════════════════
+// DCO + AI DATA
+// ══════════════════════════════════════════
+const AUDIENCES = [
+  { id:'pro',        label:'Pro Contractors',   icon:'🔧', color:'#1565C0', pct:'22%',
+    copy:{ headline:'Built for the Job Site',   sub:'Pro-grade tools, pro pricing',         cta:'Shop Pro'    }},
+  { id:'diy',        label:'Weekend DIYers',     icon:'🏠', color:'#2E7D32', pct:'41%',
+    copy:{ headline:'Spring Into Savings',      sub:'Up to 40% off power tools',            cta:'Shop Now'    }},
+  { id:'enthusiast', label:'Power Tool Fans',    icon:'⚡', color:'#E65100', pct:'19%',
+    copy:{ headline:'Power Up Your Projects',   sub:'Top brands, best performance',         cta:'See All Deals'}},
+  { id:'newhome',    label:'New Homeowners',     icon:'🏡', color:'#6A1B9A', pct:'18%',
+    copy:{ headline:'Everything You Need',      sub:'Build your toolkit the right way',     cta:'Learn More'  }},
+];
+
+const DCO_ELEMENTS = [
+  { id:'headline', label:'Headline',    type:'TEXT',  icon:'T',  iconBg:'#DCEEFB', isDynamic:true  },
+  { id:'sub',      label:'Subheadline', type:'TEXT',  icon:'T',  iconBg:'#DCEEFB', isDynamic:true  },
+  { id:'cta',      label:'CTA Button',  type:'TEXT',  icon:'↗',  iconBg:'#FFF3E0', isDynamic:false },
+  { id:'image',    label:'Background',  type:'IMAGE', icon:'⊞',  iconBg:'#EDE7F6', isDynamic:true  },
+  { id:'legal',    label:'Legal',       type:'TEXT',  icon:'§',  iconBg:'#F5F7FA', isDynamic:false },
+  { id:'brand',    label:'Brand Bar',   type:'BRAND', icon:'🏷', iconBg:'#FFF3E0', isDynamic:false },
+];
+
+// AI-generated copy per element per audience (simulated)
+const DCO_AI_VARIANTS = {
+  headline: {
+    pro:        ['Built for the Job Site','Pro Tools. Pro Results.','Serious Tools for Serious Work'],
+    diy:        ['Spring Into Savings','Weekend Projects Start Here','Make It Happen This Weekend'],
+    enthusiast: ['Power Up Your Projects','Performance Without Compromise','Engineered to Outperform'],
+    newhome:    ['Everything You Need','Start Your Home Right','Your First Toolkit, Done Right'],
+  },
+  sub: {
+    pro:        ['Pro-grade tools, pro pricing','Contractor discounts, no minimums','Built to last on every job'],
+    diy:        ['Up to 40% off power tools','Top brands for your next project','Weekend-ready, wallet-friendly'],
+    enthusiast: ['Top brands, best performance','Premium specs, honest pricing','Where performance meets value'],
+    newhome:    ['Build your toolkit the right way','Essential tools, expert guidance','Everything from day one'],
+  },
+  image: {
+    pro:        ['Job Site Scene','Contractor Bundle','Bosch Pro Kit'],
+    diy:        ['Bosch Drill Scene','Workshop Lifestyle','DIY Project Setup'],
+    enthusiast: ['Tool Belt Close','Performance Close-up','Premium Detail Shot'],
+    newhome:    ['Starter Kit Flat Lay','Home Setup Scene','New House Tools'],
+  },
+};
+
+const dcoState = {
+  selectedAudience: 'diy',
+  selectedElement: 'headline',
+  showDynamic: false,
+  generatingFor: null,
+  published: false,
+  aiEngine: 'bedrock',
+};
+
 // ── View switcher ──
 function switchView(v) {
   state.view = v;
-  document.getElementById('builderView').style.display = v === 'builder' ? 'flex' : 'none';
-  const av = document.getElementById('approvalView');
-  av.style.display = v === 'approval' ? 'flex' : 'none';
-  document.getElementById('vtBuilder').classList.toggle('active', v === 'builder');
+  document.getElementById('builderView').style.display   = v === 'builder'  ? 'flex' : 'none';
+  document.getElementById('dcoView').style.display       = v === 'dco'      ? 'flex' : 'none';
+  document.getElementById('approvalView').style.display  = v === 'approval' ? 'flex' : 'none';
+  document.getElementById('vtBuilder').classList.toggle('active',  v === 'builder');
+  document.getElementById('vtDco').classList.toggle('active',      v === 'dco');
   document.getElementById('vtApproval').classList.toggle('active', v === 'approval');
   if (v === 'approval') renderApprovalView();
+  if (v === 'dco')      renderDCOView();
+}
+
+// ══════════════════════════════════════════
+// DCO RENDER
+// ══════════════════════════════════════════
+function renderDCOView() {
+  renderAudTabs();
+  renderDCOElementList();
+  renderDCOBanner();
+  renderDCOMatrix();
+  renderDCOStats();
+}
+
+function renderAudTabs() {
+  document.getElementById('audTabs').innerHTML = AUDIENCES.map(a =>
+    `<button class="aud-tab${a.id === dcoState.selectedAudience ? ' active' : ''}"
+      style="${a.id === dcoState.selectedAudience ? 'background:'+a.color+';' : ''}"
+      onclick="selectAudience('${a.id}')">
+      ${a.icon} ${a.label} <span class="aud-pct">${a.pct}</span>
+    </button>`
+  ).join('');
+}
+
+function selectAudience(id) {
+  dcoState.selectedAudience = id;
+  renderAudTabs();
+  renderDCOBanner();
+  renderDCOMatrix();
+}
+
+function renderDCOElementList() {
+  document.getElementById('dcoElementList').innerHTML = DCO_ELEMENTS.map(el =>
+    `<div class="dco-element-row">
+      <div class="dco-el-icon" style="background:${el.iconBg}">${el.icon}</div>
+      <div class="dco-el-info">
+        <div class="dco-el-name">${el.label}</div>
+        <div class="dco-el-type">${el.type}</div>
+      </div>
+      <div class="dco-toggle">
+        <button class="dco-toggle-btn${el.isDynamic ? '' : ' on static'}" onclick="setElDynamic('${el.id}',false)">Static</button>
+        <button class="dco-toggle-btn${el.isDynamic ? ' on dynamic' : ''}" onclick="setElDynamic('${el.id}',true)">Dynamic</button>
+      </div>
+      ${el.isDynamic && DCO_AI_VARIANTS[el.id]
+        ? `<button class="dco-gen-btn" id="genBtn-${el.id}" onclick="generateVariants('${el.id}')">✦ Gen</button>`
+        : '<div style="width:40px"></div>'}
+    </div>`
+  ).join('');
+}
+
+function setElDynamic(id, val) {
+  const el = DCO_ELEMENTS.find(e => e.id === id);
+  if (el) { el.isDynamic = val; renderDCOElementList(); renderDCOMatrix(); renderDCOStats(); }
+}
+
+function generateVariants(elId) {
+  const btn = document.getElementById('genBtn-' + elId);
+  if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
+  dcoState.generatingFor = elId;
+
+  // Simulate AI generation delay
+  setTimeout(() => {
+    if (btn) { btn.textContent = '✦ Gen'; btn.disabled = false; }
+    dcoState.selectedElement = elId;
+    renderVariantChips(elId);
+    renderDCOMatrix();
+    showToast(`✦ ${AUDIENCES.length} variants generated via ${dcoState.aiEngine === 'spectra' ? 'Spectra (OAM)' : 'AWS Bedrock'}`);
+  }, 1200);
+}
+
+function renderVariantChips(elId) {
+  const variants = DCO_AI_VARIANTS[elId];
+  if (!variants) return;
+  const sec = document.getElementById('dcoVariantSection');
+  const chips = document.getElementById('dcoVariantChips');
+  sec.style.display = '';
+
+  let h = '';
+  AUDIENCES.forEach(aud => {
+    const audVariants = variants[aud.id] || [];
+    audVariants.forEach((text, i) => {
+      const inUse = i === 0;
+      h += `<div class="dco-variant-chip${inUse ? ' in-use' : ''}" onclick="applyVariant('${elId}','${aud.id}',${i})">
+        <span class="vc-aud" style="background:${aud.color}">${aud.icon}</span>
+        <span class="vc-text">${text}</span>
+        ${inUse ? '<span class="vc-apply">✓</span>' : '<span class="vc-apply" style="color:#DDE3EA">Apply</span>'}
+      </div>`;
+    });
+  });
+  chips.innerHTML = h;
+}
+
+function applyVariant(elId, audId, idx) {
+  const variants = DCO_AI_VARIANTS[elId];
+  if (!variants || !variants[audId]) return;
+  const text = variants[audId][idx];
+  // Update the first variant (index 0) to be the selected one for this audience
+  const arr = variants[audId];
+  arr.unshift(arr.splice(idx, 1)[0]);
+  renderVariantChips(elId);
+  renderDCOBanner();
+  showToast(`Applied to ${AUDIENCES.find(a=>a.id===audId).label}`);
+}
+
+function renderDCOBanner() {
+  const aud = AUDIENCES.find(a => a.id === dcoState.selectedAudience);
+  const s = PLATFORMS[state.platform].sizes[state.sizeIdx];
+  const scale = Math.min(480 / s.w, 360 / s.h, 1);
+  const dw = Math.round(s.w * scale), dh = Math.round(s.h * scale);
+
+  // Pick copy: AI variant (index 0) if generated, else audience default
+  const headline = (DCO_AI_VARIANTS.headline[aud.id] || [aud.copy.headline])[0];
+  const sub      = (DCO_AI_VARIANTS.sub[aud.id]      || [aud.copy.sub])[0];
+  const cta      = aud.copy.cta;
+
+  const hl = Math.max(10, Math.min(22, dh * 0.09));
+  const asset = DEMO_ASSETS.find(a => a.id === state.selectedAsset);
+  const bgSrc = asset ? asset.src : '';
+
+  document.getElementById('dcoBannerWrap').style.width  = dw + 'px';
+  document.getElementById('dcoBannerWrap').style.height = dh + 'px';
+  document.getElementById('dcoAudIndicator').textContent = aud.icon + ' ' + aud.label;
+  document.getElementById('dcoAudIndicator').style.background = aud.color;
+  document.getElementById('dcoCanvasLabel').textContent = `Preview — ${s.w} × ${s.h} px`;
+  document.getElementById('dcoDimNote').textContent = `${s.label} · ${PLATFORMS[state.platform].label}`;
+
+  const textVisible = dh >= 80;
+  const barH = dh < 80 ? 14 : 28;
+
+  document.getElementById('dcoBannerInner').innerHTML = `
+    <div style="width:${dw}px;height:${dh}px;position:relative;overflow:hidden">
+      ${bgSrc ? `<img src="${bgSrc}" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">` : `<div style="width:100%;height:100%;position:absolute;background:linear-gradient(135deg,${aud.color}CC,${aud.color}66)"></div>`}
+      ${textVisible ? `
+        <div style="position:absolute;top:${Math.round(dh*.08)}px;left:${Math.round(dw*.05)}px;max-width:62%;z-index:2">
+          <div style="font-size:${hl}px;font-weight:800;color:#fff;text-shadow:0 2px 5px rgba(0,0,0,.5);line-height:1.2">${headline}</div>
+          <div style="font-size:${Math.round(hl*.6)}px;color:rgba(255,255,255,.9);margin-top:3px;text-shadow:0 1px 3px rgba(0,0,0,.4)">${sub}</div>
+        </div>
+        <div style="position:absolute;bottom:${barH+5}px;right:${Math.round(dw*.04)}px;background:#F97316;color:#fff;padding:${dh<150?'3px 8px':'6px 14px'};border-radius:3px;font-size:${Math.round(hl*.55)}px;font-weight:700;z-index:2">${cta}</div>` : ''}
+      <div style="position:absolute;bottom:0;left:0;right:0;height:${barH}px;background:#F96302;display:flex;align-items:center;padding:0 ${Math.round(dw*.04)}px;z-index:2">
+        <span style="color:#fff;font-size:${Math.max(8,Math.round(barH*.45))}px;font-weight:900;letter-spacing:-.3px">THE HOME DEPOT®</span>
+      </div>
+    </div>`;
+}
+
+function toggleDynamicHighlight() {
+  dcoState.showDynamic = !dcoState.showDynamic;
+  document.getElementById('dcoCanvasCard').classList.toggle('show-dynamic', dcoState.showDynamic);
+  showToast(dcoState.showDynamic ? 'Dynamic elements highlighted' : 'Highlight off');
+}
+
+function renderDCOMatrix() {
+  const dynEls = DCO_ELEMENTS.filter(e => e.isDynamic && DCO_AI_VARIANTS[e.id]);
+  const staticEls = DCO_ELEMENTS.filter(e => !e.isDynamic);
+
+  let h = `<table class="matrix-table">
+    <thead><tr>
+      <th>Audience</th>
+      ${dynEls.map(e => `<th>${e.label}</th>`).join('')}
+    </tr></thead><tbody>`;
+
+  AUDIENCES.forEach(aud => {
+    h += `<tr>
+      <td><span class="aud-dot" style="background:${aud.color}"></span>${aud.icon} ${aud.label}</td>`;
+    dynEls.forEach(el => {
+      const variants = DCO_AI_VARIANTS[el.id];
+      const text = variants && variants[aud.id]
+        ? variants[aud.id][0]
+        : (aud.copy[el.id] || '—');
+      const short = text.length > 22 ? text.slice(0, 20) + '…' : text;
+      const isAI = variants && variants[aud.id];
+      h += `<td><span class="matrix-cell ${isAI ? 'mc-ai' : 'mc-dyn'}"
+        onclick="selectAudience('${aud.id}')" title="${text}">${short}</span></td>`;
+    });
+    h += '</tr>';
+  });
+
+  h += `</tbody></table>`;
+
+  // Static row
+  if (staticEls.length) {
+    h += `<div style="font-size:11px;color:#6B7B8D;margin-bottom:6px;font-weight:600">Static across all audiences</div>`;
+    h += staticEls.map(e =>
+      `<div style="font-size:11px;color:#6B7B8D;margin-bottom:4px">• ${e.label}</div>`
+    ).join('');
+  }
+  document.getElementById('dcoMatrix').innerHTML = h;
+}
+
+function renderDCOStats() {
+  const totalDyn = DCO_ELEMENTS.filter(e => e.isDynamic).length;
+  const totalEl = DCO_ELEMENTS.length;
+  const variants = AUDIENCES.length;
+  const combinations = Math.pow(variants, totalDyn);
+
+  document.getElementById('dcoStats').innerHTML = `
+    <div class="dco-stats-title">Campaign Stats</div>
+    <div class="dco-stat-row"><span class="dco-stat-label">Dynamic elements</span><span class="dco-stat-val">${totalDyn} / ${totalEl}</span></div>
+    <div class="dco-stat-row"><span class="dco-stat-label">Audience segments</span><span class="dco-stat-val">${variants}</span></div>
+    <div class="dco-stat-row"><span class="dco-stat-label">Total combinations</span><span class="dco-stat-val" style="color:#7B1FA2">${combinations}</span></div>
+    <div class="dco-stat-row"><span class="dco-stat-label">AI engine</span><span class="dco-stat-val">${dcoState.aiEngine === 'spectra' ? '✦ Spectra (OAM)' : '✦ AWS Bedrock'}</span></div>
+    <div class="dco-stat-row"><span class="dco-stat-label">Ad server</span><span class="dco-stat-val">Vantage (serving)</span></div>`;
+}
+
+function updateAIEngine(val) {
+  dcoState.aiEngine = val;
+  const labels = { bedrock:'✦ Bedrock', spectra:'✦ Spectra', openai:'✦ GPT-4o', custom:'✦ Custom' };
+  document.getElementById('aiEngineBadge').textContent = labels[val] || '✦ AI';
+  renderDCOStats();
+  showToast('AI engine: ' + (document.querySelector('.dco-byok select option:checked') || {textContent:val}).textContent);
+}
+
+function publishDCO() {
+  const btn = document.getElementById('dcoPublishBtn');
+  btn.textContent = '⏳ Publishing…'; btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = '✓ DCO Campaign Live';
+    btn.style.background = '#43A047';
+    showToast('DCO campaign published to Vantage ad server!');
+  }, 1800);
 }
 
 // ── Init ──
