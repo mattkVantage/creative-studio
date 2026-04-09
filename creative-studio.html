@@ -1691,13 +1691,20 @@ function showVersionModal() {
     <div class="modal-actions"><button class="tbtn" onclick="closeModalEl()">Close</button></div>`);
 }
 function showExportModal() {
+  const selectedPlatform = document.querySelector('.ptab.active')?.textContent.trim() || 'Onsite';
   showModal(`<h3>Export Banner</h3><p>HTML5 banners include click-through tracking via Vantage ad server.</p>
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
       <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer" onclick="closeModalEl();showToast('PNG exported')">📷 PNG — Static image</div>
       <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer" onclick="closeModalEl();showToast('HTML5 bundle exported')">⚡ HTML5 — Animated (IAB compliant)</div>
       <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer" onclick="closeModalEl();showToast('All sizes exported as ZIP')">📦 ZIP — All sizes for this platform</div>
+      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer;background:#F3E8FF;border-color:#E1BEF8" onclick="closeModalEl();saveToDamWithDestinations('${selectedPlatform}')">💾 Save to DAM — Save selection with destinations & formats for retailer approval</div>
     </div>
     <div class="modal-actions"><button class="tbtn" onclick="closeModalEl()">Cancel</button></div>`);
+}
+function saveToDamWithDestinations(platform) {
+  const sizes = Array.from(document.querySelectorAll('.size-item.selected')).map(s => s.querySelector('.size-label')?.textContent).filter(Boolean);
+  const sizeText = sizes.length > 0 ? sizes.join(', ') : 'Multiple sizes';
+  showToast(`✓ Saved to DAM — ${platform} · ${sizeText} — Awaiting retailer format approval`);
 }
 function showModal(html) { document.getElementById('modalContent').innerHTML = html; document.getElementById('modal').style.display = 'flex'; }
 function closeModalEl() { document.getElementById('modal').style.display = 'none'; }
