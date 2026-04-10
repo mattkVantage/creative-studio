@@ -347,6 +347,29 @@ body { font-family: Calibri, 'Segoe UI', sans-serif; background: #EDF1F5; min-he
 .av-notify-bar .nb-text { font-size: 12px; color: #7B4F00; line-height: 1.4; }
 .av-notify-bar .nb-text strong { color: #1E3A5F; }
 
+/* ── AI Review Modal ── */
+@keyframes ai-scan-pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
+.ai-scan-pulse { animation: ai-scan-pulse 1.1s ease-in-out infinite; }
+.ai-review-engine { display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;padding:3px 9px;border-radius:4px;background:#F3E8FF;color:#7B1FA2;border:1px solid #E1BEF8;margin-bottom:14px; }
+.ai-review-overall { display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;margin-bottom:16px;font-size:13px;font-weight:700; }
+.ai-review-overall.pass { background:#E8F5E9;color:#2E7D32; }
+.ai-review-overall.warn { background:#FFF8E1;color:#F57F17; }
+.ai-review-overall.fail { background:#FFEBEE;color:#C62828; }
+.ai-review-category { margin-bottom:12px; }
+.ai-review-cat-header { display:flex;align-items:center;justify-content:space-between;padding:5px 0 6px;border-bottom:1px solid #EDF1F5;margin-bottom:5px; }
+.ai-review-cat-title { font-size:11px;font-weight:700;color:#1E3A5F;text-transform:uppercase;letter-spacing:0.5px; }
+.ai-review-cat-score { font-size:10px;font-weight:700;padding:1px 7px;border-radius:3px; }
+.ai-review-cat-score.all-pass { background:#E8F5E9;color:#43A047; }
+.ai-review-cat-score.has-warn  { background:#FFF3E0;color:#F57C00; }
+.ai-review-cat-score.has-fail  { background:#FFEBEE;color:#E53935; }
+.ai-review-item { display:flex;align-items:flex-start;gap:8px;padding:4px 0;font-size:12px;line-height:1.4; }
+.ai-ri-icon { width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:900;flex-shrink:0;margin-top:1px; }
+.ai-ri-icon.pass { background:#43A047;color:#fff; }
+.ai-ri-icon.warn { background:#F57C00;color:#fff; }
+.ai-ri-icon.fail { background:#E53935;color:#fff; }
+.ai-ri-text { flex:1;color:#1E3A5F; }
+.ai-ri-text .ai-ri-sub { font-size:10px;color:#6B7B8D;margin-top:1px; }
+
 /* ── Modal ── */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; }
 .modal { background: #fff; border-radius: 12px; padding: 24px; width: 480px; max-width: 90vw; box-shadow: 0 8px 40px rgba(0,0,0,0.18); }
@@ -580,7 +603,7 @@ body { font-family: Calibri, 'Segoe UI', sans-serif; background: #EDF1F5; min-he
         <div class="toolbar-group" style="margin-left:auto">
           <button class="tbtn" onclick="showVersionModal()">⟳ Versions</button>
           <button class="tbtn" onclick="showExportModal()">↓ Export</button>
-          <button class="tbtn primary" onclick="submitForApproval()">Submit for Approval →</button>
+          <button class="tbtn primary" id="submitBtn" onclick="submitForApproval()">✦ AI Review + Submit →</button>
         </div>
       </div>
       <div class="canvas-wrap">
@@ -2158,8 +2181,168 @@ function renderComments() {
 
 // ── Workflow actions ──
 function submitForApproval() {
-  if (state.workflowStatus === 'draft') { state.workflowStatus = 'submitted'; showToast('Submitted for review!'); }
-  else showToast('Already submitted — status: ' + state.workflowStatus);
+  if (state.workflowStatus !== 'draft') {
+    showToast('Already submitted — status: ' + state.workflowStatus);
+    return;
+  }
+  runAIReview();
+}
+
+function runAIReview() {
+  const engineLabels = { bedrock:'AWS Bedrock (Claude 3.5)', spectra:'Spectra (OAM)', openai:'OpenAI GPT-4o', custom:'Custom Endpoint' };
+  const engine = engineLabels[dcoState.aiEngine] || 'AWS Bedrock';
+
+  // Show scanning modal
+  showModal(`
+    <div style="text-align:center;padding:12px 0 8px">
+      <div style="font-size:20px;margin-bottom:10px" class="ai-scan-pulse">✦</div>
+      <div style="font-size:15px;font-weight:700;color:#1E3A5F;margin-bottom:6px">AI Pre-Submission Review</div>
+      <div style="font-size:12px;color:#6B7B8D;margin-bottom:16px">Scanning banner against OAM brand guidelines…</div>
+      <div class="ai-review-engine">✦ ${engine}</div>
+      <div style="font-size:12px;color:#6B7B8D">Checking compliance · copy · specs · tone</div>
+    </div>
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="tbtn" onclick="closeModalEl()">Cancel</button>
+    </div>`);
+
+  // Simulate AI analysis delay
+  setTimeout(() => {
+    const results = buildAIReviewChecks();
+    showAIReviewResults(results, engine);
+  }, 1650);
+}
+
+function buildAIReviewChecks() {
+  const s = PLATFORMS[state.platform].sizes[state.sizeIdx];
+  const safeItem = state.complianceItems.find(i => i.id === 'safe');
+  const hasApprovedHeadline = APPROVED_COPY.some(c => c.tag === 'HEADLINE' && c.inUse);
+  const hasApprovedCTA      = APPROVED_COPY.some(c => c.tag === 'CTA'      && c.inUse);
+  const hasApprovedLegal    = APPROVED_COPY.some(c => c.tag === 'LEGAL'    && c.inUse);
+  const aud = AUDIENCES.find(a => a.id === dcoState.selectedAudience);
+
+  return [
+    {
+      title: 'Brand Compliance',
+      items: [
+        { status:'pass', label:'Logo & brand bar present',    sub:'THE HOME DEPOT® bar confirmed' },
+        { status:'pass', label:'Brand colors verified',        sub:'Orange #F96302 — on spec' },
+        { status: safeItem && safeItem.flagged ? 'warn' : 'pass',
+          label: 'Safe zone check',
+          sub: safeItem && safeItem.flagged ? 'Text may clip on mobile — review before shipping' : 'All elements within safe area' },
+      ],
+    },
+    {
+      title: 'Copy Quality',
+      items: [
+        { status: hasApprovedHeadline ? 'pass' : 'warn',
+          label: 'Headline from approved library',
+          sub: hasApprovedHeadline ? 'Approved headline in use' : 'No approved headline selected' },
+        { status: hasApprovedCTA ? 'pass' : 'warn',
+          label: 'CTA from approved library',
+          sub: hasApprovedCTA ? 'Approved CTA in use' : 'CTA not from approved library' },
+        { status: hasApprovedLegal ? 'pass' : 'fail',
+          label: 'Legal disclaimer present',
+          sub: hasApprovedLegal ? 'Approved disclaimer confirmed' : 'Missing required legal disclaimer' },
+      ],
+    },
+    {
+      title: 'Technical Specs',
+      items: [
+        { status: state.selectedAsset ? 'pass' : 'fail',
+          label: 'Image asset selected',
+          sub: state.selectedAsset ? 'Background image confirmed' : 'No image — banner will render empty' },
+        { status:'pass', label:`Dimensions: ${s.w}×${s.h}px`,
+          sub:`${s.label} · ${PLATFORMS[state.platform].label} — correct` },
+        { status:'warn', label:'Est. file size ~185KB',
+          sub:'Recommend optimizing image to stay under 150KB for faster load' },
+      ],
+    },
+    {
+      title: 'AI Tone Analysis',
+      items: [
+        { status:'pass', label:'Tone consistent with brand voice', sub:'Copy aligns with OAM Spring campaign guidelines' },
+        { status:'pass', label:`Audience alignment — ${aud ? aud.label : 'General'}`,
+          sub: aud ? `Copy resonates with ${aud.label} segment (${aud.pct} of audience)` : 'Default audience applied' },
+      ],
+    },
+  ];
+}
+
+function showAIReviewResults(categories, engine) {
+  const allItems = categories.flatMap(c => c.items);
+  const failCount = allItems.filter(i => i.status === 'fail').length;
+  const warnCount = allItems.filter(i => i.status === 'warn').length;
+  const passCount = allItems.filter(i => i.status === 'pass').length;
+
+  const overallStatus = failCount > 0 ? 'fail' : warnCount > 0 ? 'warn' : 'pass';
+  const overallIcon   = overallStatus === 'pass' ? '✓' : overallStatus === 'warn' ? '⚠' : '✗';
+  const overallText   = overallStatus === 'pass' ? 'Ready to Submit'
+    : overallStatus === 'warn' ? `${warnCount} warning${warnCount>1?'s':''} — review before submitting`
+    : `${failCount} issue${failCount>1?'s':''} require attention`;
+
+  const catHtml = categories.map(cat => {
+    const catFails = cat.items.filter(i => i.status === 'fail').length;
+    const catWarns = cat.items.filter(i => i.status === 'warn').length;
+    const catScore = catFails > 0 ? 'has-fail' : catWarns > 0 ? 'has-warn' : 'all-pass';
+    const scoreText = catFails > 0 ? `${catFails} issue${catFails>1?'s':''}` : catWarns > 0 ? `${catWarns} warning${catWarns>1?'s':''}` : `${cat.items.length}/${cat.items.length} ✓`;
+    const itemsHtml = cat.items.map(item =>
+      `<div class="ai-review-item">
+        <div class="ai-ri-icon ${item.status}">${item.status==='pass'?'✓':item.status==='warn'?'!':'✗'}</div>
+        <div class="ai-ri-text">
+          ${item.label}
+          <div class="ai-ri-sub">${item.sub}</div>
+        </div>
+      </div>`
+    ).join('');
+    return `<div class="ai-review-category">
+      <div class="ai-review-cat-header">
+        <span class="ai-review-cat-title">${cat.title}</span>
+        <span class="ai-review-cat-score ${catScore}">${scoreText}</span>
+      </div>
+      ${itemsHtml}
+    </div>`;
+  }).join('');
+
+  // Build action buttons based on severity
+  let actions = `<button class="tbtn" onclick="closeModalEl()">← Fix Issues</button>`;
+  if (failCount > 0) {
+    actions += `<button class="action-btn revision" style="flex:1;margin:0" onclick="confirmSubmit(true)">Submit with Flags ⚠</button>`;
+  } else {
+    actions += `<button class="tbtn" onclick="confirmSubmit(true)">Submit with Warnings</button>`;
+    actions += `<button class="action-btn approve" style="margin:0" onclick="confirmSubmit(false)">Submit ✓</button>`;
+  }
+
+  showModal(`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <h3 style="font-size:15px">✦ AI Pre-Submission Review</h3>
+      <span class="ai-review-engine" style="margin-bottom:0">✦ ${engine}</span>
+    </div>
+    <p style="font-size:11px;color:#6B7B8D;margin-bottom:12px">${passCount} passed · ${warnCount} warnings · ${failCount} issues</p>
+    <div class="ai-review-overall ${overallStatus}">${overallIcon} ${overallText}</div>
+    <div style="max-height:340px;overflow-y:auto;margin-bottom:16px">${catHtml}</div>
+    <div class="modal-actions" style="gap:8px">${actions}</div>`);
+}
+
+function confirmSubmit(withFlags) {
+  closeModalEl();
+  state.workflowStatus = 'submitted';
+  const now = 'Apr 10, ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  const engine = dcoState.aiEngine === 'spectra' ? 'Spectra (OAM)' : dcoState.aiEngine === 'openai' ? 'GPT-4o' : dcoState.aiEngine === 'bedrock' ? 'AWS Bedrock' : 'AI';
+  const commentBody = withFlags
+    ? `⚠ Submitted with AI review flags. ${engine} flagged items for retailer awareness — supplier proceeded.`
+    : `✦ AI pre-submission review passed (${engine}). All brand compliance, copy, and technical checks cleared.`;
+  state.comments.unshift({ author:'AI Review System', time:now, body:commentBody, type:'normal' });
+  renderLcSteps('builderLcSteps');
+  renderLcSteps('avLcSteps');
+  renderComments();
+  document.getElementById('statusTopbar').textContent = '● SUBMITTED';
+  ['currentStatusBadge','avCurrentStatusBadge'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.className = 'status-badge status-submitted'; el.textContent = '● Submitted'; }
+  });
+  const btn = document.getElementById('submitBtn');
+  if (btn) { btn.textContent = '✓ Submitted'; btn.disabled = true; btn.style.background = '#43A047'; }
+  showToast(withFlags ? '⚠ Submitted with AI flags — retailer notified' : '✓ AI review passed — submitted for retailer approval');
 }
 
 function takeAction(action, panel) {
