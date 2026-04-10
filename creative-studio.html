@@ -461,6 +461,68 @@ body { font-family: Calibri, 'Segoe UI', sans-serif; background: #EDF1F5; min-he
 .tm-pub-btn.to-archive { background: #fff; color: #6B7B8D; border: 1px solid #DDE3EA; }
 .tm-pub-btn.republish  { background: #43A047; color: #fff; }
 .tm-pub-btn:hover { filter: brightness(0.93); }
+
+/* ═══════════════════════════════════════════
+   GUIDE VIEW
+═══════════════════════════════════════════ */
+#guideView { display: none; flex: 1; overflow-y: auto; background: #EDF1F5; }
+.guide-wrap { max-width: 960px; margin: 0 auto; padding: 32px 28px 60px; }
+.guide-hero { background: linear-gradient(135deg, #1E3A5F 0%, #2a5298 100%); border-radius: 14px; padding: 36px 40px; color: #fff; margin-bottom: 28px; position: relative; overflow: hidden; }
+.guide-hero::after { content:''; position:absolute; right:-40px; top:-40px; width:220px; height:220px; border-radius:50%; background:rgba(255,255,255,0.06); pointer-events:none; }
+.guide-hero-logo { font-size: 13px; font-weight: 700; opacity: 0.7; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 10px; }
+.guide-hero-logo span { color: #F97316; }
+.guide-hero h1 { font-size: 26px; font-weight: 800; margin-bottom: 8px; line-height: 1.2; }
+.guide-hero p { font-size: 14px; opacity: 0.85; max-width: 580px; line-height: 1.6; margin-bottom: 20px; }
+.guide-hero-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.guide-hero-badge { font-size: 11px; font-weight: 700; padding: 4px 12px; border-radius: 20px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25); }
+.guide-section { margin-bottom: 28px; }
+.guide-section-title { font-size: 13px; font-weight: 800; color: #1E3A5F; text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.guide-section-title::after { content:''; flex:1; height:1px; background:#DDE3EA; }
+.guide-caps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 700px) { .guide-caps-grid { grid-template-columns: 1fr 1fr; } }
+.guide-cap-card { background: #fff; border-radius: 10px; padding: 18px 16px; border: 1px solid #DDE3EA; transition: box-shadow 0.15s; cursor: default; }
+.guide-cap-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.09); }
+.guide-cap-icon { font-size: 22px; margin-bottom: 10px; }
+.guide-cap-title { font-size: 13px; font-weight: 700; color: #1E3A5F; margin-bottom: 4px; }
+.guide-cap-desc { font-size: 12px; color: #6B7B8D; line-height: 1.5; }
+.guide-cap-tag { display: inline-block; font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 3px; margin-top: 8px; }
+.guide-roles-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 700px) { .guide-roles-grid { grid-template-columns: 1fr; } }
+.guide-role-card { background: #fff; border-radius: 10px; border: 1px solid #DDE3EA; overflow: hidden; }
+.guide-role-header { padding: 14px 16px 12px; }
+.guide-role-icon { font-size: 20px; margin-bottom: 6px; }
+.guide-role-title { font-size: 13px; font-weight: 800; color: #1E3A5F; }
+.guide-role-sub { font-size: 11px; color: #6B7B8D; margin-top: 2px; }
+.guide-role-steps { padding: 0 16px 14px; display: flex; flex-direction: column; gap: 0; }
+.guide-step { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; position: relative; }
+.guide-step:not(:last-child)::after { content:''; position:absolute; left:11px; top:26px; bottom:0; width:2px; background:#EDF1F5; }
+.guide-step-num { width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: #fff; z-index: 1; }
+.guide-step-body { flex: 1; padding-top: 2px; }
+.guide-step-label { font-size: 12px; font-weight: 700; color: #1E3A5F; line-height: 1.3; }
+.guide-step-sub { font-size: 11px; color: #6B7B8D; margin-top: 2px; line-height: 1.4; }
+.guide-view-btn { display: inline-flex; align-items: center; gap: 5px; margin-top: 10px; padding: 5px 12px; font-size: 11px; font-weight: 700; border: none; border-radius: 5px; cursor: pointer; font-family: inherit; transition: filter 0.12s; }
+.guide-view-btn:hover { filter: brightness(0.9); }
+.guide-workflow-row { display: flex; gap: 0; align-items: stretch; background: #fff; border-radius: 10px; border: 1px solid #DDE3EA; overflow: hidden; margin-bottom: 12px; }
+.guide-wf-step { flex: 1; padding: 14px 16px; border-right: 1px solid #EDF1F5; position: relative; }
+.guide-wf-step:last-child { border-right: none; }
+.guide-wf-arrow { position: absolute; right: -10px; top: 50%; transform: translateY(-50%); font-size: 14px; color: #DDE3EA; z-index: 1; }
+.guide-wf-num { font-size: 10px; font-weight: 800; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.guide-wf-title { font-size: 12px; font-weight: 700; color: #1E3A5F; margin-bottom: 3px; }
+.guide-wf-sub { font-size: 11px; color: #6B7B8D; line-height: 1.4; }
+.guide-wf-who { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 3px; margin-top: 6px; }
+.guide-tip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.guide-tip { background: #fff; border-radius: 8px; border: 1px solid #DDE3EA; padding: 12px 14px; display: flex; gap: 10px; align-items: flex-start; }
+.guide-tip-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.guide-tip-title { font-size: 12px; font-weight: 700; color: #1E3A5F; margin-bottom: 2px; }
+.guide-tip-body { font-size: 11px; color: #6B7B8D; line-height: 1.5; }
+.guide-faq { background: #fff; border-radius: 10px; border: 1px solid #DDE3EA; overflow: hidden; }
+.guide-faq-item { border-bottom: 1px solid #EDF1F5; cursor: pointer; }
+.guide-faq-item:last-child { border-bottom: none; }
+.guide-faq-q { padding: 13px 16px; font-size: 12px; font-weight: 700; color: #1E3A5F; display: flex; align-items: center; justify-content: space-between; user-select: none; }
+.guide-faq-q .faq-arrow { font-size: 11px; color: #6B7B8D; transition: transform 0.2s; }
+.guide-faq-item.open .faq-arrow { transform: rotate(90deg); }
+.guide-faq-a { display: none; padding: 0 16px 13px; font-size: 12px; color: #6B7B8D; line-height: 1.6; }
+.guide-faq-item.open .guide-faq-a { display: block; }
 </style>
 </head>
 <body>
@@ -493,6 +555,7 @@ body { font-family: Calibri, 'Segoe UI', sans-serif; background: #EDF1F5; min-he
       <button class="vtoggle" id="vtDco" onclick="switchView('dco')">✦ DCO + AI</button>
       <button class="vtoggle" id="vtApproval" onclick="switchView('approval')">Approval View</button>
       <button class="vtoggle" id="vtTemplate" onclick="switchView('template')">⊞ Templates</button>
+      <button class="vtoggle" id="vtGuide" onclick="switchView('guide')">? Guide</button>
     </div>
     <div class="topbar-meta">
       <span>Home Depot OAM</span>
@@ -942,6 +1005,358 @@ body { font-family: Calibri, 'Segoe UI', sans-serif; background: #EDF1F5; min-he
 
   </div>
 
+  <!-- ═══ GUIDE VIEW ═══ -->
+  <div id="guideView">
+    <div class="guide-wrap">
+
+      <!-- Hero -->
+      <div class="guide-hero">
+        <div class="guide-hero-logo">Vantage <span>Creative Studio</span></div>
+        <h1>Banner Ad Platform — Capabilities & User Guide</h1>
+        <p>Vantage Creative Studio replaces Innervate as the end-to-end banner ad creation, approval, and trafficking platform for Orange Apron Media. Built for retailers, suppliers, and media teams — all in one workflow.</p>
+        <div class="guide-hero-badges">
+          <span class="guide-hero-badge">🏗 Onsite + Offsite</span>
+          <span class="guide-hero-badge">✦ AI-Powered</span>
+          <span class="guide-hero-badge">⊞ DCO Ready</span>
+          <span class="guide-hero-badge">🔒 Retailer Templates</span>
+          <span class="guide-hero-badge">✓ Approval Workflow</span>
+          <span class="guide-hero-badge">▶ Ad Server Trafficking</span>
+        </div>
+      </div>
+
+      <!-- Capabilities -->
+      <div class="guide-section">
+        <div class="guide-section-title">Platform Capabilities</div>
+        <div class="guide-caps-grid">
+
+          <div class="guide-cap-card">
+            <div class="guide-cap-icon">🖼️</div>
+            <div class="guide-cap-title">Multi-Platform Banner Builder</div>
+            <div class="guide-cap-desc">Build banners for Onsite (OAM), Meta, Google Display, and Reddit from a single canvas. 15+ IAB-standard sizes with live preview and Konva-powered image editing.</div>
+            <span class="guide-cap-tag" style="background:#EEF2F7;color:#1E3A5F">Builder View</span>
+          </div>
+
+          <div class="guide-cap-card">
+            <div class="guide-cap-icon">⚙</div>
+            <div class="guide-cap-title">Konva Image Adjustments</div>
+            <div class="guide-cap-desc">Drag to reposition, scroll to zoom, flip horizontal/vertical. Brightness, contrast, and saturation sliders with real-time Konva filter pipeline. 8-point transformer handles.</div>
+            <span class="guide-cap-tag" style="background:#EEF2F7;color:#1E3A5F">Builder View</span>
+          </div>
+
+          <div class="guide-cap-card">
+            <div class="guide-cap-icon">📋</div>
+            <div class="guide-cap-title">Approved Copy Library</div>
+            <div class="guide-cap-desc">Searchable library of retailer-approved headlines, subheads, CTAs, and legal copy. One-click application to canvas. All copy sourced and approved by brand/legal teams.</div>
+            <span class="guide-cap-tag" style="background:#E8F5E9;color:#43A047">Brand Approved</span>
+          </div>
+
+          <div class="guide-cap-card">
+            <div class="guide-cap-icon">✦</div>
+            <div class="guide-cap-title">AI Pre-Submission Review</div>
+            <div class="guide-cap-desc">Before submitting to the retailer, AI scans the banner across 4 categories: brand compliance, copy quality, technical specs, and tone analysis. Powered by your BYOK engine.</div>
+            <span class="guide-cap-tag" style="background:#F3E8FF;color:#7B1FA2">AI-Powered</span>
+          </div>
+
+          <div class="guide-cap-card">
+            <div class="guide-cap-icon">⬡</div>
+            <div class="guide-cap-title">DCO + Dynamic Creative</div>
+            <div class="guide-cap-desc">Define atomic elements as static or dynamic. Generate AI copy variants per audience segment. Visual matrix shows all audience × element combinations. Publish to Vantage ad server.</div>
+            <span class="guide-cap-tag" style="background:#F3E8FF;color:#7B1FA2">DCO + AI</span>
+          </div>
+
+          <div class="guide-cap-card">
+            <div class="guide-cap-icon">🎯</div>
+            <div class="guide-cap-title">Audience Segmentation</div>
+            <div class="guide-cap-desc">4 pre-built audience segments: Pro Contractors (22%), Weekend DIYers (41%), Power Tool Fans (19%), New Homeowners (18%). AI generates tailored copy per segment.</div>
+            <span class="guide-cap-tag" style="background:#F3E8FF;color:#7B1FA2">DCO + AI</span>
+          </div>
+
+          <div class="guide-cap-card">
+            <div class="guide-cap-icon">✅</div>
+            <div class="guide-cap-title">Independent Banner Approval</div>
+            <div class="guide-cap-desc">Banners are first-class objects with their own lifecycle: Draft → Submitted → In Review → Approved → Trafficked. Fully independent of campaign approval (Brandon Kane requirement).</div>
+            <span class="guide-cap-tag" style="background:#FFF3E0;color:#F57C00">Approval</span>
+          </div>
+
+          <div class="guide-cap-card">
+            <div class="guide-cap-icon">🔍</div>
+            <div class="guide-cap-title">Brand Compliance Review</div>
+            <div class="guide-cap-desc">7-point compliance checklist for OAM reviewers: logo placement, brand colors, approved copy, asset library, legal disclaimer, CTA, and safe zone. Interactive pass/flag per item.</div>
+            <span class="guide-cap-tag" style="background:#FFF3E0;color:#F57C00">Approval</span>
+          </div>
+
+          <div class="guide-cap-card">
+            <div class="guide-cap-icon">⊞</div>
+            <div class="guide-cap-title">Retailer Template Manager</div>
+            <div class="guide-cap-desc">Retailers design locked templates — suppliers fill in only the editable fields. Per-element lock/unlock, max character limits, copy source constraints, and full template lifecycle.</div>
+            <span class="guide-cap-tag" style="background:#DCEEFB;color:#1E88E5">Templates</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- User Roles -->
+      <div class="guide-section">
+        <div class="guide-section-title">Role-Based Guides</div>
+        <div class="guide-roles-grid">
+
+          <!-- Supplier -->
+          <div class="guide-role-card">
+            <div class="guide-role-header" style="background:#F5F7FA;border-bottom:1px solid #EDF1F5">
+              <div class="guide-role-icon">📦</div>
+              <div class="guide-role-title">Supplier</div>
+              <div class="guide-role-sub">e.g. Bosch Tools, vendor trade marketing</div>
+            </div>
+            <div class="guide-role-steps">
+              <div class="guide-step">
+                <div class="guide-step-num" style="background:#1E3A5F">1</div>
+                <div class="guide-step-body">
+                  <div class="guide-step-label">Select platform & ad size</div>
+                  <div class="guide-step-sub">Choose Onsite, Meta, Google, or Reddit. Pick a size — Medium Rectangle is the most common starting point.</div>
+                </div>
+              </div>
+              <div class="guide-step">
+                <div class="guide-step-num" style="background:#1E3A5F">2</div>
+                <div class="guide-step-body">
+                  <div class="guide-step-label">Upload or select an image</div>
+                  <div class="guide-step-sub">Drag & drop a product image, or pick from the pre-approved asset library. Use Adjust Image to crop, zoom, and reposition.</div>
+                </div>
+              </div>
+              <div class="guide-step">
+                <div class="guide-step-num" style="background:#1E3A5F">3</div>
+                <div class="guide-step-body">
+                  <div class="guide-step-label">Apply approved copy</div>
+                  <div class="guide-step-sub">Click any headline, subhead, CTA, or legal from the Approved Copy panel. Only pre-approved copy can be used without a review flag.</div>
+                </div>
+              </div>
+              <div class="guide-step">
+                <div class="guide-step-num" style="background:#1E3A5F">4</div>
+                <div class="guide-step-body">
+                  <div class="guide-step-label">Run AI Review + Submit</div>
+                  <div class="guide-step-sub">Click "✦ AI Review + Submit →". AI scans brand compliance, copy, and specs. Fix any issues, then submit to OAM for review.</div>
+                </div>
+              </div>
+            </div>
+            <div style="padding:0 16px 14px">
+              <button class="guide-view-btn" style="background:#1E3A5F;color:#fff" onclick="switchView('builder')">→ Open Builder</button>
+            </div>
+          </div>
+
+          <!-- Retailer / OAM Reviewer -->
+          <div class="guide-role-card">
+            <div class="guide-role-header" style="background:#FFF8E1;border-bottom:1px solid #EDF1F5">
+              <div class="guide-role-icon">🏪</div>
+              <div class="guide-role-title">Retailer / OAM Reviewer</div>
+              <div class="guide-role-sub">e.g. Susan Berenson, Amanda Bowman</div>
+            </div>
+            <div class="guide-role-steps">
+              <div class="guide-step">
+                <div class="guide-step-num" style="background:#F57C00">1</div>
+                <div class="guide-step-body">
+                  <div class="guide-step-label">Open Approval View</div>
+                  <div class="guide-step-sub">Switch to Approval View from the topbar. All submitted banners are listed by platform — select one to begin review.</div>
+                </div>
+              </div>
+              <div class="guide-step">
+                <div class="guide-step-num" style="background:#F57C00">2</div>
+                <div class="guide-step-body">
+                  <div class="guide-step-label">Review brand compliance</div>
+                  <div class="guide-step-sub">Work through the 7-point compliance checklist: logo, colors, copy, assets, legal, CTA, safe zones. Click each item to pass or flag.</div>
+                </div>
+              </div>
+              <div class="guide-step">
+                <div class="guide-step-num" style="background:#F57C00">3</div>
+                <div class="guide-step-body">
+                  <div class="guide-step-label">Approve or request revision</div>
+                  <div class="guide-step-sub">Add a note, then click "Approve — Brand Compliant" or "Request Revision". Supplier is notified automatically either way.</div>
+                </div>
+              </div>
+              <div class="guide-step">
+                <div class="guide-step-num" style="background:#F57C00">4</div>
+                <div class="guide-step-body">
+                  <div class="guide-step-label">Traffic to ad server</div>
+                  <div class="guide-step-sub">Once approved, click "Traffic to Ad Server". Banner is queued in Vantage for campaign flight start.</div>
+                </div>
+              </div>
+            </div>
+            <div style="padding:0 16px 14px">
+              <button class="guide-view-btn" style="background:#F57C00;color:#fff" onclick="switchView('approval')">→ Open Approval View</button>
+            </div>
+          </div>
+
+          <!-- Media Strategist / DCO -->
+          <div class="guide-role-card">
+            <div class="guide-role-header" style="background:#F3E8FF;border-bottom:1px solid #EDF1F5">
+              <div class="guide-role-icon">⬡</div>
+              <div class="guide-role-title">Media Strategist</div>
+              <div class="guide-role-sub">DCO campaigns, audience segmentation</div>
+            </div>
+            <div class="guide-role-steps">
+              <div class="guide-step">
+                <div class="guide-step-num" style="background:#7B1FA2">1</div>
+                <div class="guide-step-body">
+                  <div class="guide-step-label">Open DCO + AI view</div>
+                  <div class="guide-step-sub">Switch to "✦ DCO + AI" from the topbar. Select your AI engine (AWS Bedrock, Spectra, GPT-4o, or Custom) in the BYOK panel.</div>
+                </div>
+              </div>
+              <div class="guide-step">
+                <div class="guide-step-num" style="background:#7B1FA2">2</div>
+                <div class="guide-step-body">
+                  <div class="guide-step-label">Mark elements as Dynamic</div>
+                  <div class="guide-step-sub">Toggle Headline, Subhead, and Background Image to Dynamic. Static elements (CTA, Brand Bar, Legal) stay fixed across all audiences.</div>
+                </div>
+              </div>
+              <div class="guide-step">
+                <div class="guide-step-num" style="background:#7B1FA2">3</div>
+                <div class="guide-step-body">
+                  <div class="guide-step-label">Generate AI variants</div>
+                  <div class="guide-step-sub">Click "✦ Gen" next to any dynamic element. AI generates 3 copy variants per audience segment. Review the variant matrix, preview each audience.</div>
+                </div>
+              </div>
+              <div class="guide-step">
+                <div class="guide-step-num" style="background:#7B1FA2">4</div>
+                <div class="guide-step-body">
+                  <div class="guide-step-label">Publish DCO campaign</div>
+                  <div class="guide-step-sub">Review the Variant Matrix — audience × element grid. Click "Publish DCO Campaign →" to push all combinations to the Vantage ad server.</div>
+                </div>
+              </div>
+            </div>
+            <div style="padding:0 16px 14px">
+              <button class="guide-view-btn" style="background:#7B1FA2;color:#fff" onclick="switchView('dco')">→ Open DCO + AI</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- End-to-end workflow -->
+      <div class="guide-section">
+        <div class="guide-section-title">End-to-End Workflow</div>
+        <div class="guide-workflow-row">
+          <div class="guide-wf-step">
+            <div class="guide-wf-num">Step 1</div>
+            <div class="guide-wf-title">Retailer Creates Template</div>
+            <div class="guide-wf-sub">Locks brand bar, legal, CTA. Leaves image and subhead editable for supplier.</div>
+            <span class="guide-wf-who" style="background:#DCEEFB;color:#1E88E5">Retailer</span>
+            <div class="guide-wf-arrow">›</div>
+          </div>
+          <div class="guide-wf-step">
+            <div class="guide-wf-num">Step 2</div>
+            <div class="guide-wf-title">Supplier Builds Banner</div>
+            <div class="guide-wf-sub">Uploads product image, selects approved copy, adjusts within template constraints.</div>
+            <span class="guide-wf-who" style="background:#EEF2F7;color:#1E3A5F">Supplier</span>
+            <div class="guide-wf-arrow">›</div>
+          </div>
+          <div class="guide-wf-step">
+            <div class="guide-wf-num">Step 3</div>
+            <div class="guide-wf-title">AI Pre-Submission Review</div>
+            <div class="guide-wf-sub">AI scans compliance, copy, specs, and tone. Supplier fixes issues before submitting.</div>
+            <span class="guide-wf-who" style="background:#F3E8FF;color:#7B1FA2">AI (BYOK)</span>
+            <div class="guide-wf-arrow">›</div>
+          </div>
+          <div class="guide-wf-step">
+            <div class="guide-wf-num">Step 4</div>
+            <div class="guide-wf-title">OAM Brand Review</div>
+            <div class="guide-wf-sub">Retailer reviews compliance checklist, approves or requests revision with comments.</div>
+            <span class="guide-wf-who" style="background:#FFF3E0;color:#F57C00">Retailer</span>
+            <div class="guide-wf-arrow">›</div>
+          </div>
+          <div class="guide-wf-step">
+            <div class="guide-wf-num">Step 5</div>
+            <div class="guide-wf-title">Traffic to Ad Server</div>
+            <div class="guide-wf-sub">Approved banner is trafficked to Vantage. Serving begins at campaign flight start.</div>
+            <span class="guide-wf-who" style="background:#E8F5E9;color:#43A047">System</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tips & Shortcuts -->
+      <div class="guide-section">
+        <div class="guide-section-title">Tips & Shortcuts</div>
+        <div class="guide-tip-grid">
+          <div class="guide-tip">
+            <div class="guide-tip-icon">🖱️</div>
+            <div>
+              <div class="guide-tip-title">Scroll to zoom the image</div>
+              <div class="guide-tip-body">In Builder view, use your mouse wheel over the canvas to zoom the background image in and out. No need to use the slider.</div>
+            </div>
+          </div>
+          <div class="guide-tip">
+            <div class="guide-tip-icon">✦</div>
+            <div>
+              <div class="guide-tip-title">Change AI engine in DCO view</div>
+              <div class="guide-tip-body">The BYOK panel at the bottom of the DCO left panel lets you switch between AWS Bedrock, Spectra (OAM internal), GPT-4o, or a custom endpoint.</div>
+            </div>
+          </div>
+          <div class="guide-tip">
+            <div class="guide-tip-icon">🔒</div>
+            <div>
+              <div class="guide-tip-title">Click overlays to toggle locks</div>
+              <div class="guide-tip-body">In the Template Manager (Retailer Design mode), click directly on any element overlay on the canvas to toggle it between locked and editable.</div>
+            </div>
+          </div>
+          <div class="guide-tip">
+            <div class="guide-tip-icon">📋</div>
+            <div>
+              <div class="guide-tip-title">Copy audit in Approval View</div>
+              <div class="guide-tip-body">The Copy Audit table in Approval View shows exactly which copy elements are in use and whether each one came from the approved library or supplier input.</div>
+            </div>
+          </div>
+          <div class="guide-tip">
+            <div class="guide-tip-icon">⬡</div>
+            <div>
+              <div class="guide-tip-title">Preview dynamic highlights</div>
+              <div class="guide-tip-body">In DCO + AI view, click "⬡ Show Dynamic" to highlight which elements will change per audience vs. which stay static across all segments.</div>
+            </div>
+          </div>
+          <div class="guide-tip">
+            <div class="guide-tip-icon">↓</div>
+            <div>
+              <div class="guide-tip-title">Save to DAM with destinations</div>
+              <div class="guide-tip-body">Use Export → "Save to DAM" to save banner selections with platform destinations and formats, queuing them for retailer format approval.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ -->
+      <div class="guide-section">
+        <div class="guide-section-title">Frequently Asked Questions</div>
+        <div class="guide-faq">
+          <div class="guide-faq-item" onclick="toggleFaq(this)">
+            <div class="guide-faq-q">How is banner approval different from campaign approval? <span class="faq-arrow">›</span></div>
+            <div class="guide-faq-a">Banners are first-class objects with their own independent lifecycle (Draft → Submitted → In Review → Approved → Trafficked). A banner can be approved and re-used across multiple campaigns. Campaign approval is a completely separate workflow — a banner can be approved before a campaign is finalized.</div>
+          </div>
+          <div class="guide-faq-item" onclick="toggleFaq(this)">
+            <div class="guide-faq-q">What does BYOK mean? <span class="faq-arrow">›</span></div>
+            <div class="guide-faq-a">Bring Your Own Key. Vantage Creative Studio lets you plug in your own AI API credentials — AWS Bedrock (Claude 3.5), Spectra (OAM's internal model), OpenAI GPT-4o, or a custom endpoint. This means your data stays within your chosen infrastructure and you control the AI model.</div>
+          </div>
+          <div class="guide-faq-item" onclick="toggleFaq(this)">
+            <div class="guide-faq-q">What happens if the AI review flags issues? <span class="faq-arrow">›</span></div>
+            <div class="guide-faq-a">You have three choices: (1) Close the modal and fix the issue in the builder, (2) Submit Anyway — which submits but adds a flag note to the activity feed so the OAM reviewer sees it, or (3) if all issues are just warnings (not blockers), you can Submit ✓ normally. The retailer always sees the AI review summary in the banner's activity history.</div>
+          </div>
+          <div class="guide-faq-item" onclick="toggleFaq(this)">
+            <div class="guide-faq-q">Can suppliers use any copy they want? <span class="faq-arrow">›</span></div>
+            <div class="guide-faq-a">No — suppliers must use copy from the Approved Copy Library managed by OAM. Using copy outside the library will trigger an AI review warning and may be flagged by the OAM brand compliance reviewer. Retailers can also configure Template constraints that lock specific elements to approved sources only.</div>
+          </div>
+          <div class="guide-faq-item" onclick="toggleFaq(this)">
+            <div class="guide-faq-q">How does DCO differ from standard banner building? <span class="faq-arrow">›</span></div>
+            <div class="guide-faq-a">Standard banners use fixed copy for all viewers. DCO (Dynamic Creative Optimization) lets you define elements as "dynamic" — the ad server then swaps in different copy, images, or CTAs per audience segment at serve time. You define the variants upfront (with AI help), and the ad server handles delivery. No extra creative builds required.</div>
+          </div>
+          <div class="guide-faq-item" onclick="toggleFaq(this)">
+            <div class="guide-faq-q">Is this replacing Innervate? <span class="faq-arrow">›</span></div>
+            <div class="guide-faq-a">Yes. Vantage Creative Studio is being built to replace Innervate ahead of the August 2027 deadline. Home Depot OAM is the anchor client. The platform is being evaluated alongside Design Huddle, IMG.LY, and Polotno as the underlying creative engine — this prototype uses Konva.js (the same layer Polotno is built on) to validate the builder UX.</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align:center;font-size:11px;color:#9BA8B5;padding-top:8px">
+        Vantage Creative Studio · Prototype v2 · OAM Platform · <span style="color:#F97316">Orange Apron Media</span>
+      </div>
+
+    </div>
+  </div>
+
 </div>
 
 <!-- Modal -->
@@ -1215,14 +1630,18 @@ function switchView(v) {
   document.getElementById('dcoView').style.display       = v === 'dco'      ? 'flex' : 'none';
   document.getElementById('approvalView').style.display  = v === 'approval' ? 'flex' : 'none';
   document.getElementById('tmplView').style.display      = v === 'template' ? 'flex' : 'none';
+  document.getElementById('guideView').style.display     = v === 'guide'    ? 'flex' : 'none';
   document.getElementById('vtBuilder').classList.toggle('active',  v === 'builder');
   document.getElementById('vtDco').classList.toggle('active',      v === 'dco');
   document.getElementById('vtApproval').classList.toggle('active', v === 'approval');
   document.getElementById('vtTemplate').classList.toggle('active', v === 'template');
+  document.getElementById('vtGuide').classList.toggle('active',    v === 'guide');
   if (v === 'approval') renderApprovalView();
   if (v === 'dco')      renderDCOView();
   if (v === 'template') renderTemplateView();
 }
+
+function toggleFaq(el) { el.classList.toggle('open'); }
 
 // ══════════════════════════════════════════
 // DCO RENDER
