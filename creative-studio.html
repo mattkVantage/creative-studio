@@ -340,6 +340,88 @@ body { font-family: Calibri, 'Segoe UI', sans-serif; background: #EDF1F5; min-he
 
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-thumb { background: #DDE3EA; border-radius: 3px; }
+
+/* ═══════════════════════════════════════════
+   TEMPLATE MANAGER VIEW
+═══════════════════════════════════════════ */
+#tmplView { display: none; flex: 1; overflow: hidden; }
+
+/* Left — template library */
+.tm-left { width: 280px; flex-shrink: 0; background: #fff; border-right: 1px solid #DDE3EA; display: flex; flex-direction: column; overflow: hidden; }
+.tm-left-header { padding: 14px 16px 10px; border-bottom: 1px solid #EDF1F5; display: flex; align-items: center; justify-content: space-between; }
+.tm-left-header h2 { font-size: 14px; font-weight: 700; }
+.tm-new-btn { padding: 5px 10px; font-size: 11px; font-weight: 700; background: #1E3A5F; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-family: inherit; }
+.tm-filter-tabs { display: flex; gap: 3px; padding: 8px 12px; border-bottom: 1px solid #EDF1F5; flex-wrap: wrap; }
+.tm-ftab { padding: 3px 9px; font-size: 11px; font-weight: 600; border: 1px solid #DDE3EA; border-radius: 4px; cursor: pointer; font-family: inherit; background: #fff; color: #6B7B8D; transition: all 0.12s; }
+.tm-ftab.active { background: #1E3A5F; color: #fff; border-color: #1E3A5F; }
+.tm-list { flex: 1; overflow-y: auto; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; }
+.tm-card { padding: 10px 12px; border: 2px solid #DDE3EA; border-radius: 8px; cursor: pointer; transition: all 0.15s; }
+.tm-card:hover { border-color: #1E3A5F; background: #F5F7FA; }
+.tm-card.selected { border-color: #1E3A5F; background: #EEF2F7; }
+.tm-card-top { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.tm-card-thumb { width: 44px; height: 28px; border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+.tm-card-title { font-size: 12px; font-weight: 700; flex: 1; line-height: 1.3; }
+.tm-card-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.tm-card-dims { font-size: 10px; color: #6B7B8D; }
+.tm-status-badge { font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 3px; }
+.tmst-active   { background: #E8F5E9; color: #43A047; }
+.tmst-draft    { background: #F5F7FA; color: #6B7B8D; }
+.tmst-review   { background: #FFF3E0; color: #F57C00; }
+.tmst-archived { background: #EDE7F6; color: #7B1FA2; }
+.tm-lock-count { font-size: 10px; color: #6B7B8D; margin-left: auto; white-space: nowrap; }
+
+/* Center — template canvas with overlays */
+.tm-center { flex: 1; display: flex; flex-direction: column; background: #DDE3EA; overflow: hidden; }
+.tm-center-toolbar { background: #fff; border-bottom: 1px solid #DDE3EA; padding: 10px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; flex-wrap: wrap; }
+.tm-view-toggle { display: flex; border: 1px solid #DDE3EA; border-radius: 6px; overflow: hidden; }
+.tm-vtbtn { padding: 4px 12px; font-size: 11px; font-weight: 600; border: none; background: #fff; color: #6B7B8D; cursor: pointer; font-family: inherit; transition: all 0.12s; }
+.tm-vtbtn.active { background: #1E3A5F; color: #fff; }
+.tm-canvas-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; overflow: auto; }
+.tm-canvas-card { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.tm-el-overlay { position: absolute; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: opacity 0.12s; }
+.tm-el-overlay:hover { opacity: 0.8; }
+.tm-el-overlay.locked   { background: rgba(229,57,53,0.15); border: 2px solid rgba(229,57,53,0.55); }
+.tm-el-overlay.editable { background: rgba(67,160,71,0.10); border: 2px dashed rgba(67,160,71,0.65); }
+.tm-el-badge { font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 3px; color: #fff; pointer-events: none; white-space: nowrap; }
+.tm-el-badge.locked   { background: rgba(229,57,53,0.85); }
+.tm-el-badge.editable { background: rgba(67,160,71,0.85); }
+.tm-legend { display: flex; align-items: center; gap: 14px; font-size: 11px; color: #6B7B8D; }
+.tm-legend-item { display: flex; align-items: center; gap: 5px; }
+.tm-legend-dot { width: 12px; height: 12px; border-radius: 2px; flex-shrink: 0; }
+
+/* Right — template settings */
+.tm-right { width: 320px; flex-shrink: 0; background: #fff; border-left: 1px solid #DDE3EA; display: flex; flex-direction: column; overflow: hidden; }
+.tm-right-header { padding: 14px 16px 10px; border-bottom: 1px solid #EDF1F5; }
+.tm-right-header h3 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.tm-right-header p { font-size: 11px; color: #6B7B8D; }
+.tm-settings-scroll { flex: 1; overflow-y: auto; }
+.tm-setting-group { padding: 12px 16px; border-bottom: 1px solid #EDF1F5; }
+.tm-setting-label { font-size: 11px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.tm-setting-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.tm-setting-row:last-child { margin-bottom: 0; }
+.tm-setting-name { font-size: 12px; color: #1E3A5F; }
+.tm-text-input { width: 100%; padding: 6px 10px; font-size: 12px; border: 1px solid #DDE3EA; border-radius: 6px; font-family: inherit; color: #1E3A5F; margin-bottom: 6px; }
+.tm-el-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.tm-el-table th { text-align: left; font-size: 10px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; padding: 0 6px 8px 0; border-bottom: 1px solid #EDF1F5; letter-spacing: 0.4px; }
+.tm-el-table td { padding: 7px 6px 7px 0; border-bottom: 1px solid #F5F7FA; vertical-align: middle; }
+.tm-el-table tr:last-child td { border-bottom: none; }
+.tm-lock-toggle { display: flex; border: 1px solid #DDE3EA; border-radius: 4px; overflow: hidden; }
+.tm-lt-btn { padding: 2px 7px; font-size: 10px; font-weight: 700; border: none; background: #fff; color: #6B7B8D; cursor: pointer; font-family: inherit; transition: all 0.12s; }
+.tm-lt-btn.locked   { background: #E53935; color: #fff; }
+.tm-lt-btn.editable { background: #43A047; color: #fff; }
+.tm-char-limit { width: 46px; padding: 2px 5px; font-size: 11px; border: 1px solid #DDE3EA; border-radius: 4px; font-family: inherit; color: #1E3A5F; text-align: center; }
+.tm-lc-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.tm-lc-row:last-child { margin-bottom: 0; }
+.tm-lc-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.tm-lc-step { font-size: 12px; flex: 1; font-weight: 400; color: #9BA8B5; }
+.tm-lc-step.active { color: #1E3A5F; font-weight: 700; }
+.tm-action-area { padding: 12px 16px; display: flex; flex-direction: column; gap: 7px; border-top: 1px solid #EDF1F5; flex-shrink: 0; }
+.tm-pub-btn { padding: 9px 14px; font-size: 12px; font-weight: 700; border-radius: 6px; cursor: pointer; font-family: inherit; border: none; width: 100%; transition: background 0.12s; }
+.tm-pub-btn.to-review  { background: #F57C00; color: #fff; }
+.tm-pub-btn.to-publish { background: #1E3A5F; color: #fff; }
+.tm-pub-btn.to-archive { background: #fff; color: #6B7B8D; border: 1px solid #DDE3EA; }
+.tm-pub-btn.republish  { background: #43A047; color: #fff; }
+.tm-pub-btn:hover { filter: brightness(0.93); }
 </style>
 </head>
 <body>
@@ -356,6 +438,7 @@ body { font-family: Calibri, 'Segoe UI', sans-serif; background: #EDF1F5; min-he
       <button class="vtoggle active" id="vtBuilder" onclick="switchView('builder')">Builder</button>
       <button class="vtoggle" id="vtDco" onclick="switchView('dco')">✦ DCO + AI</button>
       <button class="vtoggle" id="vtApproval" onclick="switchView('approval')">Approval View</button>
+      <button class="vtoggle" id="vtTemplate" onclick="switchView('template')">⊞ Templates</button>
     </div>
     <div class="topbar-meta">
       <span>Home Depot OAM</span>
@@ -745,6 +828,66 @@ body { font-family: Calibri, 'Segoe UI', sans-serif; background: #EDF1F5; min-he
     </div>
   </div>
 
+  <!-- ═══ TEMPLATE MANAGER VIEW ═══ -->
+  <div id="tmplView">
+
+    <!-- Left: template library list -->
+    <div class="tm-left">
+      <div class="tm-left-header">
+        <h2>Templates</h2>
+        <button class="tm-new-btn" onclick="newTemplate()">+ New</button>
+      </div>
+      <div class="tm-filter-tabs" id="tmFilterTabs"></div>
+      <div class="tm-list" id="tmList"></div>
+    </div>
+
+    <!-- Center: template canvas with element lock overlays -->
+    <div class="tm-center">
+      <div class="tm-center-toolbar">
+        <div class="tm-view-toggle">
+          <button class="tm-vtbtn active" id="tmViewRetailer" onclick="setTmCanvasView('retailer')">Retailer Design</button>
+          <button class="tm-vtbtn" id="tmViewSupplier" onclick="setTmCanvasView('supplier')">Supplier Preview</button>
+        </div>
+        <span style="font-size:11px;color:#6B7B8D" id="tmCanvasViewNote">Click any element to toggle lock/editable</span>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="tbtn" onclick="showToast('Opening ad server simulation…')">Preview Live</button>
+          <button class="tbtn" onclick="duplicateTemplate()">⧉ Duplicate</button>
+        </div>
+      </div>
+      <div class="tm-canvas-area">
+        <div class="tm-canvas-card" id="tmCanvasCard">
+          <div style="font-size:11px;color:#6B7B8D" id="tmCanvasLabel">Select a template to preview</div>
+          <div id="tmBannerWrap"></div>
+          <div class="tm-legend">
+            <div class="tm-legend-item">
+              <div class="tm-legend-dot" style="background:rgba(229,57,53,0.25);border:1.5px solid #E53935;border-radius:2px"></div>
+              <span>Locked by retailer</span>
+            </div>
+            <div class="tm-legend-item">
+              <div class="tm-legend-dot" style="background:rgba(67,160,71,0.15);border:1.5px dashed #43A047;border-radius:2px"></div>
+              <span>Editable by supplier</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: template settings panel -->
+    <div class="tm-right">
+      <div class="tm-right-header">
+        <h3 id="tmSettingsTitle">Template Settings</h3>
+        <p id="tmSettingsSub">Select a template to configure</p>
+      </div>
+      <div class="tm-settings-scroll" id="tmSettingsScroll">
+        <div style="padding:32px 16px;text-align:center;color:#6B7B8D;font-size:12px">
+          Select a template from the library to view and edit its settings.
+        </div>
+      </div>
+      <div class="tm-action-area" id="tmActionArea" style="display:none"></div>
+    </div>
+
+  </div>
+
 </div>
 
 <!-- Modal -->
@@ -919,17 +1062,86 @@ const dcoState = {
   aiEngine: 'bedrock',
 };
 
+// ══════════════════════════════════════════
+// TEMPLATE MANAGER DATA
+// ══════════════════════════════════════════
+const TEMPLATES = [
+  {
+    id:'t1', name:'HD Spring Sale — Onsite Rectangle',
+    platform:'onsite', size:{ label:'Medium Rectangle', dims:'300×250', w:300, h:250 },
+    status:'active', supplier:'All Suppliers', color:'#1E3A5F',
+    createdBy:'Amanda Bowman', lastUpdated:'Apr 8', notes:'Primary onsite template for Q2 supplier campaigns. Brand bar and legal are always locked.',
+    elements:[
+      { id:'headline', label:'Headline',  locked:true,  maxChars:30,  source:'Approved Library' },
+      { id:'sub',      label:'Subhead',   locked:false, maxChars:50,  source:'Supplier Free Text' },
+      { id:'cta',      label:'CTA',       locked:true,  maxChars:15,  source:'Approved Library' },
+      { id:'image',    label:'Image',     locked:false, maxChars:null,source:'Supplier Upload' },
+      { id:'legal',    label:'Legal',     locked:true,  maxChars:80,  source:'Legal Approved' },
+      { id:'brand',    label:'Brand Bar', locked:true,  maxChars:null,source:'HD Standard' },
+    ],
+  },
+  {
+    id:'t2', name:'Meta Feed — Offsite Supplier Ad',
+    platform:'meta', size:{ label:'Feed (1.91:1)', dims:'1200×628', w:1200, h:628 },
+    status:'draft', supplier:'All Suppliers', color:'#1877F2',
+    createdBy:'Susan Berenson', lastUpdated:'Apr 9', notes:'New offsite template for Meta campaigns. Pending retailer sign-off.',
+    elements:[
+      { id:'headline', label:'Headline',  locked:false, maxChars:40,  source:'Supplier Free Text' },
+      { id:'sub',      label:'Subhead',   locked:false, maxChars:60,  source:'Supplier Free Text' },
+      { id:'cta',      label:'CTA',       locked:true,  maxChars:15,  source:'Approved Library' },
+      { id:'image',    label:'Image',     locked:false, maxChars:null,source:'Supplier Upload' },
+      { id:'legal',    label:'Legal',     locked:true,  maxChars:80,  source:'Legal Approved' },
+      { id:'brand',    label:'Brand Bar', locked:true,  maxChars:null,source:'HD Standard' },
+    ],
+  },
+  {
+    id:'t3', name:'Leaderboard — Event Promo',
+    platform:'onsite', size:{ label:'Leaderboard', dims:'728×90', w:728, h:90 },
+    status:'review', supplier:'Power Tool Suppliers', color:'#1E3A5F',
+    createdBy:'Amanda Bowman', lastUpdated:'Apr 7', notes:'Compact format — headline and CTA locked to keep brand safe at small size.',
+    elements:[
+      { id:'headline', label:'Headline',  locked:true,  maxChars:25,  source:'Approved Library' },
+      { id:'cta',      label:'CTA',       locked:true,  maxChars:12,  source:'Approved Library' },
+      { id:'image',    label:'Image',     locked:false, maxChars:null,source:'Supplier Upload' },
+      { id:'brand',    label:'Brand Bar', locked:true,  maxChars:null,source:'HD Standard' },
+    ],
+  },
+  {
+    id:'t4', name:'Google Half Page — Standard',
+    platform:'google', size:{ label:'Half Page', dims:'300×600', w:300, h:600 },
+    status:'archived', supplier:'All Suppliers', color:'#EA4335',
+    createdBy:'Susan Berenson', lastUpdated:'Mar 12', notes:'Archived — superseded by the new Q2 half-page template.',
+    elements:[
+      { id:'headline', label:'Headline',  locked:true,  maxChars:30,  source:'Approved Library' },
+      { id:'sub',      label:'Subhead',   locked:true,  maxChars:50,  source:'Approved Library' },
+      { id:'cta',      label:'CTA',       locked:true,  maxChars:15,  source:'Approved Library' },
+      { id:'image',    label:'Image',     locked:false, maxChars:null,source:'Supplier Upload' },
+      { id:'legal',    label:'Legal',     locked:true,  maxChars:80,  source:'Legal Approved' },
+      { id:'brand',    label:'Brand Bar', locked:true,  maxChars:null,source:'HD Standard' },
+    ],
+  },
+];
+
+const tmState = {
+  selectedTemplate: 't1',
+  filter: 'all',
+  canvasView: 'retailer',
+};
+
 // ── View switcher ──
 function switchView(v) {
   state.view = v;
   document.getElementById('builderView').style.display   = v === 'builder'  ? 'flex' : 'none';
   document.getElementById('dcoView').style.display       = v === 'dco'      ? 'flex' : 'none';
   document.getElementById('approvalView').style.display  = v === 'approval' ? 'flex' : 'none';
+  document.getElementById('tmplView').style.display      = v === 'template' ? 'flex' : 'none';
   document.getElementById('vtBuilder').classList.toggle('active',  v === 'builder');
   document.getElementById('vtDco').classList.toggle('active',      v === 'dco');
   document.getElementById('vtApproval').classList.toggle('active', v === 'approval');
+  document.getElementById('vtTemplate').classList.toggle('active', v === 'template');
   if (v === 'approval') renderApprovalView();
   if (v === 'dco')      renderDCOView();
+  if (v === 'template') renderTemplateView();
 }
 
 // ══════════════════════════════════════════
@@ -1148,6 +1360,294 @@ function publishDCO() {
     btn.style.background = '#43A047';
     showToast('DCO campaign published to Vantage ad server!');
   }, 1800);
+}
+
+// ══════════════════════════════════════════
+// TEMPLATE MANAGER FUNCTIONS
+// ══════════════════════════════════════════
+function renderTemplateView() {
+  renderTmFilterTabs();
+  renderTmList();
+  selectTemplate(tmState.selectedTemplate);
+}
+
+function renderTmFilterTabs() {
+  const filters = ['all','active','draft','review','archived'];
+  const labels  = { all:'All', active:'Active', draft:'Draft', review:'In Review', archived:'Archived' };
+  document.getElementById('tmFilterTabs').innerHTML = filters.map(f =>
+    `<button class="tm-ftab${f===tmState.filter?' active':''}" onclick="setTmFilter('${f}')">${labels[f]}</button>`
+  ).join('');
+}
+
+function setTmFilter(f) {
+  tmState.filter = f;
+  renderTmFilterTabs();
+  renderTmList();
+}
+
+function renderTmList() {
+  const templates = tmState.filter === 'all'
+    ? TEMPLATES
+    : TEMPLATES.filter(t => t.status === tmState.filter);
+  const statusLabel = { active:'Active', draft:'Draft', review:'In Review', archived:'Archived' };
+  document.getElementById('tmList').innerHTML = templates.length
+    ? templates.map(t => {
+        const lockedCount = t.elements.filter(e => e.locked).length;
+        const editCount   = t.elements.filter(e => !e.locked).length;
+        const thumb = makeColorBlock(t.color, 44, 28);
+        return `<div class="tm-card${t.id===tmState.selectedTemplate?' selected':''}" onclick="selectTemplate('${t.id}')">
+          <div class="tm-card-top">
+            <div class="tm-card-thumb"><img src="${thumb}" style="width:100%;height:100%;object-fit:cover;display:block"></div>
+            <div class="tm-card-title">${t.name}</div>
+          </div>
+          <div class="tm-card-meta">
+            <span class="tm-card-dims">${t.size.dims}</span>
+            <span class="tm-status-badge tmst-${t.status}">${statusLabel[t.status]}</span>
+            <span class="tm-lock-count">🔒${lockedCount} ✏${editCount}</span>
+          </div>
+        </div>`;
+      }).join('')
+    : '<div style="padding:12px;font-size:12px;color:#6B7B8D">No templates match this filter.</div>';
+}
+
+function selectTemplate(id) {
+  tmState.selectedTemplate = id;
+  renderTmList();
+  renderTmBanner();
+  renderTmSettings();
+}
+
+function setTmCanvasView(v) {
+  tmState.canvasView = v;
+  document.getElementById('tmViewRetailer').classList.toggle('active', v === 'retailer');
+  document.getElementById('tmViewSupplier').classList.toggle('active', v === 'supplier');
+  document.getElementById('tmCanvasViewNote').textContent = v === 'retailer'
+    ? 'Click any element to toggle lock / editable'
+    : 'Supplier view — editable fields shown, locked elements are fixed';
+  renderTmBanner();
+}
+
+function renderTmBanner() {
+  const t = TEMPLATES.find(t => t.id === tmState.selectedTemplate);
+  if (!t) return;
+  const s = t.size;
+  const scale = Math.min(500 / s.w, 360 / s.h, 1);
+  const dw = Math.round(s.w * scale), dh = Math.round(s.h * scale);
+  const bgSrc = makeColorBlock(t.color, dw, dh);
+  const barH = dh < 80 ? 14 : 28;
+  const textVisible = dh >= 80;
+  const hl = Math.max(9, Math.min(20, dh * 0.09));
+
+  document.getElementById('tmCanvasLabel').textContent = `${t.name} · ${s.dims}`;
+
+  // Base banner HTML
+  let inner = `<img src="${bgSrc}" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">`;
+  if (textVisible) {
+    inner += `<div style="position:absolute;top:${Math.round(dh*.08)}px;left:${Math.round(dw*.05)}px;max-width:62%;z-index:2">
+      <div style="font-size:${hl}px;font-weight:800;color:#fff;text-shadow:0 2px 5px rgba(0,0,0,.5);line-height:1.2">Spring Into Savings</div>
+      <div style="font-size:${Math.round(hl*.6)}px;color:rgba(255,255,255,.9);margin-top:3px;text-shadow:0 1px 3px rgba(0,0,0,.4)">Up to 40% off power tools</div>
+    </div>
+    <div style="position:absolute;bottom:${barH+5}px;right:${Math.round(dw*.04)}px;background:#F97316;color:#fff;padding:${dh<150?'3px 8px':'6px 14px'};border-radius:3px;font-size:${Math.round(hl*.55)}px;font-weight:700;z-index:2">Shop Now</div>`;
+  }
+  inner += `<div style="position:absolute;bottom:0;left:0;right:0;height:${barH}px;background:#F96302;display:flex;align-items:center;padding:0 ${Math.round(dw*.04)}px;z-index:2">
+    <span style="color:#fff;font-size:${Math.max(8,Math.round(barH*.45))}px;font-weight:900;letter-spacing:-.3px">THE HOME DEPOT®</span>
+  </div>`;
+
+  // Element overlays
+  const isRetailer = tmState.canvasView === 'retailer';
+  let overlays = '';
+  t.elements.forEach(el => {
+    if (!isRetailer && el.locked) return; // supplier: hide locked elements' overlays (they're just static)
+    const pos = getTmElPos(el.id, dw, dh, barH, hl, textVisible);
+    if (!pos) return;
+    const cls = el.locked ? 'locked' : 'editable';
+    const icon = el.locked ? '🔒' : '✏';
+    const clickAttr = isRetailer ? `onclick="toggleTmLock('${t.id}','${el.id}')"` : '';
+    const titleAttr = isRetailer ? `title="${el.label}: ${cls}. Click to toggle."` : `title="${el.label}: supplier can edit"`;
+    overlays += `<div class="tm-el-overlay ${cls}" ${clickAttr} ${titleAttr}
+      style="left:${pos.x}px;top:${pos.y}px;width:${pos.w}px;height:${pos.h}px;border-radius:3px;z-index:10">
+      <span class="tm-el-badge ${cls}">${icon} ${el.label}</span>
+    </div>`;
+  });
+
+  document.getElementById('tmBannerWrap').innerHTML =
+    `<div style="position:relative;width:${dw}px;height:${dh}px;box-shadow:0 4px 24px rgba(0,0,0,0.14);border-radius:4px;overflow:hidden">
+      ${inner}${overlays}
+    </div>`;
+}
+
+function getTmElPos(elId, dw, dh, barH, hl, textVisible) {
+  const tl = Math.round(dw * .05), tt = Math.round(dh * .08);
+  if (!textVisible) {
+    // Very short banners (leaderboard etc.): image corner badge + brand bar only
+    if (elId === 'image') return { x:2, y:2, w:52, h:20 };
+    if (elId === 'brand') return { x:0, y:dh-barH, w:dw, h:barH };
+    return null;
+  }
+  const ctaH = Math.round(hl * .55 * 1.6 + 8);
+  const ctaW = Math.max(52, Math.round(dw * .24));
+  switch (elId) {
+    case 'headline': return { x:tl, y:tt, w:Math.round(dw*.62), h:Math.round(hl*1.4) };
+    case 'sub':      return { x:tl, y:tt+Math.round(hl*1.5), w:Math.round(dw*.62), h:Math.round(hl*.9) };
+    case 'cta':      return { x:dw-ctaW-Math.round(dw*.04), y:dh-barH-ctaH-6, w:ctaW, h:ctaH };
+    case 'image':    return { x:2, y:2, w:58, h:22 }; // corner badge — avoids blocking text
+    case 'legal':    return { x:0, y:dh-barH-18, w:dw, h:16 };
+    case 'brand':    return { x:0, y:dh-barH, w:dw, h:barH };
+    default: return null;
+  }
+}
+
+function toggleTmLock(templateId, elId) {
+  const t = TEMPLATES.find(t => t.id === templateId); if (!t) return;
+  const el = t.elements.find(e => e.id === elId); if (!el) return;
+  el.locked = !el.locked;
+  renderTmBanner();
+  renderTmSettings();
+  showToast(`${el.label} → ${el.locked ? '🔒 Locked' : '✏ Editable'}`);
+}
+
+function renderTmSettings() {
+  const t = TEMPLATES.find(t => t.id === tmState.selectedTemplate); if (!t) return;
+  document.getElementById('tmSettingsTitle').textContent = t.name;
+  document.getElementById('tmSettingsSub').textContent = `${PLATFORMS[t.platform].label} · ${t.size.dims}`;
+
+  const statusSteps = [
+    { key:'draft',    label:'Draft',       color:'#9BA8B5' },
+    { key:'review',   label:'In Review',   color:'#F57C00' },
+    { key:'active',   label:'Active',      color:'#43A047' },
+    { key:'archived', label:'Archived',    color:'#7B1FA2' },
+  ];
+  const lcHtml = statusSteps.map(s =>
+    `<div class="tm-lc-row">
+      <div class="tm-lc-dot" style="background:${t.status===s.key ? s.color : '#DDE3EA'}"></div>
+      <div class="tm-lc-step${t.status===s.key?' active':''}">${s.label}</div>
+      ${t.status===s.key ? `<span class="tm-status-badge tmst-${t.status}">Current</span>` : ''}
+    </div>`
+  ).join('');
+
+  const elRows = t.elements.map(el =>
+    `<tr>
+      <td style="font-size:12px;font-weight:600;padding-right:4px">${el.label}</td>
+      <td>
+        <div class="tm-lock-toggle">
+          <button class="tm-lt-btn${el.locked?' locked':''}" onclick="tmSetLock('${t.id}','${el.id}',true)">🔒</button>
+          <button class="tm-lt-btn${!el.locked?' editable':''}" onclick="tmSetLock('${t.id}','${el.id}',false)">✏</button>
+        </div>
+      </td>
+      <td style="text-align:center">${el.maxChars!==null
+        ? `<input class="tm-char-limit" type="number" value="${el.maxChars}" min="1" max="300"
+            onchange="tmSetCharLimit('${t.id}','${el.id}',+this.value)" title="Max characters">`
+        : '<span style="color:#DDE3EA">—</span>'}</td>
+      <td style="font-size:10px;color:#6B7B8D;max-width:80px;line-height:1.3">${el.source}</td>
+    </tr>`
+  ).join('');
+
+  const lockedN = t.elements.filter(e=>e.locked).length;
+  const editN   = t.elements.filter(e=>!e.locked).length;
+
+  document.getElementById('tmSettingsScroll').innerHTML = `
+    <div class="tm-setting-group">
+      <div class="tm-setting-label">Template Name</div>
+      <input class="tm-text-input" type="text" value="${t.name}" onchange="tmRename('${t.id}',this.value)">
+    </div>
+    <div class="tm-setting-group">
+      <div class="tm-setting-label">Status</div>
+      ${lcHtml}
+    </div>
+    <div class="tm-setting-group">
+      <div class="tm-setting-label">Supplier Access</div>
+      <div class="tm-setting-row"><span class="tm-setting-name">Available to</span><span style="font-size:12px;font-weight:700;color:#1E3A5F">${t.supplier}</span></div>
+      <div class="tm-setting-row"><span class="tm-setting-name">Platform</span><span style="font-size:12px;font-weight:700;color:${t.color}">${PLATFORMS[t.platform].label}</span></div>
+      <div class="tm-setting-row"><span class="tm-setting-name">Created by</span><span style="font-size:12px;color:#6B7B8D">${t.createdBy}</span></div>
+      <div class="tm-setting-row"><span class="tm-setting-name">Updated</span><span style="font-size:12px;color:#6B7B8D">${t.lastUpdated}</span></div>
+    </div>
+    <div class="tm-setting-group">
+      <div class="tm-setting-label">Element Constraints</div>
+      <div style="font-size:10px;color:#6B7B8D;margin-bottom:8px">🔒 ${lockedN} locked by retailer &nbsp;·&nbsp; ✏ ${editN} editable by supplier</div>
+      <table class="tm-el-table">
+        <thead><tr><th>Element</th><th>Lock</th><th style="text-align:center">Max</th><th>Copy Source</th></tr></thead>
+        <tbody>${elRows}</tbody>
+      </table>
+    </div>
+    <div class="tm-setting-group">
+      <div class="tm-setting-label">Notes for Suppliers</div>
+      <textarea class="tm-text-input" rows="3" style="resize:vertical;margin-bottom:0" placeholder="Add guidelines for suppliers…">${t.notes||''}</textarea>
+    </div>`;
+
+  // Action buttons
+  const area = document.getElementById('tmActionArea');
+  area.style.display = '';
+  if (t.status === 'archived') {
+    area.innerHTML = `<button class="tm-pub-btn republish" onclick="tmTransition('active')">↺ Republish Template</button>`;
+  } else {
+    let btns = '';
+    if (t.status === 'draft')                      btns += `<button class="tm-pub-btn to-review" onclick="tmTransition('review')">Submit for Review →</button>`;
+    if (t.status === 'review')                     btns += `<button class="tm-pub-btn to-publish" onclick="tmTransition('active')">✓ Publish Template</button>`;
+    if (['active','review'].includes(t.status))    btns += `<button class="tm-pub-btn to-archive" onclick="tmTransition('archived')">Archive</button>`;
+    area.innerHTML = btns;
+  }
+}
+
+function tmSetLock(tid, elId, locked) {
+  const t = TEMPLATES.find(t=>t.id===tid); if(!t) return;
+  const el = t.elements.find(e=>e.id===elId); if(!el) return;
+  el.locked = locked;
+  renderTmBanner(); renderTmSettings();
+  showToast(`${el.label} → ${locked ? '🔒 Locked' : '✏ Editable'}`);
+}
+
+function tmSetCharLimit(tid, elId, val) {
+  const t = TEMPLATES.find(t=>t.id===tid); if(!t) return;
+  const el = t.elements.find(e=>e.id===elId); if(!el) return;
+  el.maxChars = val;
+  showToast(`${el.label} max chars set to ${val}`);
+}
+
+function tmRename(id, name) {
+  const t = TEMPLATES.find(t=>t.id===id); if(!t) return;
+  t.name = name; renderTmList();
+  document.getElementById('tmSettingsTitle').textContent = name;
+}
+
+function tmTransition(newStatus) {
+  const t = TEMPLATES.find(t=>t.id===tmState.selectedTemplate); if(!t) return;
+  t.status = newStatus;
+  const msgs = { review:'Submitted for retailer review!', active:'Template published — suppliers can now use it.', archived:'Template archived.', draft:'Moved back to draft.' };
+  renderTmList(); renderTmSettings();
+  showToast(msgs[newStatus] || 'Status updated');
+}
+
+function newTemplate() {
+  const id = 'tnew-' + Date.now();
+  TEMPLATES.unshift({
+    id, name:'New Template', platform:'onsite',
+    size:{ label:'Medium Rectangle', dims:'300×250', w:300, h:250 },
+    status:'draft', supplier:'All Suppliers', color:'#1E3A5F',
+    createdBy:'You', lastUpdated:'Today', notes:'',
+    elements:[
+      { id:'headline', label:'Headline',  locked:false, maxChars:30,  source:'Supplier Free Text' },
+      { id:'sub',      label:'Subhead',   locked:false, maxChars:50,  source:'Supplier Free Text' },
+      { id:'cta',      label:'CTA',       locked:true,  maxChars:15,  source:'Approved Library' },
+      { id:'image',    label:'Image',     locked:false, maxChars:null,source:'Supplier Upload' },
+      { id:'legal',    label:'Legal',     locked:true,  maxChars:80,  source:'Legal Approved' },
+      { id:'brand',    label:'Brand Bar', locked:true,  maxChars:null,source:'HD Standard' },
+    ],
+  });
+  tmState.selectedTemplate = id; tmState.filter = 'all';
+  renderTmFilterTabs(); renderTmList(); renderTmBanner(); renderTmSettings();
+  showToast('New template created — configure and publish');
+}
+
+function duplicateTemplate() {
+  const orig = TEMPLATES.find(t=>t.id===tmState.selectedTemplate); if(!orig) return;
+  const id = 'tdup-' + Date.now();
+  TEMPLATES.splice(TEMPLATES.indexOf(orig)+1, 0, {
+    ...orig, id, name: orig.name + ' (Copy)', status:'draft',
+    elements: orig.elements.map(e=>({...e})),
+  });
+  tmState.selectedTemplate = id;
+  renderTmList(); renderTmBanner(); renderTmSettings();
+  showToast('Template duplicated as draft');
 }
 
 // ── Init ──
