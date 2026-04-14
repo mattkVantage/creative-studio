@@ -3,1410 +3,1779 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vantage Creative Studio — HD Demo</title>
+<title>Creative Studio — Banner Builder</title>
+<script src="https://unpkg.com/konva@9/konva.min.js"></script>
 <style>
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; }
-body { font-family: Calibri, 'Segoe UI', sans-serif; background: #EDF1F5; color: #1E3A5F; font-size: 13px; display: flex; flex-direction: column; overflow: hidden; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Calibri, 'Segoe UI', sans-serif; background: #EDF1F5; min-height: 100vh; color: #1E3A5F; font-size: 13px; }
+.app-shell { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-/* ──────────── LOGIN ──────────── */
+/* ── Login screen ── */
 #loginScreen { position: fixed; inset: 0; background: #1E3A5F; display: flex; align-items: center; justify-content: center; z-index: 999; }
 #loginScreen.hidden { display: none; }
-.login-card { background: #fff; border-radius: 14px; padding: 42px 46px; width: 390px; max-width: 94vw; box-shadow: 0 20px 70px rgba(0,0,0,0.45); }
+.login-card { background: #fff; border-radius: 14px; padding: 40px 44px; width: 380px; max-width: 92vw; box-shadow: 0 16px 60px rgba(0,0,0,0.35); }
 .login-logo { font-size: 22px; font-weight: 700; color: #1E3A5F; margin-bottom: 4px; }
 .login-logo span { color: #F97316; }
-.login-sub { font-size: 12px; color: #6B7B8D; margin-bottom: 32px; }
-.login-label { display: block; font-size: 11px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; }
-.login-input { display: block; width: 100%; padding: 9px 12px; font-size: 13px; font-family: inherit; border: 1.5px solid #DDE3EA; border-radius: 7px; color: #1E3A5F; margin-bottom: 16px; outline: none; transition: border-color 0.15s; }
+.login-tagline { font-size: 12px; color: #6B7B8D; margin-bottom: 28px; }
+.login-label { font-size: 11px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px; display: block; }
+.login-input { width: 100%; padding: 9px 12px; font-size: 13px; border: 1px solid #DDE3EA; border-radius: 7px; font-family: inherit; color: #1E3A5F; margin-bottom: 14px; outline: none; transition: border-color 0.15s; }
 .login-input:focus { border-color: #1E3A5F; }
 .login-input.error { border-color: #E53935; background: #FFEBEE; }
-.login-btn { width: 100%; padding: 11px; font-size: 13px; font-weight: 700; font-family: inherit; background: #F97316; color: #fff; border: none; border-radius: 7px; cursor: pointer; transition: background 0.15s; margin-top: 4px; }
-.login-btn:hover { background: #e06610; }
-.login-error { min-height: 18px; font-size: 12px; color: #E53935; text-align: center; margin-top: 10px; }
-.login-badge { margin-top: 22px; text-align: center; font-size: 11px; color: #aaa; }
+.login-btn { width: 100%; padding: 10px; font-size: 13px; font-weight: 700; background: #1E3A5F; color: #fff; border: none; border-radius: 7px; cursor: pointer; font-family: inherit; transition: background 0.15s; margin-top: 4px; }
+.login-btn:hover { background: #16304f; }
+.login-error { font-size: 12px; color: #E53935; margin-top: 10px; min-height: 18px; text-align: center; }
+.login-badge { display: inline-block; background: #EDF1F5; color: #6B7B8D; font-size: 10px; font-weight: 600; padding: 3px 9px; border-radius: 4px; margin-bottom: 20px; }
 
-/* ──────────── TOPBAR ──────────── */
-.topbar { background: #1E3A5F; height: 52px; display: flex; align-items: center; padding: 0 20px; gap: 14px; flex-shrink: 0; color: #fff; }
-.topbar-logo { font-size: 16px; font-weight: 700; letter-spacing: 0.4px; white-space: nowrap; margin-right: 4px; }
+/* ── Topbar ── */
+.topbar { background: #1E3A5F; color: #fff; padding: 0 20px; height: 52px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; gap: 16px; }
+.topbar-logo { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; white-space: nowrap; }
 .topbar-logo span { color: #F97316; }
-.topbar-center { flex: 1; display: flex; justify-content: center; }
-.role-toggle { display: flex; background: rgba(255,255,255,0.13); border-radius: 7px; padding: 3px; gap: 2px; }
-.rtoggle { padding: 4px 16px; font-size: 12px; font-weight: 600; font-family: inherit; border: none; border-radius: 5px; cursor: pointer; background: transparent; color: rgba(255,255,255,0.65); transition: all 0.15s; white-space: nowrap; }
-.rtoggle.active { background: #fff; color: #1E3A5F; }
-.topbar-right { display: flex; align-items: center; gap: 8px; }
-.demo-btn { padding: 4px 11px; font-size: 11px; font-weight: 700; font-family: inherit; background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.85); border: 1px solid rgba(255,255,255,0.2); border-radius: 5px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
-.demo-btn:hover { background: rgba(255,255,255,0.22); color: #fff; }
-.role-badge { background: rgba(249,115,22,0.9); color: #fff; font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 4px; white-space: nowrap; }
-.role-badge::before { content: '● '; font-size: 9px; }
+.topbar-meta { display: flex; align-items: center; gap: 14px; font-size: 12px; opacity: 0.85; }
+.topbar-divider { width: 1px; height: 14px; background: rgba(255,255,255,0.2); }
+.view-toggle { display: flex; background: rgba(255,255,255,0.12); border-radius: 6px; padding: 3px; gap: 2px; }
+.vtoggle { padding: 4px 14px; font-size: 12px; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; background: transparent; color: rgba(255,255,255,0.7); transition: all 0.15s; white-space: nowrap; }
+.vtoggle.active { background: #fff; color: #1E3A5F; }
+#statusTopbar { background: rgba(255,255,255,0.15); padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; white-space: nowrap; }
 
-/* ──────────── MAIN SHELL ──────────── */
-.app-shell { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
-.workspace { flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+/* ── Shared workspace ── */
+.workspace { display: flex; flex: 1; overflow: hidden; }
 
-/* ──────────── SUPPLIER VIEW ──────────── */
-#supplierView { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
-.sup-step-bar { background: #fff; border-bottom: 1px solid #DDE3EA; padding: 0 28px; height: 46px; display: flex; align-items: center; gap: 0; flex-shrink: 0; }
-.step-item { display: flex; align-items: center; gap: 8px; padding: 0 12px; height: 100%; color: #aaa; font-size: 12px; font-weight: 600; white-space: nowrap; }
-.step-item.active { color: #1E3A5F; border-bottom: 2px solid #F97316; }
-.step-item.done { color: #43A047; }
-.step-num { width: 22px; height: 22px; border-radius: 50%; background: #DDE3EA; color: #888; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.step-item.active .step-num { background: #1E3A5F; color: #fff; }
-.step-item.done .step-num { background: #43A047; color: #fff; }
-.step-arrow { color: #DDE3EA; font-size: 14px; flex-shrink: 0; }
-.sup-content { flex: 1; overflow-y: auto; padding: 24px 28px; }
+/* ═══════════════════════════════════════════
+   BUILDER VIEW
+═══════════════════════════════════════════ */
+.panel-left { width: 260px; flex-shrink: 0; background: #fff; border-right: 1px solid #DDE3EA; display: flex; flex-direction: column; overflow: hidden; }
+.panel-section { border-bottom: 1px solid #EDF1F5; }
+.panel-section-header { padding: 10px 14px 8px; font-size: 11px; font-weight: 700; color: #6B7B8D; letter-spacing: 0.6px; text-transform: uppercase; display: flex; align-items: center; justify-content: space-between; }
+.platform-tabs { display: flex; gap: 4px; padding: 10px 14px; flex-wrap: wrap; }
+.ptab { flex: 1; min-width: 52px; padding: 6px 4px; font-size: 11px; font-weight: 600; border: 1px solid #DDE3EA; border-radius: 6px; background: #F5F7FA; color: #6B7B8D; cursor: pointer; text-align: center; font-family: inherit; transition: all 0.15s; }
+.ptab:hover { border-color: #1E3A5F; color: #1E3A5F; }
+.ptab.active { background: #1E3A5F; color: #fff; border-color: #1E3A5F; }
+.ptab.active.meta { background: #1877F2; border-color: #1877F2; }
+.ptab.active.google { background: #EA4335; border-color: #EA4335; }
+.ptab.active.reddit { background: #FF4500; border-color: #FF4500; }
+.size-list { display: flex; flex-direction: column; gap: 4px; padding: 0 14px 12px; }
+.size-item { padding: 7px 10px; border: 1px solid #DDE3EA; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.15s; }
+.size-item:hover { border-color: #1E3A5F; background: #F5F7FA; }
+.size-item.selected { border-color: #1E3A5F; background: #EEF2F7; }
+.size-item .size-label { font-size: 12px; font-weight: 600; }
+.size-item .size-dims { font-size: 11px; color: #6B7B8D; }
+.size-item .size-tag { font-size: 10px; padding: 1px 6px; border-radius: 3px; background: #F0FDF4; color: #43A047; font-weight: 600; }
+.upload-zone { border: 2px dashed #DDE3EA; border-radius: 8px; padding: 16px 10px; text-align: center; cursor: pointer; transition: all 0.15s; margin: 0 14px 10px; }
+.upload-zone:hover, .upload-zone.dragover { border-color: #1E3A5F; background: #F0F4FA; }
+.upload-zone .upload-icon { font-size: 22px; margin-bottom: 6px; }
+.upload-zone .upload-label { font-size: 12px; font-weight: 600; color: #1E3A5F; }
+.upload-zone .upload-sub { font-size: 11px; color: #6B7B8D; margin-top: 3px; }
+.asset-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; padding: 0 14px 12px; }
+.asset-thumb { aspect-ratio: 1; border-radius: 5px; border: 2px solid transparent; cursor: pointer; overflow: hidden; position: relative; }
+.asset-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.asset-thumb.selected { border-color: #1E3A5F; }
+.asset-thumb .asset-check { position: absolute; top: 3px; right: 3px; width: 16px; height: 16px; background: #1E3A5F; border-radius: 50%; display: none; align-items: center; justify-content: center; color: #fff; font-size: 10px; }
+.asset-thumb.selected .asset-check { display: flex; }
+.panel-left-scroll { flex: 1; overflow-y: auto; }
+.copy-search { padding: 8px 14px 6px; }
+.copy-search input { width: 100%; padding: 6px 10px; font-size: 12px; border: 1px solid #DDE3EA; border-radius: 6px; font-family: inherit; color: #1E3A5F; }
+.copy-list { padding: 0 14px 12px; display: flex; flex-direction: column; gap: 5px; }
+.copy-item { padding: 8px 10px; border: 1px solid #DDE3EA; border-radius: 6px; cursor: pointer; transition: all 0.15s; }
+.copy-item:hover { border-color: #1E3A5F; background: #F5F7FA; }
+.copy-item.in-use { border-color: #43A047; background: #F0FDF4; }
+.copy-item .copy-tag { font-size: 10px; font-weight: 600; color: #6B7B8D; margin-bottom: 3px; letter-spacing: 0.4px; }
+.copy-item .copy-tag.headline { color: #1E3A5F; }
+.copy-item .copy-tag.cta { color: #F97316; }
+.copy-item .copy-tag.legal { color: #9B59B6; }
+.copy-item .copy-text { font-size: 12px; color: #1E3A5F; line-height: 1.4; }
+.copy-item .copy-approved { font-size: 10px; color: #43A047; font-weight: 600; margin-top: 3px; }
+.panel-center { flex: 1; display: flex; flex-direction: column; align-items: center; background: #DDE3EA; overflow: auto; padding: 24px; gap: 16px; }
+.canvas-toolbar { width: 100%; max-width: 900px; background: #fff; border-radius: 8px; padding: 10px 16px; display: flex; align-items: center; gap: 12px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); flex-shrink: 0; }
+.toolbar-group { display: flex; align-items: center; gap: 6px; }
+.toolbar-sep { width: 1px; height: 20px; background: #DDE3EA; }
+.tbtn { padding: 5px 10px; font-size: 11px; font-weight: 600; border: 1px solid #DDE3EA; border-radius: 5px; background: #fff; color: #1E3A5F; cursor: pointer; font-family: inherit; display: flex; align-items: center; gap: 4px; }
+.tbtn:hover { background: #F5F7FA; }
+.tbtn.active { background: #EEF2F7; border-color: #1E3A5F; }
+.tbtn.primary { background: #1E3A5F; color: #fff; border-color: #1E3A5F; }
+.canvas-wrap { position: relative; display: flex; align-items: center; justify-content: center; }
+.canvas-outer { background: #fff; box-shadow: 0 4px 24px rgba(0,0,0,0.14); border-radius: 4px; overflow: hidden; position: relative; transition: all 0.2s; }
+.canvas-bg-placeholder { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #EDF1F5 0%, #DDE3EA 100%); z-index: 1; pointer-events: none; }
+#konvaStage { position: absolute; top: 0; left: 0; cursor: default; }
+.canvas-text-overlay { position: absolute; padding: 12px 16px; cursor: move; user-select: none; }
+.canvas-text-overlay .overlay-headline { font-size: 22px; font-weight: 800; color: #fff; text-shadow: 0 2px 6px rgba(0,0,0,0.4); line-height: 1.2; }
+.canvas-text-overlay .overlay-sub { font-size: 14px; color: rgba(255,255,255,0.9); margin-top: 4px; text-shadow: 0 1px 4px rgba(0,0,0,0.3); }
+.canvas-cta-btn { position: absolute; bottom: 16px; right: 16px; background: #F97316; color: #fff; padding: 8px 18px; border-radius: 4px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.canvas-brand-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 36px; background: #F96302; display: flex; align-items: center; padding: 0 14px; }
+.canvas-brand-logo { color: #fff; font-size: 15px; font-weight: 900; letter-spacing: -0.5px; }
+.canvas-legal { position: absolute; bottom: 40px; left: 0; right: 0; text-align: center; font-size: 9px; color: rgba(255,255,255,0.6); padding: 0 12px; }
+.canvas-size-info { font-size: 11px; color: #6B7B8D; text-align: center; }
 
-/* Template grid */
-.tmpl-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; max-width: 900px; }
-.tmpl-card { background: #fff; border: 1.5px solid #DDE3EA; border-radius: 10px; padding: 18px 20px; transition: box-shadow 0.15s, border-color 0.15s; }
-.tmpl-card:hover { box-shadow: 0 4px 20px rgba(30,58,95,0.10); border-color: #b0c0d0; }
-.tmpl-card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 6px; }
-.tmpl-name { font-size: 14px; font-weight: 700; color: #1E3A5F; flex: 1; }
-.badge-live { display: inline-block; background: #E8F5E9; color: #43A047; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; }
-.tmpl-channels { display: flex; flex-wrap: wrap; gap: 5px; margin: 8px 0; }
-.ch-pill { background: #EDF1F5; color: #1E3A5F; font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 3px; }
-.tmpl-constraints { font-size: 11px; color: #6B7B8D; margin-bottom: 6px; }
-.tmpl-desc { font-size: 12px; color: #5a6a7a; margin-bottom: 12px; line-height: 1.45; }
-.tmpl-supplier { font-size: 11px; color: #6B7B8D; margin-bottom: 14px; }
-.tmpl-supplier strong { color: #1E3A5F; }
-.btn-primary { padding: 8px 18px; font-size: 12px; font-weight: 700; font-family: inherit; background: #F97316; color: #fff; border: none; border-radius: 6px; cursor: pointer; transition: background 0.15s; white-space: nowrap; }
-.btn-primary:hover { background: #e06610; }
-.btn-secondary { padding: 8px 18px; font-size: 12px; font-weight: 700; font-family: inherit; background: #EDF1F5; color: #1E3A5F; border: 1.5px solid #DDE3EA; border-radius: 6px; cursor: pointer; transition: all 0.15s; white-space: nowrap; }
-.btn-secondary:hover { background: #dde3ea; }
+/* ── Image adjust panel ── */
+.adj-row { padding: 0 14px 9px; }
+.adj-label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+.adj-label { font-size: 11px; font-weight: 600; color: #1E3A5F; }
+.adj-value { font-size: 11px; color: #6B7B8D; font-weight: 700; min-width: 38px; text-align: right; font-variant-numeric: tabular-nums; }
+.adj-slider { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px; background: #DDE3EA; cursor: pointer; outline: none; display: block; }
+.adj-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 15px; height: 15px; border-radius: 50%; background: #1E3A5F; cursor: pointer; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.25); }
+.adj-slider::-moz-range-thumb { width: 15px; height: 15px; border-radius: 50%; background: #1E3A5F; cursor: pointer; border: 2px solid #fff; }
+.adj-btn-row { display: flex; gap: 5px; padding: 2px 14px 12px; }
+.adj-btn { flex: 1; padding: 5px 4px; font-size: 11px; font-weight: 600; border: 1px solid #DDE3EA; border-radius: 5px; background: #fff; color: #1E3A5F; cursor: pointer; font-family: inherit; text-align: center; transition: all 0.12s; }
+.adj-btn:hover { background: #F5F7FA; }
+.adj-btn.flip-active { background: #EEF2F7; border-color: #1E3A5F; color: #1E3A5F; }
+.adj-btn.reset-btn { color: #E53935; border-color: #FFCDD2; }
+.adj-btn.reset-btn:hover { background: #FFEBEE; }
+.adj-section-divider { height: 1px; background: #EDF1F5; margin: 2px 14px 10px; }
+.img-select-hint { font-size: 11px; color: #6B7B8D; text-align: center; padding: 6px 14px 10px; }
+/* Konva canvas sits above HTML overlays need to come above it */
+.canvas-text-overlay, .canvas-cta-btn, .canvas-legal, .canvas-brand-bar { z-index: 2; }
 
-/* Editor layout */
-.editor-layout { display: grid; grid-template-columns: 340px 1fr; gap: 24px; max-width: 900px; }
-.ad-preview-box { background: linear-gradient(145deg, #1E3A5F, #2e5087); border-radius: 10px; overflow: hidden; display: flex; flex-direction: column; position: relative; min-height: 240px; }
-.ad-preview-inner { flex: 1; padding: 22px 20px 44px; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
-.ad-bg-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.45); border-radius: 10px 10px 0 0; }
-.ad-content { position: relative; z-index: 1; }
-.ad-headline-preview { font-size: 20px; font-weight: 700; color: #fff; line-height: 1.25; margin-bottom: 8px; word-break: break-word; }
-.ad-sub-preview { font-size: 13px; color: rgba(255,255,255,0.82); line-height: 1.4; }
-.ad-cta-preview { position: relative; z-index: 1; display: flex; justify-content: flex-end; margin-top: 16px; }
-.ad-cta-btn { background: #F97316; color: #fff; font-size: 11px; font-weight: 700; padding: 7px 14px; border-radius: 5px; }
-.ad-brand-bar { height: 10px; background: #F97316; flex-shrink: 0; }
-.ad-preview-label { font-size: 11px; color: #6B7B8D; margin-top: 8px; text-align: center; }
-.editor-form { display: flex; flex-direction: column; gap: 14px; }
-.form-group { display: flex; flex-direction: column; gap: 5px; }
-.form-label { font-size: 11px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.4px; }
-.form-input { padding: 8px 11px; font-size: 13px; font-family: inherit; border: 1.5px solid #DDE3EA; border-radius: 6px; color: #1E3A5F; outline: none; transition: border-color 0.15s; }
-.form-input:focus { border-color: #1E3A5F; }
-.form-textarea { padding: 8px 11px; font-size: 13px; font-family: inherit; border: 1.5px solid #DDE3EA; border-radius: 6px; color: #1E3A5F; outline: none; resize: vertical; min-height: 64px; transition: border-color 0.15s; }
-.form-textarea:focus { border-color: #1E3A5F; }
-.form-select { padding: 8px 11px; font-size: 13px; font-family: inherit; border: 1.5px solid #DDE3EA; border-radius: 6px; color: #1E3A5F; outline: none; background: #fff; cursor: pointer; }
-.char-counter { font-size: 11px; text-align: right; color: #6B7B8D; }
-.char-counter.warn { color: #E53935; font-weight: 700; }
-.compliance-hint { font-size: 12px; font-weight: 600; padding: 7px 11px; border-radius: 6px; }
-.compliance-hint.pass { background: #E8F5E9; color: #2E7D32; }
-.compliance-hint.warn { background: #FFF3E0; color: #E65100; }
-.upload-zone { border: 2px dashed #DDE3EA; border-radius: 8px; padding: 18px; text-align: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; color: #6B7B8D; font-size: 12px; }
-.upload-zone:hover { border-color: #F97316; background: #FFF7F2; }
-.upload-zone.has-img { border-color: #43A047; background: #F1F8E9; }
-.upload-thumb { max-width: 100%; max-height: 80px; border-radius: 4px; margin-top: 8px; }
-.legal-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #5a6a7a; cursor: pointer; }
-.legal-row input { width: 14px; height: 14px; accent-color: #1E3A5F; cursor: pointer; }
-.editor-actions { display: flex; gap: 10px; margin-top: 8px; }
+/* ═══════════════════════════════════════════
+   DCO + AI VIEW
+═══════════════════════════════════════════ */
+#dcoView { display: none; flex: 1; overflow: hidden; }
 
-/* Preview grid */
-.preview-header { margin-bottom: 16px; }
-.preview-header h2 { font-size: 16px; font-weight: 700; color: #1E3A5F; margin-bottom: 4px; }
-.preview-header p { font-size: 12px; color: #6B7B8D; }
-.preview-status-banner { padding: 10px 16px; border-radius: 7px; font-size: 13px; font-weight: 600; margin-bottom: 18px; }
-.preview-status-banner.ok { background: #E8F5E9; color: #2E7D32; }
-.preview-status-banner.warn { background: #FFF3E0; color: #E65100; }
-.channel-group { margin-bottom: 22px; }
-.channel-group-header { font-size: 11px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #EDF1F5; }
-.thumb-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
-.thumb-wrap { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.ad-thumb { border-radius: 3px; overflow: hidden; position: relative; background: linear-gradient(145deg, #1E3A5F, #2e5087); flex-shrink: 0; }
-.ad-thumb-headline { position: absolute; top: 4px; left: 4px; right: 18px; font-size: 5px; font-weight: 700; color: #fff; line-height: 1.2; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
-.ad-thumb-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 4px; background: #F97316; }
-.ad-thumb-badge { position: absolute; top: 2px; right: 2px; width: 10px; height: 10px; border-radius: 50%; font-size: 7px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
-.ad-thumb-badge.pass { background: #43A047; color: #fff; }
-.ad-thumb-badge.warn { background: #F97316; color: #fff; }
-.thumb-label { font-size: 10px; color: #6B7B8D; text-align: center; line-height: 1.3; max-width: 110px; }
-.preview-actions { display: flex; gap: 10px; margin-top: 8px; }
-.sec-title { font-size: 18px; font-weight: 700; color: #1E3A5F; margin-bottom: 20px; }
+/* DCO Left — atomic element list */
+.dco-left { width: 260px; flex-shrink: 0; background: #fff; border-right: 1px solid #DDE3EA; display: flex; flex-direction: column; overflow: hidden; }
+.dco-section-head { padding: 11px 14px 8px; font-size: 11px; font-weight: 700; color: #6B7B8D; letter-spacing: 0.6px; text-transform: uppercase; border-bottom: 1px solid #EDF1F5; display: flex; align-items: center; justify-content: space-between; }
+.ai-engine-badge { font-size: 10px; padding: 2px 7px; border-radius: 4px; background: #F3E8FF; color: #7B1FA2; font-weight: 700; border: 1px solid #E1BEF8; }
+.dco-left-scroll { flex: 1; overflow-y: auto; }
+.dco-element-row { padding: 10px 14px; border-bottom: 1px solid #F5F7FA; display: flex; align-items: center; gap: 10px; }
+.dco-el-icon { width: 30px; height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.dco-el-info { flex: 1; min-width: 0; }
+.dco-el-name { font-size: 12px; font-weight: 700; }
+.dco-el-type { font-size: 10px; color: #6B7B8D; margin-top: 1px; }
+.dco-toggle { display: flex; border: 1px solid #DDE3EA; border-radius: 5px; overflow: hidden; flex-shrink: 0; }
+.dco-toggle-btn { padding: 3px 8px; font-size: 10px; font-weight: 700; border: none; background: #fff; color: #6B7B8D; cursor: pointer; font-family: inherit; transition: all 0.12s; }
+.dco-toggle-btn.on.dynamic { background: #7B1FA2; color: #fff; }
+.dco-toggle-btn.on.static  { background: #EDF1F5; color: #1E3A5F; }
+.dco-gen-btn { margin-left: 4px; padding: 4px 8px; font-size: 10px; font-weight: 700; border: 1px solid #E1BEF8; border-radius: 5px; background: #F3E8FF; color: #7B1FA2; cursor: pointer; font-family: inherit; white-space: nowrap; flex-shrink: 0; transition: all 0.12s; }
+.dco-gen-btn:hover { background: #EDD6FF; }
+.dco-gen-btn:disabled { opacity: 0.5; cursor: default; }
+.dco-variants-section { padding: 10px 14px 0; }
+.dco-variant-chip { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border: 1px solid #DDE3EA; border-radius: 6px; margin-bottom: 5px; cursor: pointer; transition: all 0.12s; }
+.dco-variant-chip:hover { border-color: #7B1FA2; background: #FAFAFA; }
+.dco-variant-chip.in-use { border-color: #7B1FA2; background: #F3E8FF; }
+.dco-variant-chip .vc-aud { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 3px; color: #fff; flex-shrink: 0; }
+.dco-variant-chip .vc-text { font-size: 11px; color: #1E3A5F; flex: 1; }
+.dco-variant-chip .vc-apply { font-size: 10px; color: #7B1FA2; font-weight: 700; flex-shrink: 0; }
+.dco-byok { margin: 10px 14px 12px; padding: 8px 10px; background: #F3E8FF; border-radius: 7px; border: 1px solid #E1BEF8; }
+.dco-byok-label { font-size: 10px; font-weight: 700; color: #7B1FA2; margin-bottom: 4px; letter-spacing: 0.4px; text-transform: uppercase; }
+.dco-byok select { width: 100%; font-size: 11px; border: 1px solid #E1BEF8; border-radius: 5px; padding: 4px 7px; font-family: inherit; color: #1E3A5F; background: #fff; }
 
-/* Submitted */
-.submitted-card { background: #fff; border: 1.5px solid #DDE3EA; border-radius: 12px; padding: 40px; max-width: 520px; margin: 0 auto; text-align: center; }
-.submitted-check { width: 64px; height: 64px; border-radius: 50%; background: #E8F5E9; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-size: 28px; color: #43A047; }
-.submitted-title { font-size: 22px; font-weight: 700; color: #1E3A5F; margin-bottom: 20px; }
-.submitted-details { text-align: left; background: #EDF1F5; border-radius: 8px; padding: 16px 20px; margin-bottom: 20px; }
-.submitted-row { display: flex; gap: 12px; font-size: 13px; padding: 4px 0; }
-.submitted-row-label { color: #6B7B8D; font-weight: 600; min-width: 90px; }
-.submitted-row-val { color: #1E3A5F; font-weight: 600; }
-.submitted-note { font-size: 12px; color: #6B7B8D; line-height: 1.5; margin-bottom: 20px; }
+/* DCO Center */
+.dco-center { flex: 1; display: flex; flex-direction: column; background: #DDE3EA; overflow: hidden; }
+.dco-aud-bar { background: #fff; border-bottom: 1px solid #DDE3EA; padding: 10px 16px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: wrap; }
+.dco-aud-label { font-size: 11px; font-weight: 700; color: #6B7B8D; margin-right: 4px; white-space: nowrap; }
+.aud-tab { padding: 5px 12px; font-size: 11px; font-weight: 600; border: 1px solid #DDE3EA; border-radius: 20px; cursor: pointer; font-family: inherit; background: #fff; color: #6B7B8D; display: flex; align-items: center; gap: 5px; transition: all 0.15s; white-space: nowrap; }
+.aud-tab:hover { border-color: #1E3A5F; }
+.aud-tab.active { color: #fff; border-color: transparent; }
+.aud-tab .aud-pct { font-size: 10px; opacity: 0.8; }
+.dco-canvas-area { flex: 1; display: flex; align-items: center; justify-content: center; padding: 24px; overflow: auto; }
+.dco-canvas-card { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+.dco-banner-wrap { position: relative; box-shadow: 0 4px 24px rgba(0,0,0,0.14); border-radius: 4px; overflow: hidden; }
+.dco-aud-indicator { position: absolute; top: 8px; right: 8px; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; color: #fff; z-index: 10; pointer-events: none; }
+.dco-dynamic-badge { position: absolute; bottom: 44px; left: 8px; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 3px; background: rgba(123,31,162,0.85); color: #fff; z-index: 10; pointer-events: none; display: none; }
+.dco-canvas-card.show-dynamic .dco-dynamic-badge { display: block; }
+.dco-dim-note { font-size: 11px; color: #6B7B8D; }
 
-/* ──────────── RETAILER VIEW ──────────── */
-#retailerView { display: flex; flex: 1; overflow: hidden; }
+/* DCO Right — matrix + stats */
+.dco-right { width: 340px; flex-shrink: 0; background: #fff; border-left: 1px solid #DDE3EA; display: flex; flex-direction: column; overflow: hidden; }
+.dco-right-head { padding: 14px 18px 10px; border-bottom: 1px solid #EDF1F5; }
+.dco-right-head h3 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.dco-right-head p { font-size: 11px; color: #6B7B8D; }
+.dco-matrix-scroll { flex: 1; overflow-y: auto; padding: 14px 18px; }
+.matrix-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 18px; }
+.matrix-table th { text-align: left; font-size: 10px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.5px; padding: 0 6px 8px 6px; border-bottom: 2px solid #EDF1F5; }
+.matrix-table th:first-child { padding-left: 0; }
+.matrix-table td { padding: 7px 6px; border-bottom: 1px solid #F5F7FA; vertical-align: middle; }
+.matrix-table td:first-child { padding-left: 0; }
+.matrix-table tr:last-child td { border-bottom: none; }
+.aud-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+.matrix-cell { font-size: 11px; padding: 3px 6px; border-radius: 4px; cursor: pointer; border: 1px solid transparent; transition: all 0.12s; line-height: 1.3; }
+.matrix-cell:hover { border-color: #7B1FA2; background: #F3E8FF; }
+.matrix-cell.is-static { font-style: italic; color: #6B7B8D; cursor: default; }
+.matrix-cell.is-static:hover { border-color: transparent; background: transparent; }
+.mc-dyn { background: #EDE7F6; color: #4A148C; }
+.mc-ai { background: #F3E8FF; color: #7B1FA2; border: 1px dashed #CE93D8; }
+.dco-stats { background: #F5F7FA; border-radius: 8px; padding: 12px 14px; margin-bottom: 14px; }
+.dco-stats-title { font-size: 11px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.dco-stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.dco-stat-row:last-child { margin-bottom: 0; }
+.dco-stat-label { font-size: 12px; color: #1E3A5F; }
+.dco-stat-val { font-size: 12px; font-weight: 700; color: #1E3A5F; }
+.dco-stat-bar { height: 4px; border-radius: 2px; margin-top: 3px; }
+.dco-publish-btn { width: 100%; padding: 10px; font-size: 13px; font-weight: 700; border: none; border-radius: 7px; background: #7B1FA2; color: #fff; cursor: pointer; font-family: inherit; margin-top: 4px; }
+.dco-publish-btn:hover { background: #6A1B9A; }
+.dco-publish-btn:disabled { background: #DDE3EA; color: #6B7B8D; cursor: default; }
 
-/* Queue */
-.ret-queue { width: 280px; flex-shrink: 0; border-right: 1px solid #DDE3EA; background: #fff; display: flex; flex-direction: column; overflow: hidden; }
-.queue-tabs { display: flex; border-bottom: 1px solid #DDE3EA; flex-shrink: 0; }
-.qtab { flex: 1; padding: 10px 4px; font-size: 11px; font-weight: 700; font-family: inherit; background: transparent; border: none; border-bottom: 2px solid transparent; cursor: pointer; color: #6B7B8D; transition: all 0.15s; white-space: nowrap; }
-.qtab.active { color: #1E3A5F; border-bottom-color: #F97316; }
-.queue-list { flex: 1; overflow-y: auto; }
-.sub-card { padding: 12px 14px; border-bottom: 1px solid #EDF1F5; cursor: pointer; border-left: 3px solid transparent; transition: all 0.12s; }
-.sub-card:hover { background: #F8FAFC; }
-.sub-card.selected { background: #EDF4FF; border-left-color: #1E3A5F; }
-.sub-card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; }
-.sub-card-supplier { font-size: 12px; font-weight: 700; color: #1E3A5F; }
-.ai-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
-.ai-dot.pass { background: #43A047; }
-.ai-dot.warn { background: #F97316; }
-.sub-card-tmpl { font-size: 11px; color: #6B7B8D; margin-bottom: 3px; }
-.sub-card-headline { font-size: 12px; color: #333; font-style: italic; margin-bottom: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sub-card-meta { display: flex; align-items: center; justify-content: space-between; }
-.sub-card-date { font-size: 10px; color: #aaa; }
-.status-chip { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; }
-.chip-pending { background: #FFF3E0; color: #E65100; }
-.chip-approved { background: #E8F5E9; color: #2E7D32; }
-.chip-rejected { background: #FFEBEE; color: #C62828; }
-.chip-revisions { background: #FFFDE7; color: #F57F17; }
-.queue-more { padding: 10px 14px; font-size: 11px; color: #aaa; border-top: 1px solid #EDF1F5; }
+/* ── Shared right-panel styles ── */
+.panel-right { width: 300px; flex-shrink: 0; background: #fff; border-left: 1px solid #DDE3EA; display: flex; flex-direction: column; overflow: hidden; }
+.workflow-header { padding: 14px 16px 10px; border-bottom: 1px solid #EDF1F5; }
+.workflow-title { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.workflow-sub { font-size: 11px; color: #6B7B8D; }
+.status-badge { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; margin-bottom: 12px; }
+.status-draft { background: #F5F7FA; color: #6B7B8D; }
+.status-submitted { background: #DCEEFB; color: #1E88E5; }
+.status-review { background: #FFF3E0; color: #F57C00; }
+.status-revision { background: #FFEBEE; color: #E53935; }
+.status-approved { background: #E8F5E9; color: #43A047; }
+.status-trafficked { background: #EDE7F6; color: #7B1FA2; }
+.lifecycle { padding: 14px 16px; border-bottom: 1px solid #EDF1F5; }
+.lifecycle-steps { display: flex; flex-direction: column; gap: 2px; }
+.lc-step { display: flex; align-items: center; gap: 10px; padding: 6px 0; position: relative; }
+.lc-step:not(:last-child)::after { content: ''; position: absolute; left: 11px; top: 26px; bottom: -2px; width: 2px; background: #EDF1F5; z-index: 0; }
+.lc-dot { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #DDE3EA; background: #fff; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; z-index: 1; }
+.lc-dot.done { background: #43A047; border-color: #43A047; color: #fff; }
+.lc-dot.active { background: #1E3A5F; border-color: #1E3A5F; color: #fff; }
+.lc-dot.warn { background: #E53935; border-color: #E53935; color: #fff; }
+.lc-label { font-size: 12px; font-weight: 600; }
+.lc-label.muted { color: #6B7B8D; font-weight: 400; }
+.lc-date { font-size: 10px; color: #6B7B8D; margin-left: auto; }
+.approver-section { padding: 12px 16px; border-bottom: 1px solid #EDF1F5; }
+.approver-section-title { font-size: 11px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+.approver-card { background: #F5F7FA; border-radius: 7px; padding: 10px 12px; margin-bottom: 8px; }
+.approver-name { font-size: 12px; font-weight: 700; }
+.approver-role { font-size: 11px; color: #6B7B8D; }
+.approver-status { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; margin-top: 6px; }
+.approver-status.pending { color: #F57C00; }
+.approver-status.approved { color: #43A047; }
+.approver-status.revision { color: #E53935; }
+.action-area { padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid #EDF1F5; }
+.action-area textarea { width: 100%; padding: 8px 10px; font-size: 12px; border: 1px solid #DDE3EA; border-radius: 6px; font-family: inherit; resize: vertical; color: #1E3A5F; }
+.action-btn { padding: 8px 14px; font-size: 12px; font-weight: 600; border-radius: 6px; cursor: pointer; font-family: inherit; border: none; width: 100%; }
+.action-btn.approve { background: #43A047; color: #fff; }
+.action-btn.submit { background: #1E3A5F; color: #fff; }
+.action-btn.revision { background: #fff; color: #E53935; border: 1px solid #FFCDD2; }
+.action-btn.traffic { background: #7B1FA2; color: #fff; }
+.comments-area { flex: 1; overflow-y: auto; padding: 12px 16px; }
+.comment { margin-bottom: 10px; }
+.comment-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3px; }
+.comment-author { font-size: 11px; font-weight: 700; }
+.comment-time { font-size: 10px; color: #6B7B8D; }
+.comment-body { font-size: 12px; color: #1E3A5F; background: #F5F7FA; border-radius: 6px; padding: 7px 9px; line-height: 1.4; }
+.comment-body.revision-note { background: #FFEBEE; border-left: 3px solid #E53935; }
+.version-strip { padding: 10px 16px; background: #F5F7FA; border-top: 1px solid #EDF1F5; display: flex; align-items: center; gap: 6px; }
+.version-badge { font-size: 11px; padding: 2px 8px; background: #DDE3EA; border-radius: 4px; font-weight: 600; color: #1E3A5F; cursor: pointer; }
+.version-badge.current { background: #1E3A5F; color: #fff; }
+.independent-badge { font-size: 10px; background: #FFF3E0; color: #F57C00; border: 1px solid #FFCC80; border-radius: 4px; padding: 2px 7px; font-weight: 600; }
 
-/* Review panel */
-.ret-review { flex: 1; overflow-y: auto; padding: 20px; background: #EDF1F5; display: flex; flex-direction: column; gap: 16px; }
-.review-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #aaa; gap: 10px; }
-.review-empty-arrow { font-size: 28px; }
-.review-empty-text { font-size: 14px; }
-.review-header-card { background: #fff; border-radius: 10px; padding: 18px 20px; border: 1.5px solid #DDE3EA; }
-.review-supplier-name { font-size: 18px; font-weight: 700; color: #1E3A5F; margin-bottom: 4px; }
-.review-meta { font-size: 12px; color: #6B7B8D; margin-bottom: 12px; }
-.review-headline-block { background: linear-gradient(135deg, #1E3A5F, #2e5087); border-radius: 8px; padding: 16px 18px; color: #fff; margin-bottom: 8px; }
-.review-headline-text { font-size: 16px; font-weight: 700; line-height: 1.25; margin-bottom: 5px; }
-.review-sub-text { font-size: 12px; opacity: 0.82; }
-.review-sizes-card { background: #fff; border-radius: 10px; padding: 18px 20px; border: 1.5px solid #DDE3EA; }
-.review-sizes-title { font-size: 13px; font-weight: 700; color: #1E3A5F; margin-bottom: 12px; }
-.sm-channel-label { font-size: 10px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; margin-top: 10px; }
-.sm-thumb-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-end; }
-.sm-thumb { border-radius: 2px; overflow: hidden; position: relative; background: linear-gradient(145deg, #1E3A5F, #2e5087); flex-shrink: 0; }
-.sm-thumb-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: #F97316; }
-.sm-thumb-badge { position: absolute; top: 1px; right: 1px; width: 8px; height: 8px; border-radius: 50%; font-size: 6px; display: flex; align-items: center; justify-content: center; }
-.sm-thumb-badge.pass { background: #43A047; color: #fff; }
-.sm-thumb-badge.warn { background: #F97316; color: #fff; }
+/* ═══════════════════════════════════════════
+   APPROVAL VIEW
+═══════════════════════════════════════════ */
+#approvalView { display: none; flex: 1; overflow: hidden; }
+#approvalView.active { display: flex; }
 
-/* Actions panel */
-.ret-actions { width: 280px; flex-shrink: 0; border-left: 1px solid #DDE3EA; background: #fff; overflow-y: auto; display: flex; flex-direction: column; }
-.act-section { padding: 14px 16px; border-bottom: 1px solid #EDF1F5; }
-.act-section-title { font-size: 11px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 10px; }
+/* Left: variant list */
+.av-left { width: 280px; flex-shrink: 0; background: #fff; border-right: 1px solid #DDE3EA; display: flex; flex-direction: column; overflow: hidden; }
+.av-left-header { padding: 16px 16px 12px; border-bottom: 1px solid #EDF1F5; }
+.av-left-header h2 { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+.av-left-header p { font-size: 11px; color: #6B7B8D; }
+.av-meta-block { margin: 12px 16px 0; background: #F5F7FA; border-radius: 8px; padding: 10px 12px; }
+.av-meta-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.av-meta-row:last-child { margin-bottom: 0; }
+.av-meta-label { font-size: 11px; color: #6B7B8D; }
+.av-meta-value { font-size: 11px; font-weight: 600; color: #1E3A5F; text-align: right; }
+.av-variants-scroll { flex: 1; overflow-y: auto; padding: 12px 0 16px; }
+.av-platform-group { margin-bottom: 4px; }
+.av-platform-label { padding: 6px 16px 4px; font-size: 10px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.6px; display: flex; align-items: center; gap: 6px; }
+.av-platform-dot { width: 8px; height: 8px; border-radius: 50%; }
+.av-variant-item { margin: 0 10px; padding: 8px 10px; border: 1px solid #DDE3EA; border-radius: 7px; margin-bottom: 5px; cursor: pointer; display: flex; align-items: center; gap: 10px; transition: all 0.15s; }
+.av-variant-item:hover { border-color: #1E3A5F; background: #F5F7FA; }
+.av-variant-item.selected { border-color: #1E3A5F; background: #EEF2F7; }
+.av-variant-thumb { width: 40px; height: 26px; border-radius: 3px; overflow: hidden; flex-shrink: 0; position: relative; }
+.av-variant-thumb-inner { width: 100%; height: 100%; }
+.av-variant-info { flex: 1; min-width: 0; }
+.av-variant-name { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.av-variant-dims { font-size: 10px; color: #6B7B8D; }
+.av-variant-status { flex-shrink: 0; }
+.vs-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.vs-dot.approved { background: #43A047; }
+.vs-dot.pending { background: #F57C00; }
+.vs-dot.revision { background: #E53935; }
+.vs-dot.draft { background: #DDE3EA; }
 
-/* AI compliance */
-.ai-header { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-.ai-badge { font-size: 11px; font-weight: 700; color: #7B1FA2; }
-.ai-confidence { font-size: 11px; color: #6B7B8D; margin-bottom: 10px; }
-.ai-check-row { display: flex; align-items: flex-start; gap: 7px; font-size: 12px; color: #333; padding: 4px 0; line-height: 1.35; }
-.ai-check-row.ok { color: #2E7D32; }
-.ai-check-row.issue { color: #E65100; }
-.ai-status-banner { padding: 8px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; margin-top: 10px; }
-.ai-status-banner.ok { background: #E8F5E9; color: #2E7D32; }
-.ai-status-banner.warn { background: #FFF3E0; color: #E65100; }
+/* Center: review canvas */
+.av-center { flex: 1; display: flex; flex-direction: column; background: #DDE3EA; overflow: auto; }
+.av-center-top { background: #fff; border-bottom: 1px solid #DDE3EA; padding: 10px 20px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.av-role-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 4px; }
+.av-role-reviewer { background: #FFF3E0; color: #F57C00; }
+.av-readonly-badge { font-size: 11px; background: #EDF1F5; color: #6B7B8D; padding: 4px 10px; border-radius: 4px; font-weight: 600; }
+.av-canvas-area { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding: 28px 20px; gap: 20px; }
+.av-canvas-card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.09); display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; max-width: 640px; }
+.av-canvas-label { font-size: 11px; color: #6B7B8D; align-self: flex-start; }
+.av-banner-frame { position: relative; box-shadow: 0 4px 20px rgba(0,0,0,0.13); border-radius: 4px; overflow: hidden; }
+.av-dims-note { font-size: 11px; color: #6B7B8D; align-self: center; }
 
-/* Manual checklist */
-.check-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #333; padding: 5px 0; cursor: pointer; }
-.check-item input[type=checkbox] { width: 14px; height: 14px; accent-color: #1E3A5F; cursor: pointer; flex-shrink: 0; }
+/* Compliance checklist */
+.compliance-card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.09); width: 100%; max-width: 640px; }
+.compliance-title { font-size: 13px; font-weight: 700; margin-bottom: 14px; display: flex; align-items: center; justify-content: space-between; }
+.compliance-score { font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 12px; }
+.compliance-score.pass { background: #E8F5E9; color: #43A047; }
+.compliance-score.partial { background: #FFF3E0; color: #F57C00; }
+.compliance-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.compliance-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 10px; border-radius: 6px; border: 1px solid #EDF1F5; cursor: pointer; transition: background 0.12s; }
+.compliance-item:hover { background: #F5F7FA; }
+.compliance-item.checked { background: #F0FDF4; border-color: #A5D6A7; }
+.compliance-item.flagged { background: #FFEBEE; border-color: #FFCDD2; }
+.compliance-check { width: 18px; height: 18px; border-radius: 4px; border: 2px solid #DDE3EA; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; margin-top: 1px; transition: all 0.12s; }
+.compliance-item.checked .compliance-check { background: #43A047; border-color: #43A047; color: #fff; }
+.compliance-item.flagged .compliance-check { background: #E53935; border-color: #E53935; color: #fff; }
+.compliance-check-label { font-size: 12px; font-weight: 600; line-height: 1.3; }
+.compliance-check-sub { font-size: 11px; color: #6B7B8D; margin-top: 2px; }
+.compliance-item.flagged .compliance-check-sub { color: #E53935; }
 
-/* Action buttons */
-.act-btn { display: flex; align-items: center; gap: 7px; width: 100%; padding: 9px 14px; font-size: 12px; font-weight: 700; font-family: inherit; border-radius: 7px; cursor: pointer; border: none; margin-bottom: 8px; transition: all 0.15s; }
-.act-btn.approve { background: #43A047; color: #fff; }
-.act-btn.approve:hover { background: #388E3C; }
-.act-btn.changes { background: #FFF3E0; color: #E65100; border: 1.5px solid #FFB74D; }
-.act-btn.changes:hover { background: #FFE0B2; }
-.act-btn.reject { background: #FFEBEE; color: #C62828; border: 1.5px solid #EF9A9A; }
-.act-btn.reject:hover { background: #FFCDD2; }
-.act-btn.disabled { opacity: 0.45; cursor: not-allowed; }
-.expand-panel { background: #F8FAFC; border: 1.5px solid #DDE3EA; border-radius: 8px; padding: 12px; margin-bottom: 8px; display: flex; flex-direction: column; gap: 8px; }
-.exp-textarea { width: 100%; padding: 8px 10px; font-size: 12px; font-family: inherit; border: 1.5px solid #DDE3EA; border-radius: 6px; resize: vertical; min-height: 70px; outline: none; }
-.exp-textarea:focus { border-color: #1E3A5F; }
-.tags-row { display: flex; flex-wrap: wrap; gap: 6px; }
-.tag-pill { padding: 3px 10px; font-size: 11px; font-weight: 600; border-radius: 4px; border: 1.5px solid #DDE3EA; background: #fff; color: #6B7B8D; cursor: pointer; transition: all 0.12s; }
-.tag-pill.active { background: #1E3A5F; color: #fff; border-color: #1E3A5F; }
-.exp-btn { padding: 7px 14px; font-size: 12px; font-weight: 700; font-family: inherit; border-radius: 6px; border: none; cursor: pointer; }
-.exp-btn.send { background: #F97316; color: #fff; }
-.exp-btn.send:hover { background: #e06610; }
-.exp-btn.confirm-reject { background: #E53935; color: #fff; }
-.exp-btn.confirm-reject:hover { background: #c62828; }
+/* Copy audit */
+.copy-audit-card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.09); width: 100%; max-width: 640px; }
+.copy-audit-title { font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+.copy-audit-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.copy-audit-table th { text-align: left; font-size: 10px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.5px; padding: 0 8px 8px 8px; border-bottom: 1px solid #EDF1F5; }
+.copy-audit-table td { padding: 8px 8px; border-bottom: 1px solid #F5F7FA; vertical-align: top; }
+.copy-audit-table tr:last-child td { border-bottom: none; }
+.copy-audit-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; }
+.cab-approved { background: #E8F5E9; color: #43A047; }
+.cab-library { background: #DCEEFB; color: #1E88E5; }
+.cab-custom { background: #FFF3E0; color: #F57C00; }
 
-/* Atomic diagram */
-.atomic-diagram { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 0; }
-.atomic-row { display: flex; gap: 6px; justify-content: center; flex-wrap: wrap; }
-.atomic-box { padding: 4px 10px; font-size: 10px; font-weight: 700; border-radius: 5px; white-space: nowrap; }
-.atomic-box.master { background: #1E3A5F; color: #fff; }
-.atomic-box.component { background: #E8F5E9; color: #2E7D32; border: 1px solid #A5D6A7; }
-.atomic-box.channel { background: #FFF3E0; color: #E65100; border: 1px solid #FFCC80; }
-.atomic-box.variants { background: #fff; color: #1E3A5F; border: 2px solid #1E3A5F; font-size: 11px; padding: 5px 14px; }
-.atomic-arrow { color: #aaa; font-size: 14px; }
+/* Right: approval panel (wider in approval view) */
+.av-right { width: 340px; flex-shrink: 0; background: #fff; border-left: 1px solid #DDE3EA; display: flex; flex-direction: column; overflow: hidden; }
+.av-right .workflow-header { padding: 16px 18px 12px; }
+.av-right .workflow-title { font-size: 15px; }
+.av-right .lifecycle { padding: 14px 18px; }
+.av-right .approver-section { padding: 12px 18px; }
+.av-right .action-area { padding: 14px 18px; gap: 10px; }
+.av-right .action-area textarea { min-height: 70px; font-size: 13px; }
+.av-right .action-btn { padding: 10px 16px; font-size: 13px; }
+.av-right .comments-area { padding: 14px 18px; }
+.av-right .version-strip { padding: 12px 18px; }
+.av-notify-bar { margin: 0 18px 10px; background: #FFF3E0; border: 1px solid #FFCC80; border-radius: 7px; padding: 9px 12px; display: flex; align-items: flex-start; gap: 8px; }
+.av-notify-bar .nb-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.av-notify-bar .nb-text { font-size: 12px; color: #7B4F00; line-height: 1.4; }
+.av-notify-bar .nb-text strong { color: #1E3A5F; }
 
-/* Activation */
-.act-channel-row { display: flex; align-items: center; gap: 8px; font-size: 12px; padding: 5px 0; cursor: pointer; }
-.act-channel-row input[type=checkbox] { accent-color: #F97316; width: 13px; height: 13px; cursor: pointer; flex-shrink: 0; }
-.act-channel-name { flex: 1; color: #1E3A5F; font-weight: 600; }
-.act-channel-count { font-size: 11px; color: #6B7B8D; }
-.date-row { display: flex; gap: 10px; margin: 10px 0; }
-.date-col { display: flex; flex-direction: column; gap: 4px; flex: 1; }
-.date-label { font-size: 10px; font-weight: 700; color: #6B7B8D; text-transform: uppercase; letter-spacing: 0.4px; }
-.date-input { padding: 6px 8px; font-size: 12px; font-family: inherit; border: 1.5px solid #DDE3EA; border-radius: 5px; color: #1E3A5F; width: 100%; outline: none; }
-.activate-btn { width: 100%; padding: 10px; font-size: 13px; font-weight: 700; font-family: inherit; background: #F97316; color: #fff; border: none; border-radius: 7px; cursor: pointer; transition: background 0.15s; }
-.activate-btn:hover { background: #e06610; }
-.activated-banner { background: #E8F5E9; color: #2E7D32; font-size: 12px; font-weight: 600; padding: 10px 12px; border-radius: 7px; text-align: center; margin-top: 8px; }
-.actions-empty { padding: 40px 20px; text-align: center; color: #bbb; font-size: 13px; }
+/* ── Modal ── */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; display: flex; align-items: center; justify-content: center; }
+.modal { background: #fff; border-radius: 12px; padding: 24px; width: 480px; max-width: 90vw; box-shadow: 0 8px 40px rgba(0,0,0,0.18); }
+.modal h3 { font-size: 16px; margin-bottom: 6px; }
+.modal p { font-size: 13px; color: #6B7B8D; margin-bottom: 16px; }
+.modal-actions { display: flex; justify-content: flex-end; gap: 8px; }
 
-/* ──────────── TOAST ──────────── */
-.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); opacity: 0; transition: all 0.25s; background: #333; color: #fff; padding: 10px 22px; border-radius: 8px; font-size: 13px; font-weight: 600; pointer-events: none; z-index: 2000; white-space: nowrap; }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.toast.success { background: #43A047; }
-.toast.error { background: #E53935; }
-
-/* ──────────── SCROLLBAR ──────────── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-thumb { background: #DDE3EA; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #b0bec5; }
 </style>
 </head>
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- ── Login screen ── -->
 <div id="loginScreen">
   <div class="login-card">
     <div class="login-logo">Vantage <span>Creative Studio</span></div>
-    <div class="login-sub">Demo &middot; April 2026</div>
-    <label class="login-label" for="loginUser">Username</label>
-    <input class="login-input" id="loginUser" type="text" autocomplete="username" placeholder="username">
-    <label class="login-label" for="loginPass">Password</label>
-    <input class="login-input" id="loginPass" type="password" autocomplete="current-password" placeholder="password">
-    <button class="login-btn" id="loginBtn">Sign In &rarr;</button>
+    <div class="login-tagline">Vantage · Creative Studio · Demo</div>
+    <span class="login-badge">Prototype</span>
+    <label class="login-label">Username</label>
+    <input type="text" id="loginUser" class="login-input" placeholder="Username" onkeydown="if(event.key==='Enter')doLogin()">
+    <label class="login-label">Password</label>
+    <input type="password" id="loginPass" class="login-input" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
+    <button class="login-btn" onclick="doLogin()">Sign In →</button>
     <div class="login-error" id="loginError"></div>
-    <div class="login-badge">Prototype &middot; HD Demo</div>
   </div>
 </div>
 
-<!-- MAIN APP SHELL -->
 <div class="app-shell">
 
-  <!-- TOPBAR -->
+  <!-- ═══ TOPBAR ═══ -->
   <div class="topbar">
-    <div class="topbar-logo">Vantage <span>Creative Studio</span></div>
-    <div class="topbar-center">
-      <div class="role-toggle">
-        <button class="rtoggle" id="rtoggleSupplier" onclick="switchRole('supplier')">Supplier</button>
-        <button class="rtoggle" id="rtoggleRetailer" onclick="switchRole('retailer')">Retailer Admin</button>
-      </div>
+    <div style="display:flex;align-items:center;gap:16px;min-width:0">
+      <div class="topbar-logo">Vantage <span>Creative Studio</span></div>
+      <div class="topbar-divider"></div>
+      <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="bannerNameDisplay">Spring Power Tools — 300×250</div>
     </div>
-    <div class="topbar-right">
-      <button class="demo-btn" onclick="loadScenario('a')">Demo A</button>
-      <button class="demo-btn" onclick="loadScenario('b')">Demo B</button>
-      <button class="demo-btn" onclick="loadScenario('c')">Demo C</button>
-      <div class="role-badge" id="roleBadge">Supplier</div>
+    <div class="view-toggle">
+      <button class="vtoggle active" id="vtBuilder" onclick="switchView('builder')">Builder</button>
+      <button class="vtoggle" id="vtDco" onclick="switchView('dco')">✦ DCO + AI</button>
+      <button class="vtoggle" id="vtApproval" onclick="switchView('approval')">Approval View</button>
+    </div>
+    <div class="topbar-meta">
+      <span>Home Depot OAM</span>
+      <div class="topbar-divider"></div>
+      <span>Bosch Tools Inc.</span>
+      <div class="topbar-divider"></div>
+      <span id="statusTopbar">● IN REVIEW</span>
     </div>
   </div>
 
-  <!-- WORKSPACE -->
-  <div class="workspace">
+  <!-- ═══ BUILDER VIEW ═══ -->
+  <div class="workspace" id="builderView">
 
-    <!-- SUPPLIER VIEW -->
-    <div id="supplierView" style="display:flex;">
+    <!-- Left panel -->
+    <div class="panel-left">
+      <div style="padding:0">
+        <div style="padding:10px 14px 6px;font-size:11px;font-weight:700;color:#6B7B8D;letter-spacing:0.6px;text-transform:uppercase">Placement</div>
+        <div class="platform-tabs">
+          <button class="ptab active" id="ptab-onsite" onclick="selectPlatform('onsite')">Onsite</button>
+          <button class="ptab meta" id="ptab-meta" onclick="selectPlatform('meta')">Meta</button>
+          <button class="ptab google" id="ptab-google" onclick="selectPlatform('google')">Google</button>
+          <button class="ptab reddit" id="ptab-reddit" onclick="selectPlatform('reddit')">Reddit</button>
+        </div>
+      </div>
+      <div class="panel-section">
+        <div class="panel-section-header">Ad Size</div>
+        <div class="size-list" id="sizeList"></div>
+      </div>
+      <div class="panel-left-scroll">
+        <div class="panel-section">
+          <div class="panel-section-header">Images <span style="font-size:10px;color:#43A047;font-weight:600;cursor:pointer" onclick="triggerUpload()">+ Upload</span></div>
+          <div class="upload-zone" id="uploadZone" onclick="triggerUpload()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+            <div class="upload-icon">🖼️</div>
+            <div class="upload-label">Drop images here</div>
+            <div class="upload-sub">PNG, JPG, WebP · Max 10MB</div>
+          </div>
+          <input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="handleFileSelect(event)">
+          <div class="asset-grid" id="assetGrid"></div>
+          <div class="img-select-hint" id="imgSelectHint">Click an image above or click<br>the canvas photo to adjust it</div>
+        </div>
 
-      <!-- Step bar -->
-      <div class="sup-step-bar" id="supStepBar"></div>
+        <!-- Image Adjust Panel -->
+        <div class="panel-section" id="imgAdjSection" style="display:none">
+          <div class="panel-section-header" style="padding-bottom:10px">
+            Adjust Image
+            <span onclick="closeImgAdj()" style="cursor:pointer;color:#9BA8B5;font-size:14px;line-height:1" title="Close">✕</span>
+          </div>
+          <!-- Zoom -->
+          <div class="adj-row">
+            <div class="adj-label-row"><span class="adj-label">Zoom</span><span class="adj-value" id="adjZoomVal">100%</span></div>
+            <input type="range" class="adj-slider" id="adjZoom" min="50" max="250" value="100" oninput="updateAdj('zoom',+this.value)">
+          </div>
+          <!-- Pan X -->
+          <div class="adj-row">
+            <div class="adj-label-row"><span class="adj-label">Pan X</span><span class="adj-value" id="adjPosXVal">0</span></div>
+            <input type="range" class="adj-slider" id="adjPosX" min="-50" max="50" value="0" oninput="updateAdj('posX',+this.value)">
+          </div>
+          <!-- Pan Y -->
+          <div class="adj-row">
+            <div class="adj-label-row"><span class="adj-label">Pan Y</span><span class="adj-value" id="adjPosYVal">0</span></div>
+            <input type="range" class="adj-slider" id="adjPosY" min="-50" max="50" value="0" oninput="updateAdj('posY',+this.value)">
+          </div>
+          <div class="adj-section-divider"></div>
+          <!-- Brightness -->
+          <div class="adj-row">
+            <div class="adj-label-row"><span class="adj-label">Brightness</span><span class="adj-value" id="adjBrVal">100%</span></div>
+            <input type="range" class="adj-slider" id="adjBr" min="20" max="180" value="100" oninput="updateAdj('brightness',+this.value)">
+          </div>
+          <!-- Contrast -->
+          <div class="adj-row">
+            <div class="adj-label-row"><span class="adj-label">Contrast</span><span class="adj-value" id="adjCtVal">100%</span></div>
+            <input type="range" class="adj-slider" id="adjCt" min="20" max="180" value="100" oninput="updateAdj('contrast',+this.value)">
+          </div>
+          <!-- Saturation -->
+          <div class="adj-row">
+            <div class="adj-label-row"><span class="adj-label">Saturation</span><span class="adj-value" id="adjSatVal">100%</span></div>
+            <input type="range" class="adj-slider" id="adjSat" min="0" max="200" value="100" oninput="updateAdj('saturation',+this.value)">
+          </div>
+          <!-- Flip + Reset -->
+          <div class="adj-btn-row">
+            <button class="adj-btn" id="adjFlipH" onclick="toggleFlip('flipH')">⇄ Flip H</button>
+            <button class="adj-btn" id="adjFlipV" onclick="toggleFlip('flipV')">⇅ Flip V</button>
+            <button class="adj-btn reset-btn" onclick="resetAdj()">↺ Reset</button>
+          </div>
+        </div>
 
-      <!-- Step content -->
-      <div class="sup-content" id="supContent"></div>
-
+        <div class="panel-section">
+          <div class="panel-section-header">Approved Copy <span class="independent-badge">Brand Approved</span></div>
+          <div class="copy-search"><input type="text" placeholder="Search copy..." oninput="filterCopy(this.value)"/></div>
+          <div class="copy-list" id="copyList"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- RETAILER VIEW -->
-    <div id="retailerView" style="display:none;">
-
-      <!-- Queue -->
-      <div class="ret-queue">
-        <div class="queue-tabs" id="queueTabs"></div>
-        <div class="queue-list" id="queueList"></div>
-        <div class="queue-more" id="queueMore"></div>
+    <!-- Center canvas -->
+    <div class="panel-center">
+      <div class="canvas-toolbar">
+        <div class="toolbar-group">
+          <button class="tbtn active" onclick="setTool('select')">↖ Select</button>
+          <button class="tbtn" onclick="setTool('text')">T Text</button>
+          <button class="tbtn" onclick="setTool('image')">⊞ Image</button>
+        </div>
+        <div class="toolbar-sep"></div>
+        <div class="toolbar-group">
+          <button class="tbtn" onclick="showAIAssist()">✦ AI Extend</button>
+          <button class="tbtn" onclick="showAIAssist()">⚙ Resize All</button>
+        </div>
+        <div class="toolbar-group" style="margin-left:auto">
+          <button class="tbtn" onclick="showVersionModal()">⟳ Versions</button>
+          <button class="tbtn" onclick="showExportModal()">↓ Export</button>
+          <button class="tbtn primary" onclick="submitForApproval()">Submit for Approval →</button>
+        </div>
       </div>
+      <div class="canvas-wrap">
+        <div class="canvas-outer" id="canvasOuter">
+          <div class="canvas-bg-placeholder" id="canvasBgPlaceholder">
+            <div style="text-align:center">
+              <div style="font-size:36px;opacity:0.3">🖼️</div>
+              <div style="font-size:12px;color:#6B7B8D;margin-top:8px">Select or upload an image</div>
+            </div>
+          </div>
+          <div id="konvaStage"></div>
+          <div class="canvas-text-overlay" id="textOverlay" style="top:16px;left:16px;max-width:60%">
+            <div class="overlay-headline" id="overlayHeadline">Spring Into Savings</div>
+            <div class="overlay-sub" id="overlaySub">Up to 40% off power tools</div>
+          </div>
+          <div class="canvas-cta-btn" id="ctaBtn">Shop Now</div>
+          <div class="canvas-legal" id="legalText">Prices valid while supplies last. homedepot.com</div>
+          <div class="canvas-brand-bar"><div class="canvas-brand-logo">THE HOME DEPOT®</div></div>
+        </div>
+      </div>
+      <div class="canvas-size-info" id="canvasSizeInfo">300 × 250 px — Medium Rectangle (Onsite)</div>
+    </div>
 
-      <!-- Review -->
-      <div class="ret-review" id="reviewPanel"></div>
+    <!-- Right workflow panel (builder) -->
+    <div class="panel-right" id="builderWorkflow">
+      <div class="workflow-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div class="workflow-title">Banner Approval</div>
+          <span class="independent-badge">Independent of Campaign</span>
+        </div>
+        <div class="workflow-sub">Banner is a first-class object — approved separately from campaign trafficking.</div>
+      </div>
+      <div class="lifecycle">
+        <div style="margin-bottom:10px"><span class="status-badge status-review" id="currentStatusBadge">● In Review</span></div>
+        <div class="lifecycle-steps" id="builderLcSteps"></div>
+      </div>
+      <div class="approver-section">
+        <div class="approver-section-title">Retailer Review (OAM)</div>
+        <div class="approver-card"><div class="approver-name">Susan Berenson</div><div class="approver-role">QA / Brand Compliance · Orange Apron Media</div><div class="approver-status pending" id="susanStatus">⏳ Awaiting Review</div></div>
+        <div class="approver-card"><div class="approver-name">Amanda Bowman</div><div class="approver-role">Sr. Manager, Offsite Product Strategy</div><div class="approver-status approved">✓ Approved · Apr 9, 2:14pm</div></div>
+      </div>
+      <div class="approver-section">
+        <div class="approver-section-title">Supplier (Bosch Tools)</div>
+        <div class="approver-card"><div class="approver-name">James Ridler</div><div class="approver-role">Trade Marketing Manager</div><div class="approver-status approved">✓ Submitted · Apr 8, 9:45am</div></div>
+      </div>
+      <div class="action-area" id="builderActionArea">
+        <div style="font-size:11px;font-weight:700;color:#6B7B8D;text-transform:uppercase;letter-spacing:0.5px">Your Action (Reviewer)</div>
+        <textarea id="reviewComment" rows="2" placeholder="Add comment or revision note..."></textarea>
+        <button class="action-btn approve" onclick="takeAction('approve','builder')">✓ Approve Banner</button>
+        <button class="action-btn revision" onclick="takeAction('revision','builder')">⚠ Request Revision</button>
+      </div>
+      <div class="comments-area" id="builderComments">
+        <div style="font-size:11px;font-weight:700;color:#6B7B8D;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Activity</div>
+        <div id="builderCommentList"></div>
+      </div>
+      <div class="version-strip">
+        <span style="font-size:11px;color:#6B7B8D;font-weight:600">Versions:</span>
+        <span class="version-badge current">v2 (current)</span>
+        <span class="version-badge" onclick="showVersionModal()">v1</span>
+      </div>
+    </div>
+  </div>
 
-      <!-- Actions -->
-      <div class="ret-actions" id="actionsPanel"></div>
+  <!-- ═══ DCO + AI VIEW ═══ -->
+  <div id="dcoView">
 
+    <!-- Left: atomic element list + AI engine -->
+    <div class="dco-left">
+      <div class="dco-section-head">
+        Atomic Elements
+        <span class="ai-engine-badge" id="aiEngineBadge">✦ Bedrock</span>
+      </div>
+      <div class="dco-left-scroll">
+        <div id="dcoElementList"></div>
+        <div id="dcoVariantSection" style="display:none">
+          <div class="dco-section-head" style="margin-top:4px">AI Variants Generated</div>
+          <div class="dco-variants-section" id="dcoVariantChips"></div>
+        </div>
+        <div class="dco-byok">
+          <div class="dco-byok-label">AI Engine (BYOK)</div>
+          <select onchange="updateAIEngine(this.value)">
+            <option value="bedrock">AWS Bedrock (Claude 3.5)</option>
+            <option value="spectra">Spectra (OAM Internal)</option>
+            <option value="openai">OpenAI GPT-4o</option>
+            <option value="custom">Custom Endpoint</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center: audience-switched canvas -->
+    <div class="dco-center">
+      <div class="dco-aud-bar">
+        <span class="dco-aud-label">Audience:</span>
+        <div id="audTabs"></div>
+        <button class="tbtn" style="margin-left:auto;font-size:11px" onclick="toggleDynamicHighlight()">⬡ Show Dynamic</button>
+      </div>
+      <div class="dco-canvas-area">
+        <div class="dco-canvas-card" id="dcoCanvasCard">
+          <div style="font-size:11px;color:#6B7B8D" id="dcoCanvasLabel">300 × 250 px — Medium Rectangle</div>
+          <div class="dco-banner-wrap" id="dcoBannerWrap">
+            <div id="dcoBannerInner"></div>
+            <div class="dco-aud-indicator" id="dcoAudIndicator"></div>
+            <div class="dco-dynamic-badge" id="dcoDynBadge">⬡ Dynamic elements active</div>
+          </div>
+          <div class="dco-dim-note" id="dcoDimNote"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: variant matrix + publish -->
+    <div class="dco-right">
+      <div class="dco-right-head">
+        <h3>Variant Matrix</h3>
+        <p>All audience × element combinations. Click any cell to preview.</p>
+      </div>
+      <div class="dco-matrix-scroll">
+        <div id="dcoMatrix"></div>
+        <div class="dco-stats" id="dcoStats"></div>
+        <button class="dco-publish-btn" id="dcoPublishBtn" onclick="publishDCO()">⬡ Publish DCO Campaign →</button>
+      </div>
     </div>
 
   </div>
+
+  <!-- ═══ APPROVAL VIEW ═══ -->
+  <div id="approvalView">
+
+    <!-- Left: variant list -->
+    <div class="av-left">
+      <div class="av-left-header">
+        <h2>Review Package</h2>
+        <p>Spring Power Tools · v2 · 13 variants</p>
+      </div>
+      <div class="av-meta-block">
+        <div class="av-meta-row"><span class="av-meta-label">Campaign</span><span class="av-meta-value">Spring Savings 2026</span></div>
+        <div class="av-meta-row"><span class="av-meta-label">Supplier</span><span class="av-meta-value">Bosch Tools Inc.</span></div>
+        <div class="av-meta-row"><span class="av-meta-label">Submitted</span><span class="av-meta-value">Apr 8, 9:45am</span></div>
+        <div class="av-meta-row"><span class="av-meta-label">Due by</span><span class="av-meta-value" style="color:#E53935">Apr 11, 5:00pm</span></div>
+      </div>
+      <div class="av-variants-scroll" id="avVariantList"></div>
+    </div>
+
+    <!-- Center: review canvas + checklist -->
+    <div class="av-center">
+      <div class="av-center-top">
+        <span class="av-role-badge av-role-reviewer">Reviewing as: Susan Berenson (OAM Brand Compliance)</span>
+        <span class="av-readonly-badge">Read-Only Preview</span>
+        <span style="margin-left:auto;font-size:11px;color:#6B7B8D" id="avSelectedLabel">Onsite · 300×250</span>
+      </div>
+      <div class="av-canvas-area" id="avCanvasArea">
+
+        <!-- Banner preview -->
+        <div class="av-canvas-card">
+          <div class="av-canvas-label" id="avCanvasLabel">Preview — 300 × 250 px (scaled)</div>
+          <div id="avBannerPreview"></div>
+          <div class="av-dims-note" id="avDimsNote">Actual size: 300 × 250 px · Medium Rectangle</div>
+        </div>
+
+        <!-- Compliance checklist -->
+        <div class="compliance-card">
+          <div class="compliance-title">
+            Brand Compliance Checklist
+            <span class="compliance-score pass" id="complianceScore">6 / 7 Passed</span>
+          </div>
+          <div class="compliance-grid" id="complianceGrid"></div>
+        </div>
+
+        <!-- Copy audit -->
+        <div class="copy-audit-card">
+          <div class="copy-audit-title">Copy Audit — Elements in Use</div>
+          <table class="copy-audit-table">
+            <thead>
+              <tr>
+                <th>Element</th>
+                <th>Text Used</th>
+                <th>Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color:#6B7B8D;font-weight:600">Headline</td>
+                <td>Spring Into Savings</td>
+                <td><span class="copy-audit-badge cab-approved">Approved Library</span></td>
+              </tr>
+              <tr>
+                <td style="color:#6B7B8D;font-weight:600">Subhead</td>
+                <td>Up to 40% off power tools</td>
+                <td><span class="copy-audit-badge cab-approved">Approved Library</span></td>
+              </tr>
+              <tr>
+                <td style="color:#6B7B8D;font-weight:600">CTA</td>
+                <td>Shop Now</td>
+                <td><span class="copy-audit-badge cab-approved">Approved Library</span></td>
+              </tr>
+              <tr>
+                <td style="color:#6B7B8D;font-weight:600">Legal</td>
+                <td style="font-size:11px;color:#6B7B8D">Prices valid while supplies last…</td>
+                <td><span class="copy-audit-badge cab-approved">Approved Library</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right: approval action panel -->
+    <div class="av-right panel-right">
+      <div class="workflow-header">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <div class="workflow-title">Banner Approval</div>
+          <span class="independent-badge">Independent of Campaign</span>
+        </div>
+        <div class="workflow-sub">This banner must be approved before it can be trafficked to the ad server. Campaign approval is a separate workflow.</div>
+      </div>
+
+      <!-- Notification context -->
+      <div class="av-notify-bar">
+        <div class="nb-icon">⏰</div>
+        <div class="nb-text">You have <strong>1 pending action</strong> on this banner. Amanda Bowman approved on Apr 9 — your brand compliance review is the final step before trafficking.</div>
+      </div>
+
+      <div class="lifecycle">
+        <div style="margin-bottom:10px"><span class="status-badge status-review" id="avCurrentStatusBadge">● In Review</span></div>
+        <div class="lifecycle-steps" id="avLcSteps"></div>
+      </div>
+
+      <div class="approver-section">
+        <div class="approver-section-title">Retailer Review (OAM)</div>
+        <div class="approver-card">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div><div class="approver-name">Susan Berenson</div><div class="approver-role">QA / Brand Compliance</div></div>
+            <div style="width:28px;height:28px;border-radius:50%;background:#FFF3E0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#F57C00">SB</div>
+          </div>
+          <div class="approver-status pending" id="avSusanStatus">⏳ Your review pending</div>
+        </div>
+        <div class="approver-card">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div><div class="approver-name">Amanda Bowman</div><div class="approver-role">Sr. Manager, Offsite Product Strategy</div></div>
+            <div style="width:28px;height:28px;border-radius:50%;background:#E8F5E9;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#43A047">AB</div>
+          </div>
+          <div class="approver-status approved">✓ Approved · Apr 9, 2:14pm</div>
+        </div>
+      </div>
+
+      <div class="approver-section">
+        <div class="approver-section-title">Supplier (Bosch Tools)</div>
+        <div class="approver-card">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <div><div class="approver-name">James Ridler</div><div class="approver-role">Trade Marketing Manager</div></div>
+            <div style="width:28px;height:28px;border-radius:50%;background:#DCEEFB;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#1E88E5">JR</div>
+          </div>
+          <div class="approver-status approved">✓ Submitted · Apr 8, 9:45am</div>
+        </div>
+      </div>
+
+      <div class="action-area" id="avActionArea">
+        <div style="font-size:11px;font-weight:700;color:#6B7B8D;text-transform:uppercase;letter-spacing:0.5px">Your Decision</div>
+        <textarea id="avReviewComment" rows="3" placeholder="Add brand compliance notes or revision instructions..."></textarea>
+        <button class="action-btn approve" onclick="takeAction('approve','approval')">✓ Approve — Brand Compliant</button>
+        <button class="action-btn revision" onclick="takeAction('revision','approval')">⚠ Request Revision</button>
+        <div style="font-size:10px;color:#6B7B8D;text-align:center">Approving will notify James Ridler and queue for trafficking</div>
+      </div>
+
+      <div class="comments-area" id="avComments">
+        <div style="font-size:11px;font-weight:700;color:#6B7B8D;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px">Activity</div>
+        <div id="avCommentList"></div>
+      </div>
+
+      <div class="version-strip">
+        <span style="font-size:11px;color:#6B7B8D;font-weight:600">Versions:</span>
+        <span class="version-badge current">v2 (current)</span>
+        <span class="version-badge" onclick="showVersionModal()">v1</span>
+      </div>
+    </div>
+  </div>
+
 </div>
 
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
+<!-- Modal -->
+<div id="modal" class="modal-overlay" style="display:none" onclick="closeModal(event)">
+  <div class="modal" id="modalContent"></div>
+</div>
+
+<!-- Toast -->
+<div id="toast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:#1E3A5F;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,0.2);transition:transform 0.3s;z-index:200;pointer-events:none"></div>
 
 <script>
-'use strict';
-
-// ─────────────────────────────────────────────
-//  DATA
-// ─────────────────────────────────────────────
-
-const DEMO_TEMPLATES = [
-  {
-    id: 't1', name: 'Spring Paint Sale', status: 'live',
-    channels: ['Email', 'DV360', 'On-site', 'Meta'],
-    constraints: { headlineMax: 30, subMax: 50, cta: ['Shop Now', 'Learn More', 'Free Shipping'] },
-    supplier: 'All Suppliers',
-    description: 'Seasonal paint promotions. Auto-generates 18 ad sizes across all HD channels.'
-  },
-  {
-    id: 't2', name: 'Seasonal Promotion Default', status: 'live',
-    channels: ['Email', 'On-site', 'Meta'],
-    constraints: { headlineMax: 35, subMax: 60, cta: ['Shop Now', 'Explore Now'] },
-    supplier: 'Gold + Platinum',
-    description: 'General seasonal template. 14 ad sizes.'
-  },
-  {
-    id: 't3', name: 'PLA Default', status: 'live',
-    channels: ['DV360', 'The Trade Desk'],
-    constraints: { headlineMax: 25, subMax: 45, cta: ['Shop Now'] },
-    supplier: 'All Suppliers',
-    description: 'Product listing ad default for programmatic channels. 8 ad sizes.'
-  }
-];
-
-const AD_SPECS = [
-  { channel: 'Email',    label: 'Email Banner',        w: 600,  h: 400  },
-  { channel: 'DV360',   label: 'Medium Rectangle',    w: 300,  h: 250  },
-  { channel: 'DV360',   label: 'Leaderboard',         w: 728,  h: 90   },
-  { channel: 'DV360',   label: 'Billboard',           w: 970,  h: 250  },
-  { channel: 'On-site', label: 'Medium Rectangle',    w: 300,  h: 250  },
-  { channel: 'On-site', label: 'Leaderboard',         w: 728,  h: 90   },
-  { channel: 'On-site', label: 'Billboard',           w: 970,  h: 250  },
-  { channel: 'On-site', label: 'Super Leaderboard',   w: 1200, h: 150  },
-  { channel: 'On-site', label: 'Half Page',           w: 300,  h: 600  },
-  { channel: 'On-site', label: 'Wide Skyscraper',     w: 160,  h: 600  },
-  { channel: 'On-site', label: 'Skyscraper',          w: 120,  h: 600  },
-  { channel: 'On-site', label: 'Large Leaderboard',   w: 970,  h: 90   },
-  { channel: 'On-site', label: 'Homepage Hero',       w: 1920, h: 400  },
-  { channel: 'On-site', label: 'Inline Banner',       w: 970,  h: 90   },
-  { channel: 'On-site', label: 'Footer Banner',       w: 728,  h: 90   },
-  { channel: 'Meta',    label: 'Square (1:1)',         w: 1080, h: 1080 },
-  { channel: 'Meta',    label: 'Landscape (16:9)',     w: 1200, h: 675  },
-  { channel: 'Meta',    label: 'Vertical (4:5)',       w: 1080, h: 1350 }
-];
-
-const SUBMISSIONS_SOURCE = [
-  {
-    id: 'sub_a', supplier: 'Rust Oleum', template: 'Spring Paint Sale',
-    submittedAt: '2026-04-11T10:00:00Z', status: 'pending',
-    headline: '30% Off Interior Paints', subheading: 'Premium finishes at unbeatable prices',
-    cta: 'Shop Now', aiStatus: 'pass', aiIssues: [], confidence: 94, scenario: 'a'
-  },
-  {
-    id: 'sub_b', supplier: 'Rust Oleum', template: 'Spring Paint Sale',
-    submittedAt: '2026-04-12T09:30:00Z', status: 'pending',
-    headline: 'Best Paint Sale Ever!', subheading: 'Highest quality at the lowest price',
-    cta: 'Shop Now', aiStatus: 'warn',
-    aiIssues: ['Superlative "Best" requires third-party proof', 'Superlative "lowest" requires substantiation'],
-    confidence: 61, scenario: 'b'
-  },
-  {
-    id: 'sub_c', supplier: 'Samsung', template: 'PLA Default',
-    submittedAt: '2026-04-10T14:00:00Z', status: 'approved',
-    headline: 'New 4K QLED TVs', subheading: 'Crystal-clear picture, vibrant colors',
-    cta: 'Shop Now', aiStatus: 'pass', aiIssues: [], confidence: 97, scenario: 'c'
-  },
-  {
-    id: 'sub_d', supplier: 'Kohler', template: 'Spring Paint Sale',
-    submittedAt: '2026-04-13T08:00:00Z', status: 'pending',
-    headline: 'Bath Fixtures 20% Off', subheading: 'Upgrade your bathroom today',
-    cta: 'Shop Now', aiStatus: 'pass', aiIssues: [], confidence: 91, scenario: null
-  },
-  {
-    id: 'sub_e', supplier: 'Samsung', template: 'Seasonal Promotion Default',
-    submittedAt: '2026-04-12T11:00:00Z', status: 'pending',
-    headline: 'Galaxy S25 — Now at HD', subheading: 'Pick up in-store or online',
-    cta: 'Shop Now', aiStatus: 'pass', aiIssues: [], confidence: 88, scenario: null
-  },
-  {
-    id: 'sub_f', supplier: 'Rust Oleum', template: 'Seasonal Promotion Default',
-    submittedAt: '2026-04-09T16:00:00Z', status: 'approved',
-    headline: 'Spray Paint Clearance', subheading: 'Wide range of colors and finishes',
-    cta: 'Learn More', aiStatus: 'pass', aiIssues: [], confidence: 93, scenario: null
-  },
-  {
-    id: 'sub_g', supplier: 'Kohler', template: 'PLA Default',
-    submittedAt: '2026-04-08T12:00:00Z', status: 'rejected',
-    headline: 'Best Kitchen Sinks', subheading: 'Top-rated by consumers',
-    cta: 'Shop Now', aiStatus: 'warn', aiIssues: ['Superlative detected'], confidence: 52, scenario: null
-  },
-  {
-    id: 'sub_h', supplier: 'Samsung', template: 'PLA Default',
-    submittedAt: '2026-04-07T10:00:00Z', status: 'revisions',
-    headline: 'Smart Home Hub', subheading: 'Connect everything seamlessly',
-    cta: 'Learn More', aiStatus: 'pass', aiIssues: [], confidence: 89, scenario: null
-  }
-];
-
-const TAB_CONFIG = {
-  pending:   { label: 'Pending',   total: 7,  ids: ['sub_a', 'sub_b', 'sub_d', 'sub_e'] },
-  approved:  { label: 'Approved',  total: 45, ids: ['sub_c', 'sub_f'] },
-  rejected:  { label: 'Rejected',  total: 2,  ids: ['sub_g'] },
-  revisions: { label: 'Revisions', total: 3,  ids: ['sub_h'] }
+// ── Data ──
+const PLATFORMS = {
+  onsite: { label: 'Onsite (OAM)', color: '#1E3A5F',
+    sizes: [
+      { label: 'Medium Rectangle', dims: '300×250', w: 300, h: 250, tag: 'Most Used' },
+      { label: 'Leaderboard',      dims: '728×90',  w: 728, h: 90,  tag: '' },
+      { label: 'Billboard',        dims: '970×250', w: 970, h: 250, tag: '' },
+      { label: 'Half Page',        dims: '300×600', w: 300, h: 600, tag: '' },
+      { label: 'Mobile Banner',    dims: '320×50',  w: 320, h: 50,  tag: '' },
+    ]},
+  meta: { label: 'Meta', color: '#1877F2',
+    sizes: [
+      { label: 'Feed (1.91:1)', dims: '1200×628',  w: 1200, h: 628,  tag: 'Most Used' },
+      { label: 'Square Feed',   dims: '1080×1080', w: 1080, h: 1080, tag: '' },
+      { label: 'Story / Reel',  dims: '1080×1920', w: 1080, h: 1920, tag: '' },
+      { label: 'Carousel Card', dims: '1080×1080', w: 1080, h: 1080, tag: '' },
+    ]},
+  google: { label: 'Google Display', color: '#EA4335',
+    sizes: [
+      { label: 'Medium Rectangle', dims: '300×250', w: 300, h: 250, tag: 'Most Used' },
+      { label: 'Leaderboard',      dims: '728×90',  w: 728, h: 90,  tag: '' },
+      { label: 'Wide Skyscraper',  dims: '160×600', w: 160, h: 600, tag: '' },
+      { label: 'Half Page',        dims: '300×600', w: 300, h: 600, tag: '' },
+    ]},
+  reddit: { label: 'Reddit', color: '#FF4500',
+    sizes: [
+      { label: 'Promoted Post', dims: '1200×628', w: 1200, h: 628, tag: 'Most Used' },
+      { label: 'Display',       dims: '300×250',  w: 300,  h: 250, tag: '' },
+    ]},
 };
 
-// ─────────────────────────────────────────────
-//  STATE
-// ─────────────────────────────────────────────
+const APPROVED_COPY = [
+  { id:1, tag:'HEADLINE', tagClass:'headline', text:'Spring Into Savings',              approved:'Approved — Susan B.',  inUse:true  },
+  { id:2, tag:'HEADLINE', tagClass:'headline', text:'Power Up Your Projects',           approved:'Approved — Susan B.',  inUse:false },
+  { id:3, tag:'HEADLINE', tagClass:'headline', text:'Tools Built for the Job',          approved:'Approved — Susan B.',  inUse:false },
+  { id:4, tag:'HEADLINE', tagClass:'headline', text:'Up to 40% Off This Weekend',       approved:'Approved — Amanda B.', inUse:false },
+  { id:5, tag:'SUBHEAD',  tagClass:'headline', text:'Up to 40% off power tools',        approved:'Approved — Susan B.',  inUse:true  },
+  { id:6, tag:'SUBHEAD',  tagClass:'headline', text:'Shop top brands online & in-store',approved:'Approved — Susan B.',  inUse:false },
+  { id:7, tag:'CTA',      tagClass:'cta',      text:'Shop Now',                         approved:'Approved — OAM Brand', inUse:true  },
+  { id:8, tag:'CTA',      tagClass:'cta',      text:'See All Deals',                    approved:'Approved — OAM Brand', inUse:false },
+  { id:9, tag:'CTA',      tagClass:'cta',      text:'Learn More',                       approved:'Approved — OAM Brand', inUse:false },
+  { id:10,tag:'LEGAL',    tagClass:'legal',    text:'Prices valid while supplies last. homedepot.com', approved:'Approved — Legal', inUse:true },
+  { id:11,tag:'LEGAL',    tagClass:'legal',    text:'Valid online only. Select items.',  approved:'Approved — Legal',    inUse:false },
+];
 
+const DEMO_ASSETS = [
+  { id:'a1', label:'Bosch Drill Scene',    color:'#2C3E50', selected:true  },
+  { id:'a2', label:'Workshop Lifestyle',   color:'#F39C12', selected:false },
+  { id:'a3', label:'Product White BG',     color:'#BDC3C7', selected:false },
+  { id:'a4', label:'Spring Orange',        color:'#E67E22', selected:false },
+  { id:'a5', label:'HD Store Interior',    color:'#E74C3C', selected:false },
+  { id:'a6', label:'Tool Belt Close',      color:'#8E44AD', selected:false },
+];
+
+// Generate colored canvas thumbnails
+function makeColorBlock(color, w, h) {
+  const c = document.createElement('canvas'); c.width = w; c.height = h;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = color; ctx.fillRect(0,0,w,h);
+  ctx.fillStyle = 'rgba(255,255,255,0.12)'; ctx.fillRect(w*0.12,h*0.12,w*0.76,h*0.76);
+  return c.toDataURL();
+}
+DEMO_ASSETS.forEach(a => { a.src = makeColorBlock(a.color, 80, 80); });
+
+// Compliance items
+const COMPLIANCE_ITEMS = [
+  { id:'logo',   label:'Logo Placement',        sub:'THE HOME DEPOT® bar present',              checked:true,  flagged:false },
+  { id:'colors', label:'Brand Colors',           sub:'Orange #F96302 — confirmed',               checked:true,  flagged:false },
+  { id:'copy',   label:'Approved Copy Used',     sub:'All 4 elements from approved library',     checked:true,  flagged:false },
+  { id:'asset',  label:'Image from Library',     sub:'Bosch Drill Scene — pre-approved asset',   checked:true,  flagged:false },
+  { id:'legal',  label:'Legal Disclaimer',       sub:'Present and legible',                      checked:true,  flagged:false },
+  { id:'cta',    label:'CTA Button Present',     sub:'"Shop Now" — approved CTA copy',           checked:true,  flagged:false },
+  { id:'safe',   label:'Safe Zone Clear',        sub:'Text may be clipped on mobile — review', checked:false, flagged:true  },
+];
+
+// Variants for approval panel
+const AV_VARIANTS = [
+  { platform:'onsite', color:'#1E3A5F', label:'Medium Rectangle', dims:'300×250',  status:'pending'  },
+  { platform:'onsite', color:'#1E3A5F', label:'Leaderboard',       dims:'728×90',   status:'approved' },
+  { platform:'onsite', color:'#1E3A5F', label:'Half Page',          dims:'300×600',  status:'draft'    },
+  { platform:'meta',   color:'#1877F2', label:'Feed',               dims:'1200×628', status:'pending'  },
+  { platform:'meta',   color:'#1877F2', label:'Square Feed',        dims:'1080×1080',status:'approved' },
+  { platform:'meta',   color:'#1877F2', label:'Story',              dims:'1080×1920',status:'draft'    },
+  { platform:'google', color:'#EA4335', label:'Medium Rectangle',   dims:'300×250',  status:'approved' },
+  { platform:'google', color:'#EA4335', label:'Leaderboard',        dims:'728×90',   status:'approved' },
+  { platform:'google', color:'#EA4335', label:'Half Page',          dims:'300×600',  status:'pending'  },
+  { platform:'reddit', color:'#FF4500', label:'Promoted Post',      dims:'1200×628', status:'draft'    },
+  { platform:'reddit', color:'#FF4500', label:'Display',            dims:'300×250',  status:'draft'    },
+];
+
+const INITIAL_COMMENTS = [
+  { author:'Amanda Bowman', time:'Apr 9, 2:14pm', body:'Headline copy looks great. Approved from strategy side — passing to Susan for brand compliance check.', type:'normal' },
+  { author:'James Ridler (Bosch)', time:'Apr 8, 9:45am', body:'Submitted v1. Used approved headline "Spring Into Savings" and CTA "Shop Now". Background from approved brand asset library.', type:'normal' },
+];
+
+// ── State ──
 const state = {
-  role: 'supplier',
-  supStep: 'templates',
-  selectedTemplate: null,
-  headline: '',
-  subheading: '',
-  cta: 'Shop Now',
-  includeLegal: true,
-  uploadedImage: null,
-  submissions: SUBMISSIONS_SOURCE.map(s => ({ ...s })),
-  selectedSubId: null,
-  retTab: 'pending',
-  manualChecks: {},
-  activatedChannels: [],
-  atomicVisible: false,
-  changesOpen: false,
-  rejectOpen: false,
-  changeTags: [],
-  changesText: '',
-  rejectText: ''
+  view: 'builder',
+  platform: 'onsite',
+  sizeIdx: 0,
+  selectedAsset: 'a1',
+  copyFilter: '',
+  workflowStatus: 'review',
+  avSelectedVariant: 0,
+  comments: [...INITIAL_COMMENTS],
+  complianceItems: COMPLIANCE_ITEMS.map(i => ({...i})),
+  imgAdj: { zoom:100, posX:0, posY:0, brightness:100, contrast:100, saturation:100, flipH:false, flipV:false },
 };
 
-// ─────────────────────────────────────────────
-//  HELPERS
-// ─────────────────────────────────────────────
+// ══════════════════════════════════════════
+// DCO + AI DATA
+// ══════════════════════════════════════════
+const AUDIENCES = [
+  { id:'pro',        label:'Pro Contractors',   icon:'🔧', color:'#1565C0', pct:'22%',
+    copy:{ headline:'Built for the Job Site',   sub:'Pro-grade tools, pro pricing',         cta:'Shop Pro'    }},
+  { id:'diy',        label:'Weekend DIYers',     icon:'🏠', color:'#2E7D32', pct:'41%',
+    copy:{ headline:'Spring Into Savings',      sub:'Up to 40% off power tools',            cta:'Shop Now'    }},
+  { id:'enthusiast', label:'Power Tool Fans',    icon:'⚡', color:'#E65100', pct:'19%',
+    copy:{ headline:'Power Up Your Projects',   sub:'Top brands, best performance',         cta:'See All Deals'}},
+  { id:'newhome',    label:'New Homeowners',     icon:'🏡', color:'#6A1B9A', pct:'18%',
+    copy:{ headline:'Everything You Need',      sub:'Build your toolkit the right way',     cta:'Learn More'  }},
+];
 
-function fmtDate(iso) {
-  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+const DCO_ELEMENTS = [
+  { id:'headline', label:'Headline',    type:'TEXT',  icon:'T',  iconBg:'#DCEEFB', isDynamic:true  },
+  { id:'sub',      label:'Subheadline', type:'TEXT',  icon:'T',  iconBg:'#DCEEFB', isDynamic:true  },
+  { id:'cta',      label:'CTA Button',  type:'TEXT',  icon:'↗',  iconBg:'#FFF3E0', isDynamic:false },
+  { id:'image',    label:'Background',  type:'IMAGE', icon:'⊞',  iconBg:'#EDE7F6', isDynamic:true  },
+  { id:'legal',    label:'Legal',       type:'TEXT',  icon:'§',  iconBg:'#F5F7FA', isDynamic:false },
+  { id:'brand',    label:'Brand Bar',   type:'BRAND', icon:'🏷', iconBg:'#FFF3E0', isDynamic:false },
+];
+
+// AI-generated copy per element per audience (simulated)
+const DCO_AI_VARIANTS = {
+  headline: {
+    pro:        ['Built for the Job Site','Pro Tools. Pro Results.','Serious Tools for Serious Work'],
+    diy:        ['Spring Into Savings','Weekend Projects Start Here','Make It Happen This Weekend'],
+    enthusiast: ['Power Up Your Projects','Performance Without Compromise','Engineered to Outperform'],
+    newhome:    ['Everything You Need','Start Your Home Right','Your First Toolkit, Done Right'],
+  },
+  sub: {
+    pro:        ['Pro-grade tools, pro pricing','Contractor discounts, no minimums','Built to last on every job'],
+    diy:        ['Up to 40% off power tools','Top brands for your next project','Weekend-ready, wallet-friendly'],
+    enthusiast: ['Top brands, best performance','Premium specs, honest pricing','Where performance meets value'],
+    newhome:    ['Build your toolkit the right way','Essential tools, expert guidance','Everything from day one'],
+  },
+  image: {
+    pro:        ['Job Site Scene','Contractor Bundle','Bosch Pro Kit'],
+    diy:        ['Bosch Drill Scene','Workshop Lifestyle','DIY Project Setup'],
+    enthusiast: ['Tool Belt Close','Performance Close-up','Premium Detail Shot'],
+    newhome:    ['Starter Kit Flat Lay','Home Setup Scene','New House Tools'],
+  },
+};
+
+const dcoState = {
+  selectedAudience: 'diy',
+  selectedElement: 'headline',
+  showDynamic: false,
+  generatingFor: null,
+  published: false,
+  aiEngine: 'bedrock',
+};
+
+// ── View switcher ──
+function switchView(v) {
+  state.view = v;
+  document.getElementById('builderView').style.display   = v === 'builder'  ? 'flex' : 'none';
+  document.getElementById('dcoView').style.display       = v === 'dco'      ? 'flex' : 'none';
+  document.getElementById('approvalView').style.display  = v === 'approval' ? 'flex' : 'none';
+  document.getElementById('vtBuilder').classList.toggle('active',  v === 'builder');
+  document.getElementById('vtDco').classList.toggle('active',      v === 'dco');
+  document.getElementById('vtApproval').classList.toggle('active', v === 'approval');
+  if (v === 'approval') renderApprovalView();
+  if (v === 'dco')      renderDCOView();
 }
 
-function todayStr() {
-  return new Date().toISOString().split('T')[0];
+// ══════════════════════════════════════════
+// DCO RENDER
+// ══════════════════════════════════════════
+function renderDCOView() {
+  renderAudTabs();
+  renderDCOElementList();
+  renderDCOBanner();
+  renderDCOMatrix();
+  renderDCOStats();
 }
 
-function plus30() {
-  const d = new Date();
-  d.setDate(d.getDate() + 30);
-  return d.toISOString().split('T')[0];
+function renderAudTabs() {
+  document.getElementById('audTabs').innerHTML = AUDIENCES.map(a =>
+    `<button class="aud-tab${a.id === dcoState.selectedAudience ? ' active' : ''}"
+      style="${a.id === dcoState.selectedAudience ? 'background:'+a.color+';' : ''}"
+      onclick="selectAudience('${a.id}')">
+      ${a.icon} ${a.label} <span class="aud-pct">${a.pct}</span>
+    </button>`
+  ).join('');
 }
 
-function fmtDateTime(iso) {
-  return new Date(iso).toLocaleString('en-US', {
-    month: 'long', day: 'numeric', year: 'numeric',
-    hour: 'numeric', minute: '2-digit', hour12: true
-  });
+function selectAudience(id) {
+  dcoState.selectedAudience = id;
+  renderAudTabs();
+  renderDCOBanner();
+  renderDCOMatrix();
 }
 
-function scaledDims(spec, maxW) {
-  maxW = maxW || 110;
-  const ratio = spec.w / spec.h;
-  if (ratio >= 1) {
-    const w = Math.min(spec.w, maxW);
-    const h = Math.max(Math.round(w / ratio), 14);
-    return { w, h };
-  } else {
-    const h = Math.min(spec.h, maxW);
-    const w = Math.max(Math.round(h * ratio), 14);
-    return { w, h };
-  }
+function renderDCOElementList() {
+  document.getElementById('dcoElementList').innerHTML = DCO_ELEMENTS.map(el =>
+    `<div class="dco-element-row">
+      <div class="dco-el-icon" style="background:${el.iconBg}">${el.icon}</div>
+      <div class="dco-el-info">
+        <div class="dco-el-name">${el.label}</div>
+        <div class="dco-el-type">${el.type}</div>
+      </div>
+      <div class="dco-toggle">
+        <button class="dco-toggle-btn${el.isDynamic ? '' : ' on static'}" onclick="setElDynamic('${el.id}',false)">Static</button>
+        <button class="dco-toggle-btn${el.isDynamic ? ' on dynamic' : ''}" onclick="setElDynamic('${el.id}',true)">Dynamic</button>
+      </div>
+      ${el.isDynamic && DCO_AI_VARIANTS[el.id]
+        ? `<button class="dco-gen-btn" id="genBtn-${el.id}" onclick="generateVariants('${el.id}')">✦ Gen</button>`
+        : '<div style="width:40px"></div>'}
+    </div>`
+  ).join('');
 }
 
-function checkCompliance(headline, sub) {
-  const SUPERS = ['best', 'most', 'only', 'always', 'lowest', 'highest', 'never', 'perfect', 'greatest', '#1', 'number one'];
-  const text = ((headline || '') + ' ' + (sub || '')).toLowerCase();
-  const found = SUPERS.filter(s => text.includes(s));
-  return {
-    pass: found.length === 0,
-    issues: found.map(s => 'Superlative "' + s + '" requires substantiation')
-  };
+function setElDynamic(id, val) {
+  const el = DCO_ELEMENTS.find(e => e.id === id);
+  if (el) { el.isDynamic = val; renderDCOElementList(); renderDCOMatrix(); renderDCOStats(); }
 }
 
-function statusChipHTML(status) {
-  const map = {
-    pending: 'chip-pending',
-    approved: 'chip-approved',
-    rejected: 'chip-rejected',
-    revisions: 'chip-revisions'
-  };
-  const labels = {
-    pending: 'Pending',
-    approved: 'Approved',
-    rejected: 'Rejected',
-    revisions: 'Revisions'
-  };
-  return '<span class="status-chip ' + (map[status] || '') + '">' + (labels[status] || status) + '</span>';
+function generateVariants(elId) {
+  const btn = document.getElementById('genBtn-' + elId);
+  if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
+  dcoState.generatingFor = elId;
+
+  // Simulate AI generation delay
+  setTimeout(() => {
+    if (btn) { btn.textContent = '✦ Gen'; btn.disabled = false; }
+    dcoState.selectedElement = elId;
+    renderVariantChips(elId);
+    renderDCOMatrix();
+    showToast(`✦ ${AUDIENCES.length} variants generated via ${dcoState.aiEngine === 'spectra' ? 'Spectra (OAM)' : 'AWS Bedrock'}`);
+  }, 1200);
 }
 
-function esc(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
-}
+function renderVariantChips(elId) {
+  const variants = DCO_AI_VARIANTS[elId];
+  if (!variants) return;
+  const sec = document.getElementById('dcoVariantSection');
+  const chips = document.getElementById('dcoVariantChips');
+  sec.style.display = '';
 
-// ─────────────────────────────────────────────
-//  LOGIN
-// ─────────────────────────────────────────────
-
-(function initLogin() {
-  if (sessionStorage.getItem('cs_auth') === '1') {
-    document.getElementById('loginScreen').classList.add('hidden');
-  }
-
-  document.getElementById('loginBtn').addEventListener('click', doLogin);
-  document.getElementById('loginPass').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') doLogin();
-  });
-  document.getElementById('loginUser').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') doLogin();
-  });
-})();
-
-function doLogin() {
-  const u = document.getElementById('loginUser').value.trim();
-  const p = document.getElementById('loginPass').value;
-  const errEl = document.getElementById('loginError');
-  const ui = document.getElementById('loginUser');
-  const pi = document.getElementById('loginPass');
-
-  if (u === 'vantage' && p === 'pr0t0typ3!') {
-    sessionStorage.setItem('cs_auth', '1');
-    document.getElementById('loginScreen').classList.add('hidden');
-    renderAll();
-  } else {
-    ui.classList.add('error');
-    pi.classList.add('error');
-    errEl.textContent = 'Invalid credentials';
-    setTimeout(function() {
-      ui.classList.remove('error');
-      pi.classList.remove('error');
-      errEl.textContent = '';
-    }, 1800);
-  }
-}
-
-// ─────────────────────────────────────────────
-//  DEMO SCENARIOS
-// ─────────────────────────────────────────────
-
-function loadScenario(s) {
-  if (s === 'a') {
-    state.role = 'retailer';
-    state.retTab = 'pending';
-    state.selectedSubId = 'sub_a';
-    state.atomicVisible = false;
-    state.activatedChannels = [];
-    state.changesOpen = false;
-    state.rejectOpen = false;
-  } else if (s === 'b') {
-    state.role = 'retailer';
-    state.retTab = 'pending';
-    state.selectedSubId = 'sub_b';
-    state.atomicVisible = false;
-    state.activatedChannels = [];
-    state.changesOpen = false;
-    state.rejectOpen = false;
-  } else if (s === 'c') {
-    state.role = 'retailer';
-    state.retTab = 'approved';
-    state.selectedSubId = 'sub_c';
-    state.atomicVisible = true;
-    state.activatedChannels = [];
-    state.changesOpen = false;
-    state.rejectOpen = false;
-  }
-  renderAll();
-}
-
-// ─────────────────────────────────────────────
-//  ROLE SWITCH
-// ─────────────────────────────────────────────
-
-function switchRole(role) {
-  state.role = role;
-  renderAll();
-}
-
-function updateRoleToggle() {
-  document.getElementById('rtoggleSupplier').classList.toggle('active', state.role === 'supplier');
-  document.getElementById('rtoggleRetailer').classList.toggle('active', state.role === 'retailer');
-  document.getElementById('roleBadge').textContent = state.role === 'supplier' ? 'Supplier' : 'Retailer Admin';
-}
-
-// ─────────────────────────────────────────────
-//  ACTIONS
-// ─────────────────────────────────────────────
-
-function approveSubmission(id) {
-  const sub = state.submissions.find(s => s.id === id);
-  if (!sub) return;
-  sub.status = 'approved';
-  TAB_CONFIG.pending.ids = TAB_CONFIG.pending.ids.filter(i => i !== id);
-  TAB_CONFIG.revisions.ids = TAB_CONFIG.revisions.ids.filter(i => i !== id);
-  if (!TAB_CONFIG.approved.ids.includes(id)) TAB_CONFIG.approved.ids.unshift(id);
-  state.atomicVisible = true;
-  state.retTab = 'approved';
-  state.selectedSubId = id;
-  state.changesOpen = false;
-  state.rejectOpen = false;
-  renderAll();
-  showToast('Submission approved', 'success');
-}
-
-function requestChanges(id) {
-  const sub = state.submissions.find(s => s.id === id);
-  if (!sub) return;
-  sub.status = 'revisions';
-  TAB_CONFIG.pending.ids = TAB_CONFIG.pending.ids.filter(i => i !== id);
-  if (!TAB_CONFIG.revisions.ids.includes(id)) TAB_CONFIG.revisions.ids.push(id);
-  state.changesOpen = false;
-  state.changeTags = [];
-  state.changesText = '';
-  state.retTab = 'revisions';
-  state.atomicVisible = false;
-  renderAll();
-  showToast('Changes requested');
-}
-
-function confirmReject(id) {
-  const sub = state.submissions.find(s => s.id === id);
-  if (!sub) return;
-  sub.status = 'rejected';
-  TAB_CONFIG.pending.ids = TAB_CONFIG.pending.ids.filter(i => i !== id);
-  TAB_CONFIG.revisions.ids = TAB_CONFIG.revisions.ids.filter(i => i !== id);
-  if (!TAB_CONFIG.rejected.ids.includes(id)) TAB_CONFIG.rejected.ids.push(id);
-  state.rejectOpen = false;
-  state.rejectText = '';
-  state.retTab = 'rejected';
-  state.atomicVisible = false;
-  renderAll();
-  showToast('Submission rejected', 'error');
-}
-
-function activateChannels() {
-  state.activatedChannels = ['email', 'dv360', 'ttd', 'onsite', 'meta', 'pinterest'];
-  renderAll();
-  showToast('Creative activated — live in ~2 hours', 'success');
-}
-
-function showToast(msg, type) {
-  type = type || 'success';
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = 'toast show ' + type;
-  setTimeout(function() { t.classList.remove('show'); }, 3000);
-}
-
-// ─────────────────────────────────────────────
-//  RENDER ALL
-// ─────────────────────────────────────────────
-
-function renderAll() {
-  document.getElementById('supplierView').style.display = state.role === 'supplier' ? 'flex' : 'none';
-  document.getElementById('retailerView').style.display = state.role === 'retailer' ? 'flex' : 'none';
-  updateRoleToggle();
-  if (state.role === 'supplier') renderSupplierView();
-  if (state.role === 'retailer') renderRetailerView();
-}
-
-// ─────────────────────────────────────────────
-//  SUPPLIER VIEW
-// ─────────────────────────────────────────────
-
-function renderSupplierView() {
-  renderStepBar();
-  const content = document.getElementById('supContent');
-  if (state.supStep === 'templates') {
-    content.innerHTML = renderTemplates();
-  } else if (state.supStep === 'editor') {
-    content.innerHTML = renderEditor();
-    bindEditorEvents();
-  } else if (state.supStep === 'preview') {
-    content.innerHTML = renderPreviewGrid();
-  } else if (state.supStep === 'submitted') {
-    content.innerHTML = renderSubmitted();
-  }
-}
-
-function renderStepBar() {
-  const steps = [
-    { key: 'templates', label: 'Templates', n: 1 },
-    { key: 'editor',    label: 'Editor',    n: 2 },
-    { key: 'preview',   label: 'Preview',   n: 3 },
-    { key: 'submitted', label: 'Submitted', n: 4 }
-  ];
-  const order = ['templates', 'editor', 'preview', 'submitted'];
-  const cur = order.indexOf(state.supStep);
-  let html = '';
-  steps.forEach(function(s, i) {
-    const idx = order.indexOf(s.key);
-    let cls = '';
-    if (idx < cur) cls = 'done';
-    else if (idx === cur) cls = 'active';
-    if (i > 0) html += '<span class="step-arrow">&rsaquo;</span>';
-    html += '<div class="step-item ' + cls + '">';
-    html += '<div class="step-num">' + (idx < cur ? '&#10003;' : s.n) + '</div>';
-    html += '<span>' + s.label + '</span></div>';
-  });
-  document.getElementById('supStepBar').innerHTML = html;
-}
-
-function renderTemplates() {
-  let html = '<div class="sec-title">Choose a Template</div>';
-  html += '<div class="tmpl-grid">';
-  DEMO_TEMPLATES.forEach(function(t) {
-    html += '<div class="tmpl-card">';
-    html += '<div class="tmpl-card-top"><div class="tmpl-name">' + esc(t.name) + '</div>';
-    html += '<span class="badge-live">Live</span></div>';
-    html += '<div class="tmpl-channels">';
-    t.channels.forEach(function(ch) {
-      html += '<span class="ch-pill">' + esc(ch) + '</span>';
+  let h = '';
+  AUDIENCES.forEach(aud => {
+    const audVariants = variants[aud.id] || [];
+    audVariants.forEach((text, i) => {
+      const inUse = i === 0;
+      h += `<div class="dco-variant-chip${inUse ? ' in-use' : ''}" onclick="applyVariant('${elId}','${aud.id}',${i})">
+        <span class="vc-aud" style="background:${aud.color}">${aud.icon}</span>
+        <span class="vc-text">${text}</span>
+        ${inUse ? '<span class="vc-apply">✓</span>' : '<span class="vc-apply" style="color:#DDE3EA">Apply</span>'}
+      </div>`;
     });
-    html += '</div>';
-    html += '<div class="tmpl-constraints">Headline max ' + t.constraints.headlineMax + ' chars &nbsp;&middot;&nbsp; CTA: ' + t.constraints.cta.join(' / ') + '</div>';
-    html += '<div class="tmpl-desc">' + esc(t.description) + '</div>';
-    html += '<div class="tmpl-supplier">Supplier: <strong>' + esc(t.supplier) + '</strong></div>';
-    html += '<button class="btn-primary" onclick="selectTemplate(\'' + t.id + '\')">Create Ad &rarr;</button>';
-    html += '</div>';
   });
-  html += '</div>';
-  return html;
+  chips.innerHTML = h;
 }
 
-function selectTemplate(id) {
-  state.selectedTemplate = DEMO_TEMPLATES.find(t => t.id === id);
-  state.headline = '';
-  state.subheading = '';
-  state.cta = state.selectedTemplate.constraints.cta[0];
-  state.uploadedImage = null;
-  state.supStep = 'editor';
-  renderSupplierView();
+function applyVariant(elId, audId, idx) {
+  const variants = DCO_AI_VARIANTS[elId];
+  if (!variants || !variants[audId]) return;
+  const text = variants[audId][idx];
+  // Update the first variant (index 0) to be the selected one for this audience
+  const arr = variants[audId];
+  arr.unshift(arr.splice(idx, 1)[0]);
+  renderVariantChips(elId);
+  renderDCOBanner();
+  showToast(`Applied to ${AUDIENCES.find(a=>a.id===audId).label}`);
 }
 
-function renderEditor() {
-  const tmpl = state.selectedTemplate;
-  const hMax = tmpl.constraints.headlineMax;
-  const sMax = tmpl.constraints.subMax;
-  const hLen = state.headline.length;
-  const sLen = state.subheading.length;
-  const hWarn = hLen >= Math.floor(hMax * 0.9);
-  const sWarn = sLen >= Math.floor(sMax * 0.9);
-  const compliance = checkCompliance(state.headline, state.subheading);
+function renderDCOBanner() {
+  const aud = AUDIENCES.find(a => a.id === dcoState.selectedAudience);
+  const s = PLATFORMS[state.platform].sizes[state.sizeIdx];
+  const scale = Math.min(480 / s.w, 360 / s.h, 1);
+  const dw = Math.round(s.w * scale), dh = Math.round(s.h * scale);
 
-  const bgStyle = state.uploadedImage
-    ? 'background-image:url(' + state.uploadedImage + ');background-size:cover;background-position:center;'
-    : '';
+  // Pick copy: AI variant (index 0) if generated, else audience default
+  const headline = (DCO_AI_VARIANTS.headline[aud.id] || [aud.copy.headline])[0];
+  const sub      = (DCO_AI_VARIANTS.sub[aud.id]      || [aud.copy.sub])[0];
+  const cta      = aud.copy.cta;
 
-  let html = '<div class="editor-layout">';
+  const hl = Math.max(10, Math.min(22, dh * 0.09));
+  const asset = DEMO_ASSETS.find(a => a.id === state.selectedAsset);
+  const bgSrc = asset ? asset.src : '';
 
-  // LEFT: ad preview
-  html += '<div>';
-  html += '<div class="ad-preview-box" style="' + bgStyle + '">';
-  html += '<div class="ad-preview-inner">';
-  if (state.uploadedImage) html += '<div class="ad-bg-overlay"></div>';
-  html += '<div class="ad-content">';
-  html += '<div class="ad-headline-preview">' + esc(state.headline || 'Your headline here') + '</div>';
-  html += '<div class="ad-sub-preview">' + esc(state.subheading || 'Subheading text') + '</div>';
-  html += '</div>';
-  html += '<div class="ad-cta-preview"><div class="ad-cta-btn">' + esc(state.cta) + '</div></div>';
-  html += '</div>';
-  html += '<div class="ad-brand-bar"></div>';
-  html += '</div>';
-  html += '<div class="ad-preview-label">300&times;250 &mdash; Medium Rectangle (Live Preview)</div>';
-  html += '</div>';
+  document.getElementById('dcoBannerWrap').style.width  = dw + 'px';
+  document.getElementById('dcoBannerWrap').style.height = dh + 'px';
+  document.getElementById('dcoAudIndicator').textContent = aud.icon + ' ' + aud.label;
+  document.getElementById('dcoAudIndicator').style.background = aud.color;
+  document.getElementById('dcoCanvasLabel').textContent = `Preview — ${s.w} × ${s.h} px`;
+  document.getElementById('dcoDimNote').textContent = `${s.label} · ${PLATFORMS[state.platform].label}`;
 
-  // RIGHT: form
-  html += '<div class="editor-form">';
+  const textVisible = dh >= 80;
+  const barH = dh < 80 ? 14 : 28;
 
-  // Upload
-  html += '<div class="form-group">';
-  html += '<label class="form-label">Product Image</label>';
-  html += '<div class="upload-zone' + (state.uploadedImage ? ' has-img' : '') + '" id="uploadZone" onclick="document.getElementById(\'fileInput\').click()">';
-  if (state.uploadedImage) {
-    html += '<img class="upload-thumb" src="' + state.uploadedImage + '" alt="uploaded"><br>';
-    html += '<span style="font-size:11px;color:#43A047;font-weight:600;">Image uploaded &mdash; click to replace</span>';
+  document.getElementById('dcoBannerInner').innerHTML = `
+    <div style="width:${dw}px;height:${dh}px;position:relative;overflow:hidden">
+      ${bgSrc ? `<img src="${bgSrc}" style="width:100%;height:100%;object-fit:cover;position:absolute;top:0;left:0">` : `<div style="width:100%;height:100%;position:absolute;background:linear-gradient(135deg,${aud.color}CC,${aud.color}66)"></div>`}
+      ${textVisible ? `
+        <div style="position:absolute;top:${Math.round(dh*.08)}px;left:${Math.round(dw*.05)}px;max-width:62%;z-index:2">
+          <div style="font-size:${hl}px;font-weight:800;color:#fff;text-shadow:0 2px 5px rgba(0,0,0,.5);line-height:1.2">${headline}</div>
+          <div style="font-size:${Math.round(hl*.6)}px;color:rgba(255,255,255,.9);margin-top:3px;text-shadow:0 1px 3px rgba(0,0,0,.4)">${sub}</div>
+        </div>
+        <div style="position:absolute;bottom:${barH+5}px;right:${Math.round(dw*.04)}px;background:#F97316;color:#fff;padding:${dh<150?'3px 8px':'6px 14px'};border-radius:3px;font-size:${Math.round(hl*.55)}px;font-weight:700;z-index:2">${cta}</div>` : ''}
+      <div style="position:absolute;bottom:0;left:0;right:0;height:${barH}px;background:#F96302;display:flex;align-items:center;padding:0 ${Math.round(dw*.04)}px;z-index:2">
+        <span style="color:#fff;font-size:${Math.max(8,Math.round(barH*.45))}px;font-weight:900;letter-spacing:-.3px">THE HOME DEPOT®</span>
+      </div>
+    </div>`;
+}
+
+function toggleDynamicHighlight() {
+  dcoState.showDynamic = !dcoState.showDynamic;
+  document.getElementById('dcoCanvasCard').classList.toggle('show-dynamic', dcoState.showDynamic);
+  showToast(dcoState.showDynamic ? 'Dynamic elements highlighted' : 'Highlight off');
+}
+
+function renderDCOMatrix() {
+  const dynEls = DCO_ELEMENTS.filter(e => e.isDynamic && DCO_AI_VARIANTS[e.id]);
+  const staticEls = DCO_ELEMENTS.filter(e => !e.isDynamic);
+
+  let h = `<table class="matrix-table">
+    <thead><tr>
+      <th>Audience</th>
+      ${dynEls.map(e => `<th>${e.label}</th>`).join('')}
+    </tr></thead><tbody>`;
+
+  AUDIENCES.forEach(aud => {
+    h += `<tr>
+      <td><span class="aud-dot" style="background:${aud.color}"></span>${aud.icon} ${aud.label}</td>`;
+    dynEls.forEach(el => {
+      const variants = DCO_AI_VARIANTS[el.id];
+      const text = variants && variants[aud.id]
+        ? variants[aud.id][0]
+        : (aud.copy[el.id] || '—');
+      const short = text.length > 22 ? text.slice(0, 20) + '…' : text;
+      const isAI = variants && variants[aud.id];
+      h += `<td><span class="matrix-cell ${isAI ? 'mc-ai' : 'mc-dyn'}"
+        onclick="selectAudience('${aud.id}')" title="${text}">${short}</span></td>`;
+    });
+    h += '</tr>';
+  });
+
+  h += `</tbody></table>`;
+
+  // Static row
+  if (staticEls.length) {
+    h += `<div style="font-size:11px;color:#6B7B8D;margin-bottom:6px;font-weight:600">Static across all audiences</div>`;
+    h += staticEls.map(e =>
+      `<div style="font-size:11px;color:#6B7B8D;margin-bottom:4px">• ${e.label}</div>`
+    ).join('');
+  }
+  document.getElementById('dcoMatrix').innerHTML = h;
+}
+
+function renderDCOStats() {
+  const totalDyn = DCO_ELEMENTS.filter(e => e.isDynamic).length;
+  const totalEl = DCO_ELEMENTS.length;
+  const variants = AUDIENCES.length;
+  const combinations = Math.pow(variants, totalDyn);
+
+  document.getElementById('dcoStats').innerHTML = `
+    <div class="dco-stats-title">Campaign Stats</div>
+    <div class="dco-stat-row"><span class="dco-stat-label">Dynamic elements</span><span class="dco-stat-val">${totalDyn} / ${totalEl}</span></div>
+    <div class="dco-stat-row"><span class="dco-stat-label">Audience segments</span><span class="dco-stat-val">${variants}</span></div>
+    <div class="dco-stat-row"><span class="dco-stat-label">Total combinations</span><span class="dco-stat-val" style="color:#7B1FA2">${combinations}</span></div>
+    <div class="dco-stat-row"><span class="dco-stat-label">AI engine</span><span class="dco-stat-val">${dcoState.aiEngine === 'spectra' ? '✦ Spectra (OAM)' : '✦ AWS Bedrock'}</span></div>
+    <div class="dco-stat-row"><span class="dco-stat-label">Ad server</span><span class="dco-stat-val">Vantage (serving)</span></div>`;
+}
+
+function updateAIEngine(val) {
+  dcoState.aiEngine = val;
+  const labels = { bedrock:'✦ Bedrock', spectra:'✦ Spectra', openai:'✦ GPT-4o', custom:'✦ Custom' };
+  document.getElementById('aiEngineBadge').textContent = labels[val] || '✦ AI';
+  renderDCOStats();
+  showToast('AI engine: ' + (document.querySelector('.dco-byok select option:checked') || {textContent:val}).textContent);
+}
+
+function publishDCO() {
+  const btn = document.getElementById('dcoPublishBtn');
+  btn.textContent = '⏳ Publishing…'; btn.disabled = true;
+  setTimeout(() => {
+    btn.textContent = '✓ DCO Campaign Live';
+    btn.style.background = '#43A047';
+    showToast('DCO campaign published to Vantage ad server!');
+  }, 1800);
+}
+
+// ── Init ──
+function init() {
+  renderLcSteps('builderLcSteps');
+  renderLcSteps('avLcSteps');
+  renderSizes();
+  renderAssets();
+  renderCopy();
+  renderComments();
+  updateCanvas();
+}
+
+// ── Lifecycle steps ──
+const LC_STEPS = [
+  { key:'draft',     label:'Draft',              date:'Apr 7' },
+  { key:'submitted', label:'Submitted',           date:'Apr 8' },
+  { key:'review',    label:'In Review',           date:'Apr 9' },
+  { key:'revision',  label:'Revision Requested',  date:''      },
+  { key:'approved',  label:'Approved',            date:''      },
+  { key:'trafficked',label:'Trafficked',          date:''      },
+];
+const STATUS_ORDER = ['draft','submitted','review','revision','approved','trafficked'];
+
+function renderLcSteps(containerId) {
+  const idx = STATUS_ORDER.indexOf(state.workflowStatus);
+  let h = '';
+  LC_STEPS.forEach((step, i) => {
+    const done = i < idx;
+    const active = i === idx;
+    const warn = step.key === 'revision' && state.workflowStatus === 'revision';
+    const cls = warn ? 'warn' : done ? 'done' : active ? 'active' : '';
+    const icon = warn ? '!' : done ? '✓' : active ? '●' : '';
+    const labelCls = (done || active || warn) ? 'lc-label' : 'lc-label muted';
+    const date = step.date || (done && step.key === 'approved' ? 'Today' : '');
+    h += `<div class="lc-step"><div class="lc-dot ${cls}">${icon}</div><div class="${labelCls}">${step.label}</div><div class="lc-date">${date}</div></div>`;
+  });
+  document.getElementById(containerId).innerHTML = h;
+}
+
+// ── Platform / size ──
+function selectPlatform(p) {
+  state.platform = p; state.sizeIdx = 0;
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('active'));
+  document.getElementById('ptab-'+p).classList.add('active');
+  renderSizes(); updateCanvas();
+}
+function renderSizes() {
+  const sizes = PLATFORMS[state.platform].sizes;
+  document.getElementById('sizeList').innerHTML = sizes.map((s,i) =>
+    `<div class="size-item${i===state.sizeIdx?' selected':''}" onclick="selectSize(${i})">
+      <div><div class="size-label">${s.label}</div><div class="size-dims">${s.dims}</div></div>
+      ${s.tag?`<span class="size-tag">${s.tag}</span>`:''}
+    </div>`
+  ).join('');
+}
+function selectSize(i) { state.sizeIdx = i; renderSizes(); updateCanvas(); }
+
+// ── Canvas (builder) ──
+const MAX_W = 560, MAX_H = 420;
+function updateCanvas() {
+  const s = PLATFORMS[state.platform].sizes[state.sizeIdx];
+  const scale = Math.min(MAX_W/s.w, MAX_H/s.h, 1);
+  const dw = Math.round(s.w*scale), dh = Math.round(s.h*scale);
+  const outer = document.getElementById('canvasOuter');
+  outer.style.width = dw+'px'; outer.style.height = dh+'px';
+  const overlay = document.getElementById('textOverlay');
+  const headline = document.getElementById('overlayHeadline');
+  const sub = document.getElementById('overlaySub');
+  const cta = document.getElementById('ctaBtn');
+  const legal = document.getElementById('legalText');
+  const bar = document.querySelector('.canvas-brand-bar');
+  if (dh < 120) {
+    overlay.style.display = 'none'; cta.style.display = 'none';
+    legal.style.display = 'none'; bar.style.height = '20px';
+    bar.querySelector('.canvas-brand-logo').style.fontSize = '9px';
   } else {
-    html += '<span>&#128247; Click or drag to upload product image</span>';
+    overlay.style.display = ''; cta.style.display = '';
+    legal.style.display = dh > 150 ? '' : 'none';
+    bar.style.height = ''; bar.querySelector('.canvas-brand-logo').style.fontSize = '';
+    const hSize = Math.max(10, Math.min(22, dh*0.09));
+    headline.style.fontSize = hSize+'px'; sub.style.fontSize = Math.max(9,hSize*0.6)+'px';
+    cta.style.fontSize = Math.max(9,hSize*0.55)+'px'; cta.style.bottom = dh<150?'24px':'';
   }
-  html += '</div>';
-  html += '<input type="file" id="fileInput" accept="image/*" style="display:none" onchange="handleImageUpload(event)">';
-  html += '</div>';
+  document.getElementById('canvasSizeInfo').textContent = `${s.w} × ${s.h} px — ${s.label} (${PLATFORMS[state.platform].label})`;
+  document.getElementById('bannerNameDisplay').textContent = `Spring Power Tools — ${s.dims}`;
+  initKonvaStage(dw, dh);
+}
 
-  // Headline
-  html += '<div class="form-group">';
-  html += '<label class="form-label" for="headlineInput">Headline</label>';
-  html += '<input class="form-input" id="headlineInput" type="text" maxlength="' + hMax + '" value="' + esc(state.headline) + '" placeholder="Enter headline..." oninput="onHeadlineInput(this.value)">';
-  html += '<div class="char-counter' + (hWarn ? ' warn' : '') + '">' + hLen + '/' + hMax + ' chars</div>';
-  // Compliance hint
-  if (state.headline.length > 0 || state.subheading.length > 0) {
-    if (compliance.pass) {
-      html += '<div class="compliance-hint pass">&#10003; Copy looks compliant</div>';
-    } else {
-      html += '<div class="compliance-hint warn">&#9888; AI Flag: ' + esc(compliance.issues[0]) + (compliance.issues.length > 1 ? ' (+' + (compliance.issues.length - 1) + ' more)' : '') + '</div>';
+// ── Assets ──
+function renderAssets() {
+  document.getElementById('assetGrid').innerHTML = DEMO_ASSETS.map(a =>
+    `<div class="asset-thumb${a.selected?' selected':''}" onclick="selectAsset('${a.id}')" title="${a.label}">
+      <img src="${a.src}" alt="${a.label}"><div class="asset-check">✓</div>
+    </div>`
+  ).join('');
+}
+function selectAsset(id) {
+  DEMO_ASSETS.forEach(a => a.selected = a.id === id);
+  state.selectedAsset = id; renderAssets();
+  const asset = DEMO_ASSETS.find(a => a.id === id);
+  state.imgAdj = { zoom:100, posX:0, posY:0, brightness:100, contrast:100, saturation:100, flipH:false, flipV:false };
+  loadKonvaImage(asset.src);
+  openImgAdj();
+}
+// ── Image adjustments ──
+function openImgAdj() {
+  const sec = document.getElementById('imgAdjSection');
+  const hint = document.getElementById('imgSelectHint');
+  if (sec) sec.style.display = '';
+  if (hint) hint.style.display = 'none';
+  syncAdjSliders();
+}
+function closeImgAdj() {
+  const sec = document.getElementById('imgAdjSection');
+  const hint = document.getElementById('imgSelectHint');
+  if (sec) sec.style.display = 'none';
+  if (hint) hint.style.display = '';
+  if (K.transformer) { K.transformer.nodes([]); K.layer && K.layer.batchDraw(); }
+}
+function syncAdjSliders() {
+  const a = state.imgAdj;
+  const set = (id, v) => { const el = document.getElementById(id); if(el) el.value = v; };
+  set('adjZoom', a.zoom); set('adjPosX', a.posX); set('adjPosY', a.posY);
+  set('adjBr', a.brightness); set('adjCt', a.contrast); set('adjSat', a.saturation);
+  updateAdjLabels();
+  document.getElementById('adjFlipH').classList.toggle('flip-active', a.flipH);
+  document.getElementById('adjFlipV').classList.toggle('flip-active', a.flipV);
+}
+function updateAdj(key, val) {
+  state.imgAdj[key] = val;
+  updateAdjLabels();
+  // Defer cache-heavy ops (brightness/contrast/saturation) slightly for smooth dragging
+  const heavy = ['brightness','contrast','saturation'].includes(key);
+  applyImageAdj(!heavy);
+  if (heavy) { clearTimeout(updateAdj._t); updateAdj._t = setTimeout(() => applyImageAdj(true), 80); }
+}
+function updateAdjLabels() {
+  const a = state.imgAdj;
+  const set = (id, t) => { const el = document.getElementById(id); if(el) el.textContent = t; };
+  set('adjZoomVal',  a.zoom + '%');
+  set('adjPosXVal',  (a.posX > 0 ? '+' : '') + a.posX);
+  set('adjPosYVal',  (a.posY > 0 ? '+' : '') + a.posY);
+  set('adjBrVal',    a.brightness + '%');
+  set('adjCtVal',    a.contrast + '%');
+  set('adjSatVal',   a.saturation + '%');
+}
+function toggleFlip(axis) {
+  state.imgAdj[axis] = !state.imgAdj[axis];
+  document.getElementById(axis === 'flipH' ? 'adjFlipH' : 'adjFlipV')
+    .classList.toggle('flip-active', state.imgAdj[axis]);
+  applyImageAdj();
+}
+function resetAdj() {
+  state.imgAdj = { zoom:100, posX:0, posY:0, brightness:100, contrast:100, saturation:100, flipH:false, flipV:false };
+  syncAdjSliders();
+  applyImageAdj();
+  showToast('Image adjustments reset');
+}
+// ── Konva engine (Polotno layer) ──
+const K = { stage: null, layer: null, imgNode: null, transformer: null };
+
+function initKonvaStage(w, h) {
+  if (K.stage) {
+    // Resize existing stage
+    K.stage.width(w); K.stage.height(h);
+    const bgRect = K.layer.findOne('#bgRect');
+    if (bgRect) { bgRect.width(w); bgRect.height(h); }
+    if (K.imgNode) fitImageToStage(w, h);
+    K.layer.batchDraw();
+    return;
+  }
+  K.stage = new Konva.Stage({ container: 'konvaStage', width: w, height: h });
+  K.layer = new Konva.Layer();
+  K.stage.add(K.layer);
+
+  // Grey background
+  const bgRect = new Konva.Rect({ id:'bgRect', width:w, height:h, fill:'#CBD5E1', listening:false });
+  K.layer.add(bgRect);
+
+  // Transformer for selection handles
+  K.transformer = new Konva.Transformer({
+    rotateEnabled: false,
+    keepRatio: false,
+    borderStroke: '#1E88E5',
+    borderStrokeWidth: 2,
+    anchorStroke: '#1E88E5',
+    anchorFill: '#fff',
+    anchorSize: 10,
+    anchorCornerRadius: 3,
+    anchorStyleFunc: anchor => {
+      anchor.cornerRadius(anchor.hasName('top-center') || anchor.hasName('bottom-center') ? 2 : 5);
+    },
+  });
+  K.layer.add(K.transformer);
+
+  // Deselect on stage click
+  K.stage.on('click tap', e => {
+    if (e.target === K.stage || e.target.id() === 'bgRect') {
+      K.transformer.nodes([]); K.layer.batchDraw();
     }
+  });
+
+  K.layer.draw();
+
+  // Load initial asset
+  const asset = DEMO_ASSETS.find(a => a.id === state.selectedAsset);
+  if (asset) loadKonvaImage(asset.src);
+}
+
+function fitImageToStage(sw, sh) {
+  if (!K.imgNode) return;
+  const iw = K.imgNode.image().width, ih = K.imgNode.image().height;
+  const scale = Math.max(sw / iw, sh / ih);
+  const nw = iw * scale, nh = ih * scale;
+  K.imgNode.setAttrs({ x: (sw - nw) / 2, y: (sh - nh) / 2, width: nw, height: nh, scaleX: 1, scaleY: 1 });
+  state.imgAdj.zoom = 100; state.imgAdj.posX = 0; state.imgAdj.posY = 0;
+  syncAdjSliders();
+}
+
+function loadKonvaImage(src) {
+  const imgEl = new Image();
+  imgEl.onload = () => {
+    if (K.imgNode) { K.imgNode.destroy(); K.imgNode = null; }
+    K.transformer.nodes([]);
+    const sw = K.stage.width(), sh = K.stage.height();
+    const scale = Math.max(sw / imgEl.width, sh / imgEl.height);
+    const nw = imgEl.width * scale, nh = imgEl.height * scale;
+
+    K.imgNode = new Konva.Image({
+      image: imgEl, x: (sw - nw) / 2, y: (sh - nh) / 2,
+      width: nw, height: nh, draggable: true,
+    });
+
+    // Click → select + open adj panel
+    K.imgNode.on('click tap', () => {
+      K.transformer.nodes([K.imgNode]); K.layer.batchDraw();
+      openImgAdj();
+    });
+
+    // Scroll wheel → zoom in/out
+    K.stage.off('wheel');
+    K.stage.on('wheel', e => {
+      e.evt.preventDefault();
+      if (!K.imgNode) return;
+      const factor = e.evt.deltaY < 0 ? 1.08 : 0.93;
+      const cur = Math.abs(K.imgNode.scaleX()) / (state.imgAdj.zoom / 100) * (state.imgAdj.zoom / 100);
+      const newZoom = Math.round(Math.max(50, Math.min(300, state.imgAdj.zoom * factor)));
+      state.imgAdj.zoom = newZoom;
+      applyImageAdj(false); // don't re-cache on every wheel tick
+      const sl = document.getElementById('adjZoom');
+      if (sl) sl.value = newZoom;
+      updateAdjLabels();
+    });
+
+    K.layer.add(K.imgNode);
+    K.imgNode.moveToBottom();
+    K.layer.findOne('#bgRect').moveToBottom();
+
+    applyImageAdj();
+    K.layer.batchDraw();
+    document.getElementById('canvasBgPlaceholder').style.display = 'none';
+  };
+  imgEl.onerror = () => showToast('Could not load image');
+  imgEl.src = src;
+}
+
+function applyImageAdj(doCache = true) {
+  if (!K.imgNode || !K.stage) return;
+  const a = state.imgAdj;
+  const sw = K.stage.width(), sh = K.stage.height();
+
+  // Scale + flip around image center
+  const sc = a.zoom / 100;
+  K.imgNode.scaleX(sc * (a.flipH ? -1 : 1));
+  K.imgNode.scaleY(sc * (a.flipV ? -1 : 1));
+
+  // Pan: offset from the "fit" center position
+  const iw = K.imgNode.width(), ih = K.imgNode.height();
+  const fitScale = Math.max(sw / K.imgNode.image().width, sh / K.imgNode.image().height);
+  const fitW = K.imgNode.image().width * fitScale, fitH = K.imgNode.image().height * fitScale;
+  const baseX = (sw - fitW * sc) / 2;
+  const baseY = (sh - fitH * sc) / 2;
+  K.imgNode.x(baseX + (a.posX / 100) * sw);
+  K.imgNode.y(baseY + (a.posY / 100) * sh);
+
+  // Filters (cache required)
+  if (doCache) {
+    K.imgNode.cache();
+    K.imgNode.filters([Konva.Filters.Brighten, Konva.Filters.Contrast, Konva.Filters.HSL]);
   }
-  html += '</div>';
+  K.imgNode.brightness((a.brightness - 100) / 100);  // -1 to 1
+  K.imgNode.contrast(a.contrast - 100);               // -80 to 80
+  K.imgNode.saturation((a.saturation - 100) / 100);   // -1 to 1
 
-  // Subheading
-  html += '<div class="form-group">';
-  html += '<label class="form-label" for="subInput">Subheading</label>';
-  html += '<textarea class="form-textarea" id="subInput" maxlength="' + sMax + '" placeholder="Enter subheading..." oninput="onSubInput(this.value)">' + esc(state.subheading) + '</textarea>';
-  html += '<div class="char-counter' + (sWarn ? ' warn' : '') + '">' + sLen + '/' + sMax + ' chars</div>';
-  html += '</div>';
-
-  // CTA
-  html += '<div class="form-group">';
-  html += '<label class="form-label" for="ctaSelect">Call to Action</label>';
-  html += '<select class="form-select" id="ctaSelect" onchange="onCtaChange(this.value)">';
-  tmpl.constraints.cta.forEach(function(c) {
-    html += '<option value="' + esc(c) + '"' + (state.cta === c ? ' selected' : '') + '>' + esc(c) + '</option>';
-  });
-  html += '</select>';
-  html += '</div>';
-
-  // Legal
-  html += '<div class="form-group">';
-  html += '<label class="legal-row"><input type="checkbox" ' + (state.includeLegal ? 'checked' : '') + ' onchange="state.includeLegal=this.checked"> Include HD legal disclaimer</label>';
-  html += '</div>';
-
-  // Buttons
-  html += '<div class="editor-actions">';
-  html += '<button class="btn-secondary" onclick="goToTemplates()">&larr; Back to Templates</button>';
-  html += '<button class="btn-primary" onclick="goToPreview()">Generate 18 Sizes &rarr;</button>';
-  html += '</div>';
-
-  html += '</div>';
-  html += '</div>';
-
-  return html;
+  K.layer && K.layer.batchDraw();
 }
 
-function bindEditorEvents() {
-  // drag and drop on upload zone
-  const zone = document.getElementById('uploadZone');
-  if (!zone) return;
-  zone.addEventListener('dragover', function(e) {
-    e.preventDefault();
-    zone.style.borderColor = '#F97316';
-  });
-  zone.addEventListener('dragleave', function() {
-    zone.style.borderColor = '';
-  });
-  zone.addEventListener('drop', function(e) {
-    e.preventDefault();
-    zone.style.borderColor = '';
-    const file = e.dataTransfer.files[0];
-    if (file && file.type.startsWith('image/')) readImageFile(file);
-  });
+function triggerUpload() { document.getElementById('fileInput').click(); }
+function handleFileSelect(e) { Array.from(e.target.files).forEach(addUploadedAsset); }
+function handleDragOver(e) { e.preventDefault(); document.getElementById('uploadZone').classList.add('dragover'); }
+function handleDragLeave() { document.getElementById('uploadZone').classList.remove('dragover'); }
+function handleDrop(e) {
+  e.preventDefault(); document.getElementById('uploadZone').classList.remove('dragover');
+  Array.from(e.dataTransfer.files).filter(f=>f.type.startsWith('image/')).forEach(addUploadedAsset);
 }
-
-function handleImageUpload(e) {
-  const file = e.target.files[0];
-  if (file) readImageFile(file);
-}
-
-function readImageFile(file) {
+function addUploadedAsset(file) {
   const reader = new FileReader();
-  reader.onload = function(ev) {
-    state.uploadedImage = ev.target.result;
-    renderSupplierView();
+  reader.onload = ev => {
+    const id = 'up-'+Date.now();
+    DEMO_ASSETS.push({ id, label: file.name, src: ev.target.result, selected: false, color: '#555' });
+    renderAssets(); showToast('Uploaded: '+file.name);
+    selectAsset(id);
   };
   reader.readAsDataURL(file);
 }
 
-function onHeadlineInput(val) {
-  state.headline = val;
-  // Update live preview headline
-  const prev = document.querySelector('.ad-headline-preview');
-  if (prev) prev.textContent = val || 'Your headline here';
-  // Update char counter
-  const tmpl = state.selectedTemplate;
-  const hMax = tmpl.constraints.headlineMax;
-  const counter = document.querySelector('.form-group:nth-child(3) .char-counter');
-  if (counter) {
-    counter.textContent = val.length + '/' + hMax + ' chars';
-    counter.classList.toggle('warn', val.length >= Math.floor(hMax * 0.9));
+// ── Copy ──
+function filterCopy(q) { state.copyFilter = q.toLowerCase(); renderCopy(); }
+function renderCopy() {
+  const items = APPROVED_COPY.filter(c =>
+    !state.copyFilter || c.text.toLowerCase().includes(state.copyFilter) || c.tag.toLowerCase().includes(state.copyFilter)
+  );
+  document.getElementById('copyList').innerHTML = items.length
+    ? items.map(c => `<div class="copy-item${c.inUse?' in-use':''}" onclick="useCopy(${c.id})">
+        <div class="copy-tag ${c.tagClass}">${c.tag}${c.inUse?' · IN USE':''}</div>
+        <div class="copy-text">${c.text}</div>
+        <div class="copy-approved">✓ ${c.approved}</div>
+      </div>`).join('')
+    : '<div style="padding:8px 0;font-size:12px;color:#6B7B8D">No matching copy.</div>';
+}
+function useCopy(id) {
+  const item = APPROVED_COPY.find(c => c.id === id); if (!item) return;
+  if (item.tag === 'HEADLINE' || item.tag === 'SUBHEAD') {
+    APPROVED_COPY.filter(c => c.tag === item.tag).forEach(c => c.inUse = false);
+    item.inUse = true;
+    if (item.tag === 'HEADLINE') document.getElementById('overlayHeadline').textContent = item.text;
+    if (item.tag === 'SUBHEAD')  document.getElementById('overlaySub').textContent = item.text;
+  } else if (item.tag === 'CTA') {
+    APPROVED_COPY.filter(c => c.tag === 'CTA').forEach(c => c.inUse = false);
+    item.inUse = true; document.getElementById('ctaBtn').textContent = item.text;
+  } else if (item.tag === 'LEGAL') {
+    APPROVED_COPY.filter(c => c.tag === 'LEGAL').forEach(c => c.inUse = false);
+    item.inUse = true; document.getElementById('legalText').textContent = item.text;
   }
-  // Update compliance hint
-  updateComplianceHint();
+  renderCopy(); showToast('Applied: ' + item.text);
 }
 
-function onSubInput(val) {
-  state.subheading = val;
-  const prev = document.querySelector('.ad-sub-preview');
-  if (prev) prev.textContent = val || 'Subheading text';
-  updateComplianceHint();
+// ── Approval view ──
+function renderApprovalView() {
+  renderAVVariants();
+  selectAVVariant(state.avSelectedVariant);
+  renderComplianceGrid();
+  renderComments();
 }
 
-function onCtaChange(val) {
-  state.cta = val;
-  const ctaBtn = document.querySelector('.ad-cta-btn');
-  if (ctaBtn) ctaBtn.textContent = val;
+function renderAVVariants() {
+  const groups = ['onsite','meta','google','reddit'];
+  const platformNames = { onsite:'Onsite (OAM)', meta:'Meta', google:'Google Display', reddit:'Reddit' };
+  let h = '';
+  groups.forEach(p => {
+    const vars = AV_VARIANTS.map((v,i)=>({...v,idx:i})).filter(v => v.platform === p);
+    if (!vars.length) return;
+    const col = PLATFORMS[p].color;
+    h += `<div class="av-platform-group">
+      <div class="av-platform-label"><div class="av-platform-dot" style="background:${col}"></div>${platformNames[p]}</div>`;
+    vars.forEach(v => {
+      const thumbSrc = makeColorBlock(col, 40, 26);
+      const statusDot = `<div class="vs-dot ${v.status}" title="${v.status}"></div>`;
+      h += `<div class="av-variant-item${v.idx===state.avSelectedVariant?' selected':''}" onclick="selectAVVariant(${v.idx})">
+        <div class="av-variant-thumb"><img src="${thumbSrc}" style="width:100%;height:100%;display:block"></div>
+        <div class="av-variant-info"><div class="av-variant-name">${v.label}</div><div class="av-variant-dims">${v.dims}</div></div>
+        <div class="av-variant-status">${statusDot}</div>
+      </div>`;
+    });
+    h += '</div>';
+  });
+  document.getElementById('avVariantList').innerHTML = h;
 }
 
-function updateComplianceHint() {
-  const compliance = checkCompliance(state.headline, state.subheading);
-  // Find the compliance hint element — it's after the headline char counter
-  let hint = document.querySelector('.compliance-hint');
-  const hGroup = document.getElementById('headlineInput');
-  if (!hGroup) return;
-  const formGroup = hGroup.closest('.form-group');
-  if (!formGroup) return;
+function selectAVVariant(idx) {
+  state.avSelectedVariant = idx;
+  renderAVVariants();
+  const v = AV_VARIANTS[idx];
+  const scale = Math.min(520 / v.dims.split('×')[0], 360 / v.dims.split('×')[1], 1);
+  const [nw, nh] = v.dims.split('×').map(Number);
+  const dw = Math.round(nw*scale), dh = Math.round(nh*scale);
+  const col = PLATFORMS[v.platform].color;
+  const src = makeColorBlock(col, dw, dh);
 
-  if (state.headline.length === 0 && state.subheading.length === 0) {
-    if (hint) hint.remove();
-    return;
+  const textVisible = dh >= 80;
+  const barH = dh < 80 ? 14 : 28;
+  const hl = Math.max(9, Math.min(20, dh * 0.09));
+
+  document.getElementById('avBannerPreview').innerHTML = `
+    <div class="av-banner-frame" style="width:${dw}px;height:${dh}px">
+      <img src="${src}" style="width:100%;height:100%;display:block;object-fit:cover">
+      ${textVisible ? `<div style="position:absolute;top:${Math.round(dh*0.08)}px;left:${Math.round(dw*0.05)}px;max-width:60%">
+        <div style="font-size:${hl}px;font-weight:800;color:#fff;text-shadow:0 2px 5px rgba(0,0,0,0.5);line-height:1.2">Spring Into Savings</div>
+        <div style="font-size:${Math.round(hl*0.6)}px;color:rgba(255,255,255,0.9);margin-top:3px;text-shadow:0 1px 3px rgba(0,0,0,0.4)">Up to 40% off power tools</div>
+      </div>
+      <div style="position:absolute;bottom:${barH+4}px;right:${Math.round(dw*0.04)}px;background:#F97316;color:#fff;padding:${dh<150?'3px 8px':'6px 14px'};border-radius:3px;font-size:${Math.round(hl*0.55)}px;font-weight:700">Shop Now</div>` : ''}
+      <div style="position:absolute;bottom:0;left:0;right:0;height:${barH}px;background:#F96302;display:flex;align-items:center;padding:0 ${Math.round(dw*0.04)}px">
+        <span style="color:#fff;font-size:${Math.max(8,Math.round(barH*0.45))}px;font-weight:900;letter-spacing:-0.3px">THE HOME DEPOT®</span>
+      </div>
+    </div>`;
+
+  document.getElementById('avCanvasLabel').textContent = `Preview — ${v.dims} px (scaled to fit)`;
+  document.getElementById('avDimsNote').textContent = `Actual size: ${v.dims} px · ${v.label} · ${PLATFORMS[v.platform].label}`;
+  document.getElementById('avSelectedLabel').textContent = `${PLATFORMS[v.platform].label} · ${v.dims}`;
+}
+
+// ── Compliance checklist ──
+function renderComplianceGrid() {
+  const items = state.complianceItems;
+  const passed = items.filter(i => i.checked && !i.flagged).length;
+  const score = document.getElementById('complianceScore');
+  score.textContent = `${passed} / ${items.length} Passed`;
+  score.className = 'compliance-score ' + (passed === items.length ? 'pass' : 'partial');
+  document.getElementById('complianceGrid').innerHTML = items.map(item =>
+    `<div class="compliance-item${item.checked&&!item.flagged?' checked':item.flagged?' flagged':''}" onclick="toggleCompliance('${item.id}')">
+      <div class="compliance-check">${item.checked||item.flagged?(item.flagged?'✗':'✓'):''}</div>
+      <div>
+        <div class="compliance-check-label">${item.label}</div>
+        <div class="compliance-check-sub">${item.sub}</div>
+      </div>
+    </div>`
+  ).join('');
+}
+function toggleCompliance(id) {
+  const item = state.complianceItems.find(i => i.id === id);
+  if (!item) return;
+  if (item.flagged) { item.flagged = false; item.checked = true; }
+  else if (item.checked) { item.checked = false; item.flagged = true; }
+  else { item.checked = true; item.flagged = false; }
+  renderComplianceGrid();
+}
+
+// ── Comments ──
+function renderComments() {
+  const html = state.comments.map(c =>
+    `<div class="comment">
+      <div class="comment-meta"><span class="comment-author">${c.author}</span><span class="comment-time">${c.time}</span></div>
+      <div class="comment-body${c.type==='revision'?' revision-note':''}">${c.body}</div>
+    </div>`
+  ).join('');
+  ['builderCommentList','avCommentList'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.innerHTML = html;
+  });
+}
+
+// ── Workflow actions ──
+function submitForApproval() {
+  if (state.workflowStatus === 'draft') { state.workflowStatus = 'submitted'; showToast('Submitted for review!'); }
+  else showToast('Already submitted — status: ' + state.workflowStatus);
+}
+
+function takeAction(action, panel) {
+  const commentEl = document.getElementById(panel === 'approval' ? 'avReviewComment' : 'reviewComment');
+  const comment = commentEl ? commentEl.value.trim() : '';
+  const now = 'Apr 9, ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+
+  if (action === 'approve') {
+    state.workflowStatus = 'approved';
+    state.comments.unshift({ author:'Susan Berenson (OAM)', time:now,
+      body: '✓ Brand compliance confirmed. ' + (comment || 'All elements cleared — approved for trafficking.'), type:'normal' });
+    updateStatusUI('approved','● Approved');
+    // Update Susan's status in both panels
+    ['susanStatus','avSusanStatus'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { el.className = 'approver-status approved'; el.textContent = '✓ Approved · ' + now; }
+    });
+    // Replace action areas
+    const approvedAction = `<div style="font-size:12px;color:#43A047;font-weight:700;padding:4px 0">✓ Banner approved — ready to traffic</div>
+      <button class="action-btn traffic" onclick="takeAction('traffic','${panel}')">▶ Traffic to Ad Server</button>`;
+    ['builderActionArea','avActionArea'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.innerHTML = approvedAction;
+    });
+    if (panel === 'approval') updateVariantStatus(state.avSelectedVariant, 'approved');
+    showToast('Banner approved! Supplier notified.');
+
+  } else if (action === 'revision') {
+    if (!comment) { showToast('Please add a revision note first.'); return; }
+    state.workflowStatus = 'revision';
+    state.comments.unshift({ author:'Susan Berenson (OAM)', time:now,
+      body: '⚠ Revision requested: ' + comment, type:'revision' });
+    updateStatusUI('revision','⚠ Revision Requested');
+    if (commentEl) commentEl.value = '';
+    if (panel === 'approval') updateVariantStatus(state.avSelectedVariant, 'revision');
+    showToast('Revision requested — supplier notified.');
+
+  } else if (action === 'traffic') {
+    state.workflowStatus = 'trafficked';
+    state.comments.unshift({ author:'System', time:now,
+      body:'Banner trafficked to Vantage ad server. Serving begins at campaign flight start.', type:'normal' });
+    updateStatusUI('trafficked','▶ Trafficked');
+    ['builderActionArea','avActionArea'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.innerHTML = `<div style="font-size:12px;color:#7B1FA2;font-weight:700;padding:4px 0">✓ Trafficked to Vantage Ad Server</div>`;
+    });
+    showToast('Banner trafficked to ad server!');
   }
 
-  if (!hint) {
-    hint = document.createElement('div');
-    hint.className = 'compliance-hint';
-    formGroup.appendChild(hint);
-  }
+  renderLcSteps('builderLcSteps');
+  renderLcSteps('avLcSteps');
+  renderComments();
+}
 
-  if (compliance.pass) {
-    hint.className = 'compliance-hint pass';
-    hint.textContent = '\u2713 Copy looks compliant';
+function updateStatusUI(status, label) {
+  const cls = 'status-badge status-' + status;
+  ['currentStatusBadge','avCurrentStatusBadge'].forEach(id => {
+    const el = document.getElementById(id); if (el) { el.className = cls; el.textContent = label; }
+  });
+  document.getElementById('statusTopbar').textContent = '● ' + label.replace('● ','').replace('⚠ ','').replace('▶ ','').toUpperCase();
+}
+
+function updateVariantStatus(idx, status) {
+  AV_VARIANTS[idx].status = status;
+  renderAVVariants();
+}
+
+// ── Tools ──
+function setTool(t) { showToast('Tool: ' + t.charAt(0).toUpperCase() + t.slice(1)); }
+
+// ── Modals ──
+function showAIAssist() {
+  showModal(`<h3>✦ AI Assistant</h3><p>Generate or extend assets — powered by AWS Bedrock (BYOK).</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer;font-size:13px" onclick="closeModalEl();showToast('Background extended via AI')">🖼️ <strong>Extend Background</strong> — Fill image to fit ad dimensions</div>
+      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer;font-size:13px" onclick="closeModalEl();showToast('All size variants generated')">⊞ <strong>Resize to All Sizes</strong> — Auto-generate all platform variants</div>
+      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer;font-size:13px" onclick="closeModalEl();showToast('Copy suggestions generated')">✦ <strong>Generate Copy Suggestions</strong> — Based on OAM brand voice</div>
+    </div>
+    <div class="modal-actions"><button class="tbtn" onclick="closeModalEl()">Cancel</button></div>`);
+}
+function showVersionModal() {
+  showModal(`<h3>Version History</h3><p>All versions preserved.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+      <div style="padding:10px 12px;border:1px solid #1E3A5F;border-radius:8px;background:#EEF2F7"><div style="font-weight:700;font-size:13px">v2 — Current</div><div style="font-size:11px;color:#6B7B8D;margin-top:3px">Apr 9, 9:12am · James Ridler · Updated headline + image</div></div>
+      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer" onclick="closeModalEl();showToast('v1 preview loaded')"><div style="font-weight:700;font-size:13px">v1</div><div style="font-size:11px;color:#6B7B8D;margin-top:3px">Apr 8, 9:30am · James Ridler · Initial submission</div></div>
+    </div>
+    <div class="modal-actions"><button class="tbtn" onclick="closeModalEl()">Close</button></div>`);
+}
+function showExportModal() {
+  const selectedPlatform = document.querySelector('.ptab.active')?.textContent.trim() || 'Onsite';
+  showModal(`<h3>Export Banner</h3><p>HTML5 banners include click-through tracking via Vantage ad server.</p>
+    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
+      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer" onclick="closeModalEl();showToast('PNG exported')">📷 PNG — Static image</div>
+      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer" onclick="closeModalEl();showToast('HTML5 bundle exported')">⚡ HTML5 — Animated (IAB compliant)</div>
+      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer" onclick="closeModalEl();showToast('All sizes exported as ZIP')">📦 ZIP — All sizes for this platform</div>
+      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer;background:#F3E8FF;border-color:#E1BEF8" onclick="closeModalEl();saveToDamWithDestinations('${selectedPlatform}')">💾 Save to DAM — Save selection with destinations & formats for retailer approval</div>
+    </div>
+    <div class="modal-actions"><button class="tbtn" onclick="closeModalEl()">Cancel</button></div>`);
+}
+function saveToDamWithDestinations(platform) {
+  const sizes = Array.from(document.querySelectorAll('.size-item.selected')).map(s => s.querySelector('.size-label')?.textContent).filter(Boolean);
+  const sizeText = sizes.length > 0 ? sizes.join(', ') : 'Multiple sizes';
+  showToast(`✓ Saved to DAM — ${platform} · ${sizeText} — Awaiting retailer format approval`);
+}
+function showModal(html) { document.getElementById('modalContent').innerHTML = html; document.getElementById('modal').style.display = 'flex'; }
+function closeModalEl() { document.getElementById('modal').style.display = 'none'; }
+function closeModal(e) { if (e.target.id === 'modal') closeModalEl(); }
+
+// ── Toast ──
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg;
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { t.style.transform = 'translateX(-50%) translateY(60px)'; }, 2200);
+}
+
+// ── Auth ──
+(function() {
+  if (sessionStorage.getItem('cs_auth') === '1') {
+    document.getElementById('loginScreen').classList.add('hidden');
+  }
+})();
+
+function doLogin() {
+  const user = document.getElementById('loginUser').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  if (user === 'vantage' && pass === 'pr0t0typ3!') {
+    sessionStorage.setItem('cs_auth', '1');
+    document.getElementById('loginScreen').classList.add('hidden');
   } else {
-    hint.className = 'compliance-hint warn';
-    hint.textContent = '\u26A0 AI Flag: ' + compliance.issues[0] + (compliance.issues.length > 1 ? ' (+' + (compliance.issues.length - 1) + ' more)' : '');
+    const inputs = document.querySelectorAll('.login-input');
+    inputs.forEach(i => i.classList.add('error'));
+    document.getElementById('loginError').textContent = 'Invalid credentials';
+    setTimeout(() => {
+      inputs.forEach(i => i.classList.remove('error'));
+      document.getElementById('loginError').textContent = '';
+    }, 1800);
   }
 }
 
-function goToTemplates() {
-  state.supStep = 'templates';
-  renderSupplierView();
-}
-
-function goToPreview() {
-  if (!state.headline.trim()) {
-    showToast('Please enter a headline first', 'error');
-    return;
-  }
-  state.supStep = 'preview';
-  renderSupplierView();
-}
-
-function renderPreviewGrid() {
-  const compliance = checkCompliance(state.headline, state.subheading);
-  const flaggedCount = compliance.pass ? 0 : 2;
-  const totalSizes = AD_SPECS.length;
-  const okSizes = totalSizes - flaggedCount;
-
-  let html = '<div class="preview-header">';
-  html += '<h2>18 Ad Sizes &mdash; Auto-Generated from 1 Master Creative</h2>';
-  html += '<p>Atomic asset engine assembled all sizes from your uploaded image + copy</p>';
-  html += '</div>';
-
-  if (compliance.pass) {
-    html += '<div class="preview-status-banner ok">&#10003; All 18 sizes ready &mdash; no compliance issues</div>';
-  } else {
-    html += '<div class="preview-status-banner warn">&#9888; ' + okSizes + ' ready &middot; ' + flaggedCount + ' flagged &mdash; review copy before submitting</div>';
-  }
-
-  const channels = ['Email', 'DV360', 'On-site', 'Meta'];
-  const channelIcons = { Email: '&#128139;', DV360: '&#128250;', 'On-site': '&#127968;', Meta: '&#128241;' };
-
-  channels.forEach(function(ch) {
-    const specs = AD_SPECS.filter(s => s.channel === ch);
-    if (!specs.length) return;
-    html += '<div class="channel-group">';
-    html += '<div class="channel-group-header">' + (channelIcons[ch] || '') + ' ' + ch + ' (' + specs.length + ' size' + (specs.length > 1 ? 's' : '') + ')</div>';
-    html += '<div class="thumb-row">';
-    specs.forEach(function(spec, i) {
-      const dims = scaledDims(spec, 110);
-      const isFlagged = !compliance.pass && i < flaggedCount;
-      const badgeCls = isFlagged ? 'warn' : 'pass';
-      const badgeChar = isFlagged ? '&#9888;' : '&#10003;';
-      html += '<div class="thumb-wrap">';
-      html += '<div class="ad-thumb" style="width:' + dims.w + 'px;height:' + dims.h + 'px;">';
-      html += '<span class="ad-thumb-headline">' + esc(state.headline) + '</span>';
-      html += '<div class="ad-thumb-bar"></div>';
-      html += '<div class="ad-thumb-badge ' + badgeCls + '">' + badgeChar + '</div>';
-      html += '</div>';
-      html += '<div class="thumb-label">' + esc(spec.label) + '<br><span style="color:#aaa">' + spec.w + '&times;' + spec.h + '</span></div>';
-      html += '</div>';
-    });
-    html += '</div></div>';
-  });
-
-  html += '<div class="preview-actions">';
-  html += '<button class="btn-secondary" onclick="backToEditor()">&larr; Back to Editor</button>';
-  html += '<button class="btn-primary" onclick="submitCreative()">Submit for Approval &rarr;</button>';
-  html += '</div>';
-
-  return html;
-}
-
-function backToEditor() {
-  state.supStep = 'editor';
-  renderSupplierView();
-}
-
-function submitCreative() {
-  state.supStep = 'submitted';
-  renderSupplierView();
-}
-
-function renderSubmitted() {
-  const tmpl = state.selectedTemplate;
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) + ' at ' +
-    now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-
-  let html = '<div class="submitted-card">';
-  html += '<div class="submitted-check">&#10003;</div>';
-  html += '<div class="submitted-title">Creative Submitted!</div>';
-  html += '<div class="submitted-details">';
-  html += '<div class="submitted-row"><span class="submitted-row-label">Template:</span><span class="submitted-row-val">' + esc(tmpl ? tmpl.name : 'Spring Paint Sale') + '</span></div>';
-  html += '<div class="submitted-row"><span class="submitted-row-label">Headline:</span><span class="submitted-row-val">' + esc(state.headline || '30% Off Interior Paints') + '</span></div>';
-  html += '<div class="submitted-row"><span class="submitted-row-label">Channels:</span><span class="submitted-row-val">' + esc(tmpl ? tmpl.channels.join(', ') : 'Email, DV360, On-site, Meta') + '</span></div>';
-  html += '<div class="submitted-row"><span class="submitted-row-label">Sizes:</span><span class="submitted-row-val">18 ad sizes generated</span></div>';
-  html += '<div class="submitted-row"><span class="submitted-row-label">Submitted:</span><span class="submitted-row-val">' + dateStr + '</span></div>';
-  html += '</div>';
-  html += '<div class="submitted-note">Home Depot will review within 24 hours.<br>You&rsquo;ll receive an email notification when approved.</div>';
-  html += '<button class="btn-primary" onclick="resetSupplier()">Create Another Ad &rarr;</button>';
-  html += '</div>';
-
-  return html;
-}
-
-function resetSupplier() {
-  state.supStep = 'templates';
-  state.selectedTemplate = null;
-  state.headline = '';
-  state.subheading = '';
-  state.cta = 'Shop Now';
-  state.uploadedImage = null;
-  renderSupplierView();
-}
-
-// ─────────────────────────────────────────────
-//  RETAILER VIEW
-// ─────────────────────────────────────────────
-
-function renderRetailerView() {
-  renderQueueTabs();
-  renderQueueList();
-  renderReviewPanel();
-  renderActionsPanel();
-}
-
-function renderQueueTabs() {
-  const tabs = ['pending', 'approved', 'rejected', 'revisions'];
-  let html = '';
-  tabs.forEach(function(t) {
-    const cfg = TAB_CONFIG[t];
-    html += '<button class="qtab' + (state.retTab === t ? ' active' : '') + '" onclick="switchTab(\'' + t + '\')">';
-    html += esc(cfg.label) + ' (' + cfg.total + ')';
-    html += '</button>';
-  });
-  document.getElementById('queueTabs').innerHTML = html;
-}
-
-function switchTab(tab) {
-  state.retTab = tab;
-  state.selectedSubId = null;
-  renderRetailerView();
-}
-
-function renderQueueList() {
-  const cfg = TAB_CONFIG[state.retTab];
-  const ids = cfg.ids;
-  const shown = ids;
-  const extra = cfg.total - shown.length;
-
-  let html = '';
-  shown.forEach(function(id) {
-    const sub = state.submissions.find(s => s.id === id);
-    if (!sub) return;
-    const sel = state.selectedSubId === id;
-    html += '<div class="sub-card' + (sel ? ' selected' : '') + '" onclick="selectSubmission(\'' + id + '\')">';
-    html += '<div class="sub-card-top">';
-    html += '<span class="sub-card-supplier">' + esc(sub.supplier) + '</span>';
-    html += '<div class="ai-dot ' + sub.aiStatus + '"></div>';
-    html += '</div>';
-    html += '<div class="sub-card-tmpl">' + esc(sub.template) + '</div>';
-    html += '<div class="sub-card-headline">&ldquo;' + esc(sub.headline) + '&rdquo;</div>';
-    html += '<div class="sub-card-meta">';
-    html += '<span class="sub-card-date">' + fmtDate(sub.submittedAt) + '</span>';
-    html += statusChipHTML(sub.status);
-    html += '</div>';
-    html += '</div>';
-  });
-
-  document.getElementById('queueList').innerHTML = html;
-  document.getElementById('queueMore').innerHTML = extra > 0 ? '...and ' + extra + ' more' : '';
-}
-
-function selectSubmission(id) {
-  state.selectedSubId = id;
-  const sub = state.submissions.find(s => s.id === id);
-  state.atomicVisible = sub && (sub.status === 'approved' || sub.scenario === 'c');
-  state.activatedChannels = [];
-  state.changesOpen = false;
-  state.rejectOpen = false;
-  renderRetailerView();
-}
-
-function renderReviewPanel() {
-  const panel = document.getElementById('reviewPanel');
-
-  if (!state.selectedSubId) {
-    panel.innerHTML = '<div class="review-empty"><div class="review-empty-arrow">&#8592;</div><div class="review-empty-text">Select a submission from the queue to review</div></div>';
-    return;
-  }
-
-  const sub = state.submissions.find(s => s.id === state.selectedSubId);
-  if (!sub) {
-    panel.innerHTML = '<div class="review-empty"><div class="review-empty-text">Submission not found</div></div>';
-    return;
-  }
-
-  let html = '';
-
-  // Header card
-  html += '<div class="review-header-card">';
-  html += '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">';
-  html += '<div class="review-supplier-name">' + esc(sub.supplier) + '</div>';
-  html += statusChipHTML(sub.status);
-  html += '</div>';
-  html += '<div class="review-meta">Template: ' + esc(sub.template) + ' &nbsp;&middot;&nbsp; Submitted: ' + fmtDate(sub.submittedAt) + ' &nbsp;&middot;&nbsp; CTA: ' + esc(sub.cta) + '</div>';
-  html += '<div class="review-headline-block">';
-  html += '<div class="review-headline-text">&ldquo;' + esc(sub.headline) + '&rdquo;</div>';
-  html += '<div class="review-sub-text">' + esc(sub.subheading) + '</div>';
-  html += '</div>';
-  html += '</div>';
-
-  // All 18 sizes
-  html += '<div class="review-sizes-card">';
-  html += '<div class="review-sizes-title">All 18 Ad Sizes</div>';
-
-  const channels = ['Email', 'DV360', 'On-site', 'Meta'];
-  channels.forEach(function(ch) {
-    const specs = AD_SPECS.filter(s => s.channel === ch);
-    if (!specs.length) return;
-    html += '<div class="sm-channel-label">' + ch + '</div>';
-    html += '<div class="sm-thumb-row">';
-    specs.forEach(function(spec, i) {
-      const dims = scaledDims(spec, 54);
-      const isFlagged = sub.aiStatus === 'warn' && i < sub.aiIssues.length;
-      html += '<div class="sm-thumb" style="width:' + dims.w + 'px;height:' + dims.h + 'px;">';
-      html += '<div class="sm-thumb-bar"></div>';
-      html += '<div class="sm-thumb-badge ' + (isFlagged ? 'warn' : 'pass') + '">' + (isFlagged ? '!' : '&#10003;') + '</div>';
-      html += '</div>';
-    });
-    html += '</div>';
-  });
-
-  html += '</div>';
-
-  panel.innerHTML = html;
-}
-
-function renderActionsPanel() {
-  const panel = document.getElementById('actionsPanel');
-
-  if (!state.selectedSubId) {
-    panel.innerHTML = '<div class="actions-empty">Select a submission to see actions</div>';
-    return;
-  }
-
-  const sub = state.submissions.find(s => s.id === state.selectedSubId);
-  if (!sub) {
-    panel.innerHTML = '<div class="actions-empty">No submission selected</div>';
-    return;
-  }
-
-  let html = '';
-
-  // AI Compliance
-  html += '<div class="act-section">';
-  html += '<div class="ai-header"><span style="color:#7B1FA2;font-size:14px;">&#10022;</span><span class="ai-badge">AI Compliance Check</span></div>';
-  html += '<div class="ai-confidence">Claude API &middot; ' + sub.confidence + '% confidence</div>';
-
-  const aiChecks = [
-    { label: 'Logo placement: compliant', ok: true },
-    { label: 'Text overlay: readable', ok: true },
-    { label: 'Brand colors: HD palette', ok: true },
-    { label: 'Copy tone: matches HD', ok: sub.aiStatus === 'pass' },
-    { label: 'Legal disclaimer: present', ok: true }
-  ];
-
-  aiChecks.forEach(function(c) {
-    html += '<div class="ai-check-row ' + (c.ok ? 'ok' : 'issue') + '">';
-    html += (c.ok ? '&#10003;' : '&#9888;') + ' ' + esc(c.label);
-    html += '</div>';
-  });
-
-  if (sub.aiStatus === 'warn') {
-    sub.aiIssues.forEach(function(issue) {
-      html += '<div class="ai-check-row issue">&#9888; ' + esc(issue) + '</div>';
-    });
-    html += '<div class="ai-status-banner warn">&#9888; Issues Detected</div>';
-  } else {
-    html += '<div class="ai-status-banner ok">&#10003; Ready for Approval</div>';
-  }
-
-  html += '</div>';
-
-  // Manual checklist
-  html += '<div class="act-section">';
-  html += '<div class="act-section-title">Manual Checklist</div>';
-  const checks = [
-    { id: 'c1', label: 'Logo quality acceptable' },
-    { id: 'c2', label: 'Imagery matches campaign theme' },
-    { id: 'c3', label: 'CTA clear and compelling' },
-    { id: 'c4', label: 'No competing brand mentions' },
-    { id: 'c5', label: 'Pricing / offer is accurate' }
-  ];
-  const ck = state.manualChecks[sub.id] || {};
-  checks.forEach(function(c) {
-    html += '<label class="check-item"><input type="checkbox" ' + (ck[c.id] ? 'checked' : '') + ' onchange="toggleManualCheck(\'' + sub.id + '\',\'' + c.id + '\',this.checked)"> ' + esc(c.label) + '</label>';
-  });
-  html += '</div>';
-
-  // Action buttons
-  html += '<div class="act-section">';
-  html += '<div class="act-section-title">Actions</div>';
-
-  if (sub.status === 'approved') {
-    html += '<div class="ai-status-banner ok" style="margin-bottom:8px;">&#10003; Already Approved</div>';
-  } else if (sub.status === 'rejected') {
-    html += '<div class="ai-status-banner warn" style="margin-bottom:8px;">&#10007; Already Rejected</div>';
-  } else {
-    // Approve
-    html += '<button class="act-btn approve" onclick="approveSubmission(\'' + sub.id + '\')">&#10003; Approve</button>';
-
-    // Request Changes
-    html += '<button class="act-btn changes" onclick="toggleChangesPanel(\'' + sub.id + '\')">&#8617; Request Changes</button>';
-    if (state.changesOpen) {
-      html += '<div class="expand-panel">';
-      html += '<textarea class="exp-textarea" id="changesTextarea" placeholder="What needs to change?" oninput="state.changesText=this.value">' + esc(state.changesText) + '</textarea>';
-      html += '<div class="tags-row">';
-      ['Copy', 'Image', 'Compliance', 'Brand', 'Other'].forEach(function(tag) {
-        const active = state.changeTags.includes(tag);
-        html += '<span class="tag-pill' + (active ? ' active' : '') + '" onclick="toggleTag(\'' + tag + '\')">' + tag + '</span>';
-      });
-      html += '</div>';
-      html += '<button class="exp-btn send" onclick="requestChanges(\'' + sub.id + '\')">Send Feedback</button>';
-      html += '</div>';
-    }
-
-    // Reject
-    html += '<button class="act-btn reject" onclick="toggleRejectPanel(\'' + sub.id + '\')">&#10007; Reject</button>';
-    if (state.rejectOpen) {
-      html += '<div class="expand-panel">';
-      html += '<textarea class="exp-textarea" id="rejectTextarea" placeholder="Reason for rejection..." oninput="state.rejectText=this.value">' + esc(state.rejectText) + '</textarea>';
-      html += '<button class="exp-btn confirm-reject" onclick="confirmReject(\'' + sub.id + '\')">Confirm Reject</button>';
-      html += '</div>';
-    }
-  }
-
-  html += '</div>';
-
-  // Atomic diagram
-  if (state.atomicVisible) {
-    html += '<div class="act-section">';
-    html += '<div class="act-section-title">Atomic Asset Engine</div>';
-    html += '<div class="atomic-diagram">';
-    html += '<div class="atomic-row"><div class="atomic-box master">Master Creative</div></div>';
-    html += '<div class="atomic-arrow">&#8595;</div>';
-    html += '<div class="atomic-row">';
-    ['Text', 'Image', 'Logo', 'BG'].forEach(function(c) {
-      html += '<div class="atomic-box component">' + c + '</div>';
-    });
-    html += '</div>';
-    html += '<div class="atomic-arrow">&#8595;</div>';
-    html += '<div class="atomic-row">';
-    ['Email', 'DV360', 'On-site', 'Meta'].forEach(function(c) {
-      html += '<div class="atomic-box channel">' + c + '</div>';
-    });
-    html += '</div>';
-    html += '<div class="atomic-arrow">&#8595;</div>';
-    html += '<div class="atomic-row"><div class="atomic-box variants">18 Ad Variants</div></div>';
-    html += '</div>';
-    html += '</div>';
-  }
-
-  // Activation dashboard
-  if (state.atomicVisible) {
-    html += '<div class="act-section">';
-    html += '<div class="act-section-title">Activate to Channels</div>';
-
-    const channels = [
-      { id: 'email',     label: 'Email',            count: 1  },
-      { id: 'dv360',     label: 'DV360',             count: 3  },
-      { id: 'ttd',       label: 'The Trade Desk',    count: 3  },
-      { id: 'onsite',    label: 'HD On-site',        count: 11 },
-      { id: 'meta',      label: 'Meta / Facebook',   count: 3  },
-      { id: 'pinterest', label: 'Pinterest',         count: 1  }
-    ];
-
-    channels.forEach(function(ch) {
-      html += '<label class="act-channel-row">';
-      html += '<input type="checkbox" checked> ';
-      html += '<span class="act-channel-name">' + esc(ch.label) + '</span>';
-      html += '<span class="act-channel-count">(' + ch.count + ' size' + (ch.count > 1 ? 's' : '') + ')</span>';
-      html += '</label>';
-    });
-
-    html += '<div class="date-row">';
-    html += '<div class="date-col"><div class="date-label">Start</div><input class="date-input" type="date" value="' + todayStr() + '"></div>';
-    html += '<div class="date-col"><div class="date-label">End</div><input class="date-input" type="date" value="' + plus30() + '"></div>';
-    html += '</div>';
-
-    if (state.activatedChannels.length > 0) {
-      html += '<div class="activated-banner">&#10003; Creative Activated &mdash; Live in ~2 hours</div>';
-    } else {
-      html += '<button class="activate-btn" onclick="activateChannels()">Activate to 6 Channels &rarr;</button>';
-    }
-
-    html += '</div>';
-  }
-
-  panel.innerHTML = html;
-}
-
-function toggleManualCheck(subId, checkId, val) {
-  if (!state.manualChecks[subId]) state.manualChecks[subId] = {};
-  state.manualChecks[subId][checkId] = val;
-}
-
-function toggleChangesPanel(id) {
-  state.changesOpen = !state.changesOpen;
-  state.rejectOpen = false;
-  renderActionsPanel();
-}
-
-function toggleRejectPanel(id) {
-  state.rejectOpen = !state.rejectOpen;
-  state.changesOpen = false;
-  renderActionsPanel();
-}
-
-function toggleTag(tag) {
-  if (state.changeTags.includes(tag)) {
-    state.changeTags = state.changeTags.filter(t => t !== tag);
-  } else {
-    state.changeTags.push(tag);
-  }
-  renderActionsPanel();
-}
-
-// ─────────────────────────────────────────────
-//  INIT
-// ─────────────────────────────────────────────
-
-renderAll();
-
+init();
 </script>
 </body>
 </html>
