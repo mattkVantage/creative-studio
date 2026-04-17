@@ -121,8 +121,19 @@ body { font-family: Calibri, 'Segoe UI', sans-serif; background: #EDF1F5; min-he
 .adj-btn.reset-btn:hover { background: #FFEBEE; }
 .adj-section-divider { height: 1px; background: #EDF1F5; margin: 2px 14px 10px; }
 .img-select-hint { font-size: 11px; color: #6B7B8D; text-align: center; padding: 6px 14px 10px; }
-/* Konva canvas sits above HTML overlays need to come above it */
-.canvas-text-overlay, .canvas-cta-btn, .canvas-legal, .canvas-brand-bar { z-index: 2; }
+/* z-index managed dynamically by layer panel JS */
+.canvas-text-overlay, .canvas-cta-btn, .canvas-legal, .canvas-brand-bar { z-index: 10; }
+
+/* ── Layers panel ── */
+.layers-list { padding: 0 14px 12px; display: flex; flex-direction: column; gap: 4px; }
+.layer-row { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border: 1px solid #DDE3EA; border-radius: 6px; background: #fff; cursor: default; transition: background 0.12s; }
+.layer-row:hover { background: #F5F7FA; }
+.layer-icon { font-size: 13px; width: 20px; text-align: center; flex-shrink: 0; }
+.layer-label { flex: 1; font-size: 12px; font-weight: 600; color: #1E3A5F; }
+.layer-btns { display: flex; gap: 2px; }
+.lbtn { width: 22px; height: 22px; border: 1px solid #DDE3EA; border-radius: 4px; background: #fff; color: #6B7B8D; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: inherit; transition: all 0.12s; padding: 0; }
+.lbtn:hover:not(:disabled) { background: #EEF2F7; border-color: #1E3A5F; color: #1E3A5F; }
+.lbtn:disabled { opacity: 0.3; cursor: default; }
 
 /* ═══════════════════════════════════════════
    DCO + AI VIEW
@@ -472,6 +483,11 @@ body { font-family: Calibri, 'Segoe UI', sans-serif; background: #EDF1F5; min-he
             <button class="adj-btn" id="adjFlipV" onclick="toggleFlip('flipV')">⇅ Flip V</button>
             <button class="adj-btn reset-btn" onclick="resetAdj()">↺ Reset</button>
           </div>
+        </div>
+
+        <div class="panel-section">
+          <div class="panel-section-header">Layers</div>
+          <div class="layers-list" id="layersList"></div>
         </div>
 
         <div class="panel-section">
@@ -1183,6 +1199,63 @@ function publishDCO() {
 }
 
 // ── Init ──
+// ── Layer management ──
+// layerOrder: back → front (index 0 = furthest back, last = top)
+const LAYER_DEFS = [
+  { id: 'image',   label: 'Product Image', icon: '🖼️', elId: 'konvaStage' },
+  { id: 'legal',   label: 'Legal Text',    icon: '📋', elId: 'legalText' },
+  { id: 'brand',   label: 'Brand Bar',     icon: '▬',  elId: null, sel: '.canvas-brand-bar' },
+  { id: 'text',    label: 'Headline',      icon: 'T',  elId: 'textOverlay' },
+  { id: 'cta',     label: 'CTA Button',    icon: '⬡', elId: 'ctaBtn' },
+];
+let layerOrder = LAYER_DEFS.map(l => l.id); // back → front
+
+function getLayerEl(id) {
+  const def = LAYER_DEFS.find(l => l.id === id);
+  if (!def) return null;
+  return def.elId ? document.getElementById(def.elId) : document.querySelector(def.sel);
+}
+
+function applyLayerOrder() {
+  layerOrder.forEach((id, idx) => {
+    const el = getLayerEl(id);
+    if (el) el.style.zIndex = (idx + 1) * 10;
+  });
+  renderLayerPanel();
+}
+
+function moveLayer(id, dir) {
+  const idx = layerOrder.indexOf(id);
+  if (dir === 'top')    { layerOrder.splice(idx, 1); layerOrder.push(id); }
+  else if (dir === 'up' && idx < layerOrder.length - 1) {
+    [layerOrder[idx], layerOrder[idx+1]] = [layerOrder[idx+1], layerOrder[idx]];
+  }
+  else if (dir === 'down' && idx > 0) {
+    [layerOrder[idx], layerOrder[idx-1]] = [layerOrder[idx-1], layerOrder[idx]];
+  }
+  else if (dir === 'bottom') { layerOrder.splice(idx, 1); layerOrder.unshift(id); }
+  applyLayerOrder();
+}
+
+function renderLayerPanel() {
+  const reversed = [...layerOrder].reverse(); // show front→back in UI
+  document.getElementById('layersList').innerHTML = reversed.map((id, uiIdx) => {
+    const def = LAYER_DEFS.find(l => l.id === id);
+    const isTop    = uiIdx === 0;
+    const isBottom = uiIdx === reversed.length - 1;
+    return `<div class="layer-row">
+      <span class="layer-icon">${def.icon}</span>
+      <span class="layer-label">${def.label}</span>
+      <div class="layer-btns">
+        <button class="lbtn" title="Bring to Front" onclick="moveLayer('${id}','top')"    ${isTop?'disabled':''}>⤒</button>
+        <button class="lbtn" title="Move Forward"   onclick="moveLayer('${id}','up')"     ${isTop?'disabled':''}>↑</button>
+        <button class="lbtn" title="Move Backward"  onclick="moveLayer('${id}','down')"   ${isBottom?'disabled':''}>↓</button>
+        <button class="lbtn" title="Send to Back"   onclick="moveLayer('${id}','bottom')" ${isBottom?'disabled':''}>⤓</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
 function init() {
   renderLcSteps('builderLcSteps');
   renderLcSteps('avLcSteps');
@@ -1191,6 +1264,7 @@ function init() {
   renderCopy();
   renderComments();
   updateCanvas();
+  applyLayerOrder();
 }
 
 // ── Lifecycle steps ──
