@@ -760,6 +760,7 @@ body.role-supplier-self .panel-left-scroll .upload-zone { display: none; }
         <div class="toolbar-group">
           <button class="tbtn" onclick="showAIAssist()">✦ AI Extend</button>
           <button class="tbtn" onclick="showAIAssist()">⚙ Resize All</button>
+          <button class="tbtn" onclick="showTranslateModal()">🌐 Translate</button>
         </div>
         <div class="toolbar-group" style="margin-left:auto">
           <button class="tbtn" id="builderPreviewBtn" onclick="previewBuilderSizes()">▦ Preview (1)</button>
@@ -3300,6 +3301,163 @@ function updateVariantStatus(idx, status) {
 
 // ── Tools ──
 function setTool(t) { showToast('Tool: ' + t.charAt(0).toUpperCase() + t.slice(1)); }
+
+// ══════════════════════════════════════════
+// TRANSLATE — EN → FR / ES
+// Local dictionary covers the curated copy library + common phrases.
+// Unknown strings fall back to a simulated AI translation badge.
+// ══════════════════════════════════════════
+const TRANSLATIONS = {
+  fr: {
+    // Headlines
+    'Spring Into Savings': 'Bondissez vers les économies',
+    'Built for the Job Site': 'Conçu pour le chantier',
+    '30% Off Interior Paints': '30 % de rabais sur les peintures intérieures',
+    'Best Paint Sale Ever!': 'La meilleure vente de peinture à ce jour !',
+    'Memorial Day Savings': 'Rabais du Memorial Day',
+    'Galaxy S25 — Now at HD': 'Galaxy S25 — maintenant chez HD',
+    'Bath Fixtures 20% Off': 'Accessoires de bain à 20 % de rabais',
+    'Best Kitchen Sinks': 'Meilleurs éviers de cuisine',
+    'Star-Spangled Savings': 'Rabais étoilés',
+    'Power Up Your Projects': 'Boostez vos projets',
+    'Everything You Need': 'Tout ce dont vous avez besoin',
+    // Subs
+    'Up to 40% off power tools': "Jusqu'à 40 % de rabais sur l'outillage électrique",
+    'Pro-grade tools, pro pricing': 'Outils pros, prix pros',
+    'Premium finishes at unbeatable prices': 'Finitions haut de gamme à prix imbattables',
+    'Highest quality at the lowest price': 'Qualité supérieure au prix le plus bas',
+    'Up to 50% off outdoor must-haves': "Jusqu'à 50 % de rabais sur l'extérieur",
+    'Pick up in-store or online': 'Ramassage en magasin ou en ligne',
+    'Upgrade your bathroom today': "Rénovez votre salle de bain aujourd'hui",
+    'Top-rated by consumers': 'Mieux noté par les consommateurs',
+    'Celebrate with up to 40% off': "Fêtez avec jusqu'à 40 % de rabais",
+    'Top brands, best performance': 'Grandes marques, meilleure performance',
+    'Build your toolkit the right way': 'Constituez votre outillage comme il se doit',
+    // CTAs
+    'Shop Now': 'Magasinez',
+    'Shop Deals': 'Voir les offres',
+    'Shop Sale': 'Voir la vente',
+    'Shop Pro': 'Magasin Pro',
+    'Learn More': 'En savoir plus',
+    'See All Deals': 'Toutes les offres',
+    // Legal + brand
+    'Prices valid while supplies last. homedepot.com': "Prix valables jusqu'à épuisement des stocks. homedepot.com",
+    'Offer valid in-store and online. See site for details.': 'Offre valable en magasin et en ligne. Voir le site pour détails.',
+    'THE HOME DEPOT®': 'THE HOME DEPOT®',
+  },
+  es: {
+    'Spring Into Savings': 'Salta a los ahorros',
+    'Built for the Job Site': 'Diseñado para la obra',
+    '30% Off Interior Paints': '30 % de descuento en pinturas de interior',
+    'Best Paint Sale Ever!': '¡La mejor venta de pintura!',
+    'Memorial Day Savings': 'Ofertas del Memorial Day',
+    'Galaxy S25 — Now at HD': 'Galaxy S25 — ahora en HD',
+    'Bath Fixtures 20% Off': 'Accesorios de baño con 20 % de descuento',
+    'Best Kitchen Sinks': 'Los mejores fregaderos',
+    'Star-Spangled Savings': 'Ahorros estelares',
+    'Power Up Your Projects': 'Potencia tus proyectos',
+    'Everything You Need': 'Todo lo que necesitas',
+    'Up to 40% off power tools': 'Hasta 40 % de descuento en herramientas eléctricas',
+    'Pro-grade tools, pro pricing': 'Herramientas pro, precios pro',
+    'Premium finishes at unbeatable prices': 'Acabados premium a precios inmejorables',
+    'Highest quality at the lowest price': 'La mejor calidad al precio más bajo',
+    'Up to 50% off outdoor must-haves': 'Hasta 50 % en productos de exterior',
+    'Pick up in-store or online': 'Recoge en tienda o en línea',
+    'Upgrade your bathroom today': 'Renueva tu baño hoy',
+    'Top-rated by consumers': 'Mejor valorados por los consumidores',
+    'Celebrate with up to 40% off': 'Celebra con hasta 40 % de descuento',
+    'Top brands, best performance': 'Mejores marcas, mejor rendimiento',
+    'Build your toolkit the right way': 'Arma tu caja de herramientas como se debe',
+    'Shop Now': 'Comprar ahora',
+    'Shop Deals': 'Ver ofertas',
+    'Shop Sale': 'Ver rebajas',
+    'Shop Pro': 'Comprar Pro',
+    'Learn More': 'Saber más',
+    'See All Deals': 'Ver todas las ofertas',
+    'Prices valid while supplies last. homedepot.com': 'Precios válidos hasta agotar existencias. homedepot.com',
+    'Offer valid in-store and online. See site for details.': 'Oferta válida en tienda y en línea. Consulta el sitio para más detalles.',
+    'THE HOME DEPOT®': 'THE HOME DEPOT®',
+  },
+};
+const LANG_LABEL = { en:'English', fr:'Français', es:'Español' };
+let _currentLang = 'en';
+// Keep the original English so we can round-trip between languages
+const _origEN = {};
+function _captureOriginalIfNeeded() {
+  if (_origEN.captured) return;
+  _origEN.captured = true;
+  _origEN.headline = document.getElementById('overlayHeadline')?.textContent || '';
+  _origEN.sub      = document.getElementById('overlaySub')?.textContent || '';
+  _origEN.cta      = document.getElementById('ctaBtn')?.textContent || '';
+  _origEN.legal    = document.getElementById('legalText')?.textContent || '';
+  _origEN.brand    = document.querySelector('.canvas-brand-logo')?.textContent || '';
+}
+function _translateString(en, lang) {
+  if (!en) return en;
+  if (lang === 'en') return en;
+  const dict = TRANSLATIONS[lang] || {};
+  return dict[en.trim()] || en; // fall back to original if not in dictionary
+}
+function showTranslateModal() {
+  _captureOriginalIfNeeded();
+  const preview = (lang) => ({
+    h: _translateString(_origEN.headline, lang),
+    s: _translateString(_origEN.sub, lang),
+    c: _translateString(_origEN.cta, lang),
+    l: _translateString(_origEN.legal, lang),
+  });
+  const card = (lang, flag) => {
+    const p = preview(lang);
+    const active = lang === _currentLang;
+    return `<div class="ai-tool-card" style="${active?'border-color:var(--orange);background:#FFF7F2':''}" onclick="applyTranslation('${lang}')">
+      <div class="ait-icon" style="font-size:22px">${flag}</div>
+      <div class="ait-body">
+        <div class="ait-title">${LANG_LABEL[lang]} ${active?'· Active':''}</div>
+        <div class="ait-sub" style="white-space:normal">
+          <strong style="color:var(--text)">${p.h}</strong><br>
+          ${p.s}<br>
+          <span style="color:var(--orange);font-weight:700">${p.c}</span>
+        </div>
+      </div>
+      <div class="ait-cta">${active?'✓':'Apply →'}</div>
+    </div>`;
+  };
+  showModal(`
+    <h3>🌐 Translate Creative</h3>
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Powered by <strong style="color:var(--orange)">AWS Translate</strong> · Terminology aligned to HD brand glossary &amp; approved-copy library</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+      ${card('en','🇺🇸')}
+      ${card('fr','🇫🇷')}
+      ${card('es','🇪🇸')}
+    </div>
+    <div style="background:var(--bg);border-radius:6px;padding:9px 11px;font-size:11px;color:var(--text-muted);margin-bottom:12px">
+      ℹ️ Localized copy is routed to Legal for market-specific review before trafficking.
+    </div>
+    <div class="modal-actions"><button class="tbtn" onclick="closeModalEl()">Close</button></div>
+  `);
+}
+function applyTranslation(lang) {
+  _captureOriginalIfNeeded();
+  _currentLang = lang;
+  const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  set('overlayHeadline', _translateString(_origEN.headline, lang));
+  set('overlaySub',      _translateString(_origEN.sub,      lang));
+  set('ctaBtn',          _translateString(_origEN.cta,      lang));
+  set('legalText',       _translateString(_origEN.legal,    lang));
+  const brand = document.querySelector('.canvas-brand-logo');
+  if (brand) brand.textContent = _translateString(_origEN.brand, lang);
+  closeModalEl();
+  showToast(`🌐 Translated to ${LANG_LABEL[lang]}`);
+  // Log to comments for the workflow trail
+  const now = new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+  state.comments.unshift({
+    author: 'Creative Studio',
+    time: now,
+    body: `🌐 Creative localized to ${LANG_LABEL[lang]} — copy translated via AWS Translate with HD brand glossary. Pending Legal review for ${lang.toUpperCase()} market.`,
+    type: 'normal'
+  });
+  renderComments();
+}
 
 // ── Modals ──
 function showAIAssist() {
