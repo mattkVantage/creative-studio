@@ -191,6 +191,11 @@ body.crop-mode .canvas-text-overlay,
 body.crop-mode .canvas-cta-btn,
 body.crop-mode .canvas-legal,
 body.crop-mode .canvas-brand-bar { pointer-events: none; opacity: 0.35; }
+body.crop-mode .cs-crop-target { pointer-events: auto !important; opacity: 1 !important; outline: 2px solid var(--orange); outline-offset: 2px; }
+body.overlay-crop-mode #konvaStage { opacity: 0.35; pointer-events: none; }
+.cs-layer { cursor: move; }
+.cs-layer.cs-selected { outline: 2px dashed var(--orange); outline-offset: 2px; box-shadow: 0 0 0 2px rgba(196,81,26,0.12); }
+.cs-layer.cs-dragging { opacity: 0.85; }
 
 /* ── Layers panel ── */
 .layers-list { padding: 0 14px 12px; display: flex; flex-direction: column; gap: 4px; }
@@ -705,7 +710,7 @@ body.role-supplier-self .panel-left-scroll .upload-zone { display: none; }
           </div>
           <!-- Crop -->
           <div class="adj-btn-row">
-            <button class="adj-btn" id="adjCropBtn" onclick="enterCropMode()" style="flex:2">✂ Crop Image…</button>
+            <button class="adj-btn" id="adjCropBtn" onclick="deselectOverlayLayer();enterCropMode()" style="flex:2">✂ Crop Image…</button>
           </div>
           <!-- Flip + Reset -->
           <div class="adj-btn-row">
@@ -757,13 +762,13 @@ body.role-supplier-self .panel-left-scroll .upload-zone { display: none; }
             </div>
           </div>
           <div id="konvaStage"></div>
-          <div class="canvas-text-overlay" id="textOverlay" style="top:16px;left:16px;max-width:60%">
+          <div class="canvas-text-overlay cs-layer" id="textOverlay" data-layer="text" style="top:16px;left:16px;max-width:60%">
             <div class="overlay-headline" id="overlayHeadline">Spring Into Savings</div>
             <div class="overlay-sub" id="overlaySub">Up to 40% off power tools</div>
           </div>
-          <div class="canvas-cta-btn" id="ctaBtn">Shop Now</div>
-          <div class="canvas-legal" id="legalText">Prices valid while supplies last. homedepot.com</div>
-          <div class="canvas-brand-bar"><div class="canvas-brand-logo">THE HOME DEPOT®</div></div>
+          <div class="canvas-cta-btn cs-layer" id="ctaBtn" data-layer="cta">Shop Now</div>
+          <div class="canvas-legal cs-layer" id="legalText" data-layer="legal">Prices valid while supplies last. homedepot.com</div>
+          <div class="canvas-brand-bar cs-layer" id="brandBar" data-layer="brand"><div class="canvas-brand-logo">THE HOME DEPOT®</div></div>
         </div>
       </div>
       <div class="canvas-size-info" id="canvasSizeInfo">300 × 250 px — Medium Rectangle (Onsite)</div>
@@ -2061,17 +2066,32 @@ function renderLayerPanel() {
     const def = LAYER_DEFS.find(l => l.id === id);
     const isTop    = uiIdx === 0;
     const isBottom = uiIdx === reversed.length - 1;
-    return `<div class="layer-row">
+    const cropAttr = id === 'image'
+      ? `onclick="event.stopPropagation();deselectOverlayLayer();enterCropMode()"`
+      : `onclick="event.stopPropagation();selectLayerFromPanel('${id}');enterCropMode()"`;
+    return `<div class="layer-row" onclick="selectLayerFromPanel('${id}')" style="cursor:pointer">
       <span class="layer-icon">${def.icon}</span>
       <span class="layer-label">${def.label}</span>
       <div class="layer-btns">
-        <button class="lbtn" title="Bring to Front" onclick="moveLayer('${id}','top')"    ${isTop?'disabled':''}>⤒</button>
-        <button class="lbtn" title="Move Forward"   onclick="moveLayer('${id}','up')"     ${isTop?'disabled':''}>↑</button>
-        <button class="lbtn" title="Move Backward"  onclick="moveLayer('${id}','down')"   ${isBottom?'disabled':''}>↓</button>
-        <button class="lbtn" title="Send to Back"   onclick="moveLayer('${id}','bottom')" ${isBottom?'disabled':''}>⤓</button>
+        <button class="lbtn" title="Crop" ${cropAttr}>✂</button>
+        <button class="lbtn" title="Bring to Front" onclick="event.stopPropagation();moveLayer('${id}','top')"    ${isTop?'disabled':''}>⤒</button>
+        <button class="lbtn" title="Move Forward"   onclick="event.stopPropagation();moveLayer('${id}','up')"     ${isTop?'disabled':''}>↑</button>
+        <button class="lbtn" title="Move Backward"  onclick="event.stopPropagation();moveLayer('${id}','down')"   ${isBottom?'disabled':''}>↓</button>
+        <button class="lbtn" title="Send to Back"   onclick="event.stopPropagation();moveLayer('${id}','bottom')" ${isBottom?'disabled':''}>⤓</button>
       </div>
     </div>`;
   }).join('');
+}
+
+// Select a layer from the right-side layer panel (text/cta/brand/legal/image)
+function selectLayerFromPanel(id) {
+  if (id === 'image') {
+    deselectOverlayLayer();
+    if (K.imgNode && K.transformer) { K.transformer.nodes([K.imgNode]); K.layer.batchDraw(); }
+    return;
+  }
+  const el = getLayerEl(id);
+  if (el) selectOverlayLayer(el);
 }
 
 function init() {
@@ -2083,8 +2103,129 @@ function init() {
   renderComments();
   updateCanvas();
   applyLayerOrder();
+  initOverlayInteractions();
   // Role init — default to Supplier Self-Service (most common demo scenario)
   setRole('supplier-self');
+}
+
+// ══════════════════════════════════════════
+// OVERLAY LAYER INTERACTIONS — drag + select + crop
+// All .cs-layer elements (text, cta, legal, brand bar) become movable +
+// selectable. Crop button routes to the selected layer:
+//  - Image layer (Konva) → existing Konva crop
+//  - HTML overlay        → clip-path inset crop via edge sliders
+// ══════════════════════════════════════════
+let _selOverlay = null; // currently-selected HTML layer element (or null)
+
+function initOverlayInteractions() {
+  document.querySelectorAll('.cs-layer').forEach(el => {
+    el.addEventListener('mousedown', _onLayerMouseDown);
+    el.addEventListener('click', (e) => { e.stopPropagation(); if (!document.body.classList.contains('crop-mode')) selectOverlayLayer(el); });
+  });
+  // Click on empty canvas area deselects
+  const outer = document.getElementById('canvasOuter');
+  if (outer) outer.addEventListener('click', (e) => { if (e.target === outer) deselectOverlayLayer(); });
+  // Also deselect overlay when clicking the Konva image (which selects image instead)
+  if (K.stage) K.stage.on('click tap', () => deselectOverlayLayer());
+}
+
+function _onLayerMouseDown(e) {
+  if (document.body.classList.contains('crop-mode')) return;
+  if (e.button !== 0) return;
+  const el = e.currentTarget;
+  const parent = el.parentElement; // canvas-outer
+  if (!parent) return;
+  const prect = parent.getBoundingClientRect();
+  const erect = el.getBoundingClientRect();
+  // Convert current position (which may be via bottom/right) to absolute top/left px
+  const startLeft = erect.left - prect.left;
+  const startTop  = erect.top  - prect.top;
+  el.style.left = startLeft + 'px';
+  el.style.top  = startTop  + 'px';
+  el.style.right = 'auto';
+  el.style.bottom = 'auto';
+  el.style.maxWidth = '';
+  selectOverlayLayer(el);
+  el.classList.add('cs-dragging');
+  const startX = e.clientX, startY = e.clientY;
+  let moved = false;
+  function move(ev) {
+    moved = true;
+    let nx = startLeft + (ev.clientX - startX);
+    let ny = startTop  + (ev.clientY - startY);
+    // Clamp to parent bounds loosely
+    const pw = prect.width, ph = prect.height;
+    nx = Math.max(-erect.width * 0.3, Math.min(pw - erect.width * 0.2, nx));
+    ny = Math.max(-erect.height * 0.3, Math.min(ph - erect.height * 0.2, ny));
+    el.style.left = nx + 'px';
+    el.style.top  = ny + 'px';
+  }
+  function up() {
+    el.classList.remove('cs-dragging');
+    window.removeEventListener('mousemove', move);
+    window.removeEventListener('mouseup', up);
+  }
+  window.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', up);
+  e.preventDefault();
+}
+
+function selectOverlayLayer(el) {
+  document.querySelectorAll('.cs-layer').forEach(x => x.classList.remove('cs-selected'));
+  el.classList.add('cs-selected');
+  _selOverlay = el;
+  // Clear Konva image selection so there's a single active selection
+  if (K.transformer) { K.transformer.nodes([]); K.layer && K.layer.batchDraw(); }
+}
+function deselectOverlayLayer() {
+  document.querySelectorAll('.cs-layer').forEach(x => x.classList.remove('cs-selected'));
+  _selOverlay = null;
+}
+
+// Clear overlay crop (clip-path) from current selection
+function resetOverlayCrop() {
+  if (!_selOverlay) { showToast('Select a layer first'); return; }
+  _selOverlay.style.clipPath = '';
+  showToast('✓ Crop reset');
+}
+
+function enterOverlayCropMode(el) {
+  if (document.body.classList.contains('crop-mode')) return;
+  document.body.classList.add('crop-mode', 'overlay-crop-mode');
+  el.classList.add('cs-crop-target');
+  const rect = el.getBoundingClientRect();
+  const w = Math.max(40, rect.width), h = Math.max(20, rect.height);
+  const originalClip = el.style.clipPath || '';
+  const inset = { t:0, r:0, b:0, l:0 };
+  const applyClip = () => { el.style.clipPath = `inset(${inset.t}px ${inset.r}px ${inset.b}px ${inset.l}px)`; };
+  const parent = document.getElementById('canvasOuter');
+  const bar = document.createElement('div');
+  bar.className = 'crop-actionbar';
+  bar.id = 'overlayCropBar';
+  const name = { text:'Text', cta:'CTA', legal:'Legal', brand:'Brand Bar' }[el.dataset.layer] || 'Layer';
+  bar.innerHTML = `
+    <span class="cab-label">✂ Crop ${name}</span>
+    <div style="display:flex;align-items:center;gap:4px;padding:0 4px;border-right:1px solid rgba(255,255,255,0.18);margin-right:2px">
+      <span style="color:#fff;font-size:10.5px">T</span><input type="range" min="0" max="${Math.floor(h/2)}" value="0" data-edge="t" style="width:52px">
+      <span style="color:#fff;font-size:10.5px">R</span><input type="range" min="0" max="${Math.floor(w/2)}" value="0" data-edge="r" style="width:52px">
+      <span style="color:#fff;font-size:10.5px">B</span><input type="range" min="0" max="${Math.floor(h/2)}" value="0" data-edge="b" style="width:52px">
+      <span style="color:#fff;font-size:10.5px">L</span><input type="range" min="0" max="${Math.floor(w/2)}" value="0" data-edge="l" style="width:52px">
+    </div>
+    <button class="cancel" type="button">Cancel</button>
+    <button class="apply" type="button">Apply ✓</button>
+  `;
+  parent.appendChild(bar);
+  bar.querySelectorAll('input[type=range]').forEach(inp => {
+    inp.addEventListener('input', () => { inset[inp.dataset.edge] = +inp.value; applyClip(); });
+  });
+  bar.querySelector('.apply').addEventListener('click', () => _exitOverlayCrop(el, true));
+  bar.querySelector('.cancel').addEventListener('click', () => { el.style.clipPath = originalClip; _exitOverlayCrop(el, false); });
+}
+function _exitOverlayCrop(el, keep) {
+  const bar = document.getElementById('overlayCropBar'); if (bar) bar.remove();
+  el.classList.remove('cs-crop-target');
+  document.body.classList.remove('crop-mode', 'overlay-crop-mode');
+  showToast(keep ? '✓ Crop applied' : 'Crop cancelled');
 }
 
 // ── Lifecycle steps ──
@@ -2391,7 +2532,9 @@ function applyImageAdj(doCache = true) {
 const CROP = { active:false, rect:null, shade:null, xform:null, aspect:null };
 
 function enterCropMode() {
-  if (!K.imgNode || !K.stage) { showToast('Select an image first'); return; }
+  // Route to HTML-overlay crop if a non-image layer is selected
+  if (_selOverlay) return enterOverlayCropMode(_selOverlay);
+  if (!K.imgNode || !K.stage) { showToast('Select a layer to crop'); return; }
   if (CROP.active) return;
   CROP.active = true;
   document.body.classList.add('crop-mode');
