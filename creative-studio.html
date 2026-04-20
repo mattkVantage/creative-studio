@@ -104,6 +104,9 @@ body { font-family: 'Helvetica Neue', Arial, Calibri, 'Segoe UI', sans-serif; ba
 .size-item { padding: 7px 10px; border: 1px solid #DDE3EA; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: all 0.15s; }
 .size-item:hover { border-color: var(--orange); background: var(--orange-light); }
 .size-item.selected { border-color: var(--orange); background: var(--orange-light); }
+.size-check { width: 16px; height: 16px; border: 1.5px solid #bbb; border-radius: 3px; background: var(--white); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 10px; font-weight: 800; color: transparent; transition: all 0.12s; }
+.size-check:hover { border-color: var(--orange); }
+.size-check.on { background: var(--orange); border-color: var(--orange); color: #fff; }
 .size-item .size-label { font-size: 12px; font-weight: 600; }
 .size-item .size-dims { font-size: 11px; color: #6B7B8D; }
 .size-item .size-tag { font-size: 10px; padding: 1px 6px; border-radius: 3px; background: #F0FDF4; color: #43A047; font-weight: 600; }
@@ -709,6 +712,7 @@ body.role-supplier-self .panel-left-scroll .upload-zone { display: none; }
           <button class="tbtn" onclick="showAIAssist()">⚙ Resize All</button>
         </div>
         <div class="toolbar-group" style="margin-left:auto">
+          <button class="tbtn" id="builderPreviewBtn" onclick="previewBuilderSizes()">▦ Preview (1)</button>
           <button class="tbtn" onclick="showVersionModal()">⟳ Versions</button>
           <button class="tbtn" onclick="showExportModal()">↓ Export</button>
           <button class="tbtn primary" onclick="runAIReview()">✦ AI Review + Submit →</button>
@@ -861,6 +865,7 @@ body.role-supplier-self .panel-left-scroll .upload-zone { display: none; }
         <span class="av-role-badge av-role-reviewer">Reviewing as: Susan Berenson (OAM Brand Compliance)</span>
         <span class="av-readonly-badge">Read-Only Preview</span>
         <span style="margin-left:auto;font-size:11px;color:#6B7B8D" id="avSelectedLabel">Onsite · 300×250</span>
+        <button class="tbtn" onclick="previewApprovalAllSizes()">▦ Preview All Sizes</button>
       </div>
       <div class="av-canvas-area" id="avCanvasArea">
 
@@ -1150,6 +1155,8 @@ const state = {
   aqFilter: 'pending',
   aqSelectedId: null,
   aqCheckedIds: new Set(),
+  // Builder multi-size selection (for multi-preview)
+  previewSizeIdxs: new Set([0]),
   // Admin
   adminTab: 'templates',
 };
@@ -1447,6 +1454,9 @@ function renderApproverView() {
       </div>
       <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">Dimensions: <strong>${sub.w} × ${sub.h}</strong> · Platform: ${sub.platform.toUpperCase()}</div>
       ${flagsHtml}
+      <div style="display:flex;gap:8px;margin-top:10px">
+        <button class="tbtn" onclick="openMultiSizePreview(['${sub.id}'])">▦ Preview in grid</button>
+      </div>
       ${sub.status === 'pending' ? `
         <div class="aq-action-row">
           <button class="revise" onclick="reviseQueueItem('${sub.id}')">⚠ Request Revision</button>
@@ -1470,42 +1480,101 @@ function bulkActionBar() {
 }
 
 // ══════════════════════════════════════════
-// MULTI-SIZE PREVIEW (grid modal)
+// MULTI-SIZE PREVIEW (grid modal) — generalized
 // ══════════════════════════════════════════
-function openMultiSizePreview(ids) {
-  const checkedIds = ids || [...state.aqCheckedIds];
-  const creatives = checkedIds.map(id => APPROVAL_QUEUE.find(c => c.id === id)).filter(Boolean);
-  if (creatives.length === 0) { showToast('Select at least one creative'); return; }
-  const cards = creatives.map(c => {
-    const maxW = 260, maxH = 180;
-    const scale = Math.min(maxW / c.w, maxH / c.h, 1);
-    const bw = Math.round(c.w * scale), bh = Math.round(c.h * scale);
-    const hSize = Math.max(7, bh * 0.13), sSize = Math.max(6, bh * 0.08);
-    return `
-      <div class="msp-card">
-        <div class="msp-banner" style="width:${bw}px;height:${bh}px">
-          <div class="msp-banner-inner">
-            <div class="msp-banner-h" style="font-size:${hSize}px">${c.headline}</div>
-            <div class="msp-banner-s" style="font-size:${sSize}px">${c.sub}</div>
-          </div>
-          <div class="msp-banner-cta">${c.cta}</div>
-          <div class="msp-banner-brand"></div>
+function renderMspCard(c, maxW, maxH) {
+  const scale = Math.min(maxW / c.w, maxH / c.h, 1);
+  const bw = Math.round(c.w * scale), bh = Math.round(c.h * scale);
+  const hSize = Math.max(7, bh * 0.13), sSize = Math.max(6, bh * 0.08);
+  const ctaSize = Math.max(7, bh * 0.08);
+  return `
+    <div class="msp-card">
+      <div class="msp-banner" style="width:${bw}px;height:${bh}px">
+        <div class="msp-banner-inner">
+          <div class="msp-banner-h" style="font-size:${hSize}px">${c.headline}</div>
+          <div class="msp-banner-s" style="font-size:${sSize}px">${c.sub || ''}</div>
         </div>
-        <div class="msp-card-label">${c.w}×${c.h}</div>
-        <div class="msp-card-sub">${c.supplier} · ${c.template}</div>
-      </div>`;
-  }).join('');
+        <div class="msp-banner-cta" style="font-size:${ctaSize}px">${c.cta}</div>
+        <div class="msp-banner-brand"></div>
+      </div>
+      <div class="msp-card-label">${c.w}×${c.h}${c.sizeLabel?' · '+c.sizeLabel:''}</div>
+      <div class="msp-card-sub">${c.subtitle || ''}</div>
+    </div>`;
+}
+
+function showMspModal(title, subtitle, creatives, footerHtml) {
+  const cards = creatives.map(c => renderMspCard(c, 260, 180)).join('');
   showModal(`
     <div style="padding:4px 0 8px">
-      <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:2px">▦ Multi-size Preview</div>
-      <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">${creatives.length} creative${creatives.length!==1?'s':''} — side-by-side comparison</div>
+      <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:2px">${title}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">${subtitle}</div>
       <div class="msp-grid">${cards}</div>
       <div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
-        <button class="ai-action-btn" onclick="closeModalEl()">Close</button>
-        <button class="ai-action-btn primary" onclick="bulkApproveChecked();closeModalEl()">✓ Approve all pending</button>
+        ${footerHtml || '<button class="ai-action-btn primary" onclick="closeModalEl()">Close</button>'}
       </div>
     </div>
   `);
+}
+
+// Approver queue multi-select preview
+function openMultiSizePreview(ids) {
+  const checkedIds = ids || [...state.aqCheckedIds];
+  const items = checkedIds.map(id => APPROVAL_QUEUE.find(c => c.id === id)).filter(Boolean);
+  if (items.length === 0) { showToast('Select at least one creative'); return; }
+  const creatives = items.map(c => ({ w:c.w, h:c.h, headline:c.headline, sub:c.sub, cta:c.cta, subtitle:`${c.supplier} · ${c.template}` }));
+  const footer = `
+    <button class="ai-action-btn" onclick="closeModalEl()">Close</button>
+    <button class="ai-action-btn primary" onclick="bulkApproveChecked();closeModalEl()">✓ Approve all pending</button>`;
+  showMspModal('▦ Multi-size Preview', `${creatives.length} creative${creatives.length!==1?'s':''} — side-by-side comparison`, creatives, footer);
+}
+
+// Builder: preview the current creative at all checked sizes
+function previewBuilderSizes() {
+  const sizes = PLATFORMS[state.platform].sizes;
+  const idxs = [...state.previewSizeIdxs].sort((a,b)=>a-b);
+  if (idxs.length === 0) { showToast('Check at least one size'); return; }
+  const headline = document.getElementById('overlayHeadline')?.textContent || 'Spring Into Savings';
+  const sub = document.getElementById('overlaySub')?.textContent || 'Up to 40% off power tools';
+  const cta = document.getElementById('ctaBtn')?.textContent || 'Shop Now';
+  const creatives = idxs.map(i => {
+    const s = sizes[i];
+    return { w:s.w, h:s.h, headline, sub, cta, sizeLabel:s.label, subtitle:`${PLATFORMS[state.platform].label}${i===state.sizeIdx?' · editing':''}` };
+  });
+  const footer = `
+    <button class="ai-action-btn" onclick="closeModalEl()">Close</button>
+    <button class="ai-action-btn primary" onclick="closeModalEl();runAIReview()">✦ AI Review + Submit All →</button>`;
+  showMspModal('▦ Multi-size Preview', `Current creative at ${creatives.length} size${creatives.length!==1?'s':''}`, creatives, footer);
+}
+
+// Approval view: preview current creative at all platform sizes
+function previewApprovalAllSizes() {
+  const sizes = PLATFORMS[state.platform].sizes;
+  const headline = document.getElementById('overlayHeadline')?.textContent || 'Spring Into Savings';
+  const sub = document.getElementById('overlaySub')?.textContent || 'Up to 40% off power tools';
+  const cta = document.getElementById('ctaBtn')?.textContent || 'Shop Now';
+  const creatives = sizes.map((s,i) => ({ w:s.w, h:s.h, headline, sub, cta, sizeLabel:s.label, subtitle:`${PLATFORMS[state.platform].label}` }));
+  showMspModal('▦ All Sizes Review', `${creatives.length} sizes · ${PLATFORMS[state.platform].label}`, creatives);
+}
+
+// Admin: preview a template at all its sizes (mock sizes based on platform)
+function previewTemplateSizes(templateId) {
+  const t = ADMIN_TEMPLATES.find(x => x.id === templateId);
+  if (!t) return;
+  // Synthesize sizes from common placements based on template.channels
+  const pool = [
+    { w:300, h:250, label:'Medium Rectangle' },
+    { w:728, h:90,  label:'Leaderboard' },
+    { w:970, h:250, label:'Billboard' },
+    { w:300, h:600, label:'Half Page' },
+    { w:160, h:600, label:'Wide Skyscraper' },
+    { w:320, h:50,  label:'Mobile Banner' },
+    { w:1080,h:1080,label:'Square Feed' },
+    { w:1200,h:628, label:'Landscape Feed' },
+  ].slice(0, t.sizes);
+  const creatives = pool.map(s => ({
+    w:s.w, h:s.h, headline:'Sample Headline', sub:'Sample subheading copy', cta:'Shop Now', sizeLabel:s.label, subtitle:t.name,
+  }));
+  showMspModal(`▦ Template Preview — ${t.name}`, `${creatives.length} sizes · ${t.channels.join(' · ')}`, creatives);
 }
 
 // ══════════════════════════════════════════
@@ -1546,7 +1615,7 @@ function renderAdminView() {
               </div>
               <div class="admin-card-actions">
                 <button onclick="editTemplate('${t.id}')">Edit</button>
-                <button class="primary" onclick="previewTemplate('${t.id}')">Preview</button>
+                <button class="primary" onclick="previewTemplateSizes('${t.id}')">▦ Preview Sizes</button>
               </div>
             </div>`).join('')}
         </div>
@@ -1976,14 +2045,27 @@ function selectPlatform(p) {
 }
 function renderSizes() {
   const sizes = PLATFORMS[state.platform].sizes;
-  document.getElementById('sizeList').innerHTML = sizes.map((s,i) =>
-    `<div class="size-item${i===state.sizeIdx?' selected':''}" onclick="selectSize(${i})">
-      <div><div class="size-label">${s.label}</div><div class="size-dims">${s.dims}</div></div>
+  document.getElementById('sizeList').innerHTML = sizes.map((s,i) => {
+    const isActive = i === state.sizeIdx;
+    const isChecked = state.previewSizeIdxs.has(i);
+    return `<div class="size-item${isActive?' selected':''}" onclick="selectSize(${i})" style="gap:10px">
+      <div class="size-check ${isChecked?'on':''}" onclick="event.stopPropagation();toggleSizeForPreview(${i})" title="Include in multi-size preview">${isChecked?'✓':''}</div>
+      <div style="flex:1"><div class="size-label">${s.label}</div><div class="size-dims">${s.dims}</div></div>
       ${s.tag?`<span class="size-tag">${s.tag}</span>`:''}
-    </div>`
-  ).join('');
+    </div>`;
+  }).join('');
+  updatePreviewBtnLabel();
 }
 function selectSize(i) { state.sizeIdx = i; renderSizes(); updateCanvas(); }
+function toggleSizeForPreview(i) {
+  if (state.previewSizeIdxs.has(i)) state.previewSizeIdxs.delete(i);
+  else state.previewSizeIdxs.add(i);
+  renderSizes();
+}
+function updatePreviewBtnLabel() {
+  const b = document.getElementById('builderPreviewBtn');
+  if (b) b.textContent = `▦ Preview (${state.previewSizeIdxs.size})`;
+}
 
 // ── Canvas (builder) ──
 const MAX_W = 560, MAX_H = 420;
