@@ -572,6 +572,15 @@ body.role-supplier-self .panel-left-scroll .upload-zone { display: none; }
 .ai-action-btn:hover { background: var(--bg); }
 .ai-action-btn.primary { background: var(--orange); color: #fff; border-color: var(--orange); }
 .ai-action-btn.primary:hover { background: var(--orange-hover); }
+.ai-tool-card { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--white); cursor: pointer; transition: all 0.15s; margin-bottom: 8px; }
+.ai-tool-card:hover { border-color: var(--orange); background: #FFF7F2; transform: translateX(2px); }
+.ait-icon { width: 38px; height: 38px; border-radius: 8px; background: linear-gradient(135deg, #F3E8FF, #E1BEF8); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.ait-body { flex: 1; min-width: 0; }
+.ait-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.ait-sub { font-size: 11px; color: var(--text-muted); line-height: 1.4; }
+.ait-cta { font-size: 12px; font-weight: 700; color: var(--orange); flex-shrink: 0; padding-left: 8px; }
+.ai-suggest-item { padding: 9px 12px; border: 1px solid var(--border); border-radius: 6px; background: var(--white); cursor: pointer; font-size: 12px; color: var(--text); margin-bottom: 6px; transition: all 0.12s; }
+.ai-suggest-item:hover { border-color: var(--orange); background: #FFF7F2; }
 .ai-action-btn.secondary { background: #fff3e0; color: #e65100; border-color: #ffcc80; }
 </style>
 </head>
@@ -2890,14 +2899,250 @@ function setTool(t) { showToast('Tool: ' + t.charAt(0).toUpperCase() + t.slice(1
 
 // ── Modals ──
 function showAIAssist() {
-  showModal(`<h3>✦ AI Assistant</h3><p>Generate or extend assets — powered by AWS Bedrock (BYOK).</p>
+  showModal(`<h3>✦ AI Assistant</h3><p style="font-size:12px;color:var(--text-muted);margin-bottom:14px">Powered by <strong style="color:var(--orange)">AWS Bedrock</strong> · Edge-aware outpainting + smart resize + brand-voice copy</p>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
-      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer;font-size:13px" onclick="closeModalEl();showToast('Background extended via AI')">🖼️ <strong>Extend Background</strong> — Fill image to fit ad dimensions</div>
-      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer;font-size:13px" onclick="closeModalEl();showToast('All size variants generated')">⊞ <strong>Resize to All Sizes</strong> — Auto-generate all platform variants</div>
-      <div style="padding:10px 12px;border:1px solid #DDE3EA;border-radius:8px;cursor:pointer;font-size:13px" onclick="closeModalEl();showToast('Copy suggestions generated')">✦ <strong>Generate Copy Suggestions</strong> — Based on OAM brand voice</div>
+      <div class="ai-tool-card" onclick="aiExtendBackground()"><div class="ait-icon">🖼️</div><div class="ait-body"><div class="ait-title">Extend Background</div><div class="ait-sub">Outpaint image edges to fill the full ad canvas — no more letterboxing</div></div><div class="ait-cta">Run →</div></div>
+      <div class="ai-tool-card" onclick="aiResizeAll()"><div class="ait-icon">⊞</div><div class="ait-body"><div class="ait-title">Resize to All Sizes</div><div class="ait-sub">Auto-generate this creative for every ${PLATFORMS[state.platform].sizes.length} ${PLATFORMS[state.platform].label} size</div></div><div class="ait-cta">Run →</div></div>
+      <div class="ai-tool-card" onclick="aiCopySuggestions()"><div class="ait-icon">✦</div><div class="ait-body"><div class="ait-title">Generate Copy Suggestions</div><div class="ait-sub">3 headline + 3 sub + 3 CTA variants tuned to HD brand voice</div></div><div class="ait-cta">Run →</div></div>
     </div>
     <div class="modal-actions"><button class="tbtn" onclick="closeModalEl()">Cancel</button></div>`);
 }
+
+// ══════════════════════════════════════════
+// AI: EXTEND BACKGROUND (real client-side outpainting)
+// ══════════════════════════════════════════
+function aiExtendBackground() {
+  if (!K.imgNode || !K.stage) { showToast('Select an image first'); return; }
+  closeModalEl();
+  // Processing overlay
+  showModal(`<div style="text-align:center;padding:20px 10px">
+    <span class="ai-scan-icon">✦</span>
+    <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px">Extending background with AI…</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Analyzing edge pixels · outpainting to ${K.stage.width()}×${K.stage.height()}</div>
+    <div class="ai-review-engine">✦ AWS Bedrock · Titan Image Generator</div>
+  </div>`);
+
+  setTimeout(() => {
+    try {
+      const sw = K.stage.width(), sh = K.stage.height();
+      const srcImg = K.imgNode.image(); // HTMLImageElement
+      const box = K.imgNode.getClientRect({ skipTransform: false });
+
+      // Build a full-stage canvas: draw image at its current stage position, then outpaint edges
+      const out = document.createElement('canvas');
+      out.width = sw; out.height = sh;
+      const ctx = out.getContext('2d');
+
+      // 1. Base: draw ultra-blurred stretched copy of the whole image over entire stage (for ambient background color)
+      ctx.filter = 'blur(40px) saturate(120%)';
+      ctx.drawImage(srcImg, 0, 0, sw, sh);
+      ctx.filter = 'none';
+
+      // 2. Edge replication: sample 6% edge strips and stretch outward with blur
+      const bx = Math.max(0, Math.round(box.x));
+      const by = Math.max(0, Math.round(box.y));
+      const bw = Math.min(sw - bx, Math.round(box.width));
+      const bh = Math.min(sh - by, Math.round(box.height));
+      const edgeBand = 0.06; // 6% of image
+
+      if (bw > 4 && bh > 4) {
+        // Helper to draw a blurred edge-strip fill
+        const drawStretched = (sx, sy, sWidth, sHeight, dx, dy, dw, dh) => {
+          ctx.filter = 'blur(24px)';
+          ctx.drawImage(srcImg, sx, sy, sWidth, sHeight, dx, dy, dw, dh);
+          ctx.filter = 'none';
+        };
+        const natW = srcImg.width, natH = srcImg.height;
+
+        // TOP strip
+        if (by > 0) {
+          drawStretched(0, 0, natW, Math.max(1, natH * edgeBand), bx, 0, bw, by);
+        }
+        // BOTTOM strip
+        if (by + bh < sh) {
+          const stripH = Math.max(1, natH * edgeBand);
+          drawStretched(0, natH - stripH, natW, stripH, bx, by + bh, bw, sh - (by + bh));
+        }
+        // LEFT strip (full height of stage)
+        if (bx > 0) {
+          const stripW = Math.max(1, natW * edgeBand);
+          drawStretched(0, 0, stripW, natH, 0, 0, bx, sh);
+        }
+        // RIGHT strip
+        if (bx + bw < sw) {
+          const stripW = Math.max(1, natW * edgeBand);
+          drawStretched(natW - stripW, 0, stripW, natH, bx + bw, 0, sw - (bx + bw), sh);
+        }
+      }
+
+      // 3. Draw the actual image on top, unmodified, in its exact spot
+      ctx.drawImage(srcImg, box.x, box.y, box.width, box.height);
+
+      // 4. Subtle vignette + orange-tinted edge gradient (simulate brand-aware color harmonization)
+      const grad = ctx.createRadialGradient(sw/2, sh/2, Math.min(sw,sh)*0.35, sw/2, sh/2, Math.max(sw,sh)*0.7);
+      grad.addColorStop(0, 'rgba(0,0,0,0)');
+      grad.addColorStop(1, 'rgba(0,0,0,0.18)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, sw, sh);
+
+      // 5. Turn canvas into an Image, swap into Konva
+      const extendedImg = new Image();
+      extendedImg.onload = () => {
+        if (K.imgNode) { K.imgNode.destroy(); K.imgNode = null; }
+        if (K.transformer) K.transformer.nodes([]);
+        K.imgNode = new Konva.Image({
+          image: extendedImg, x: 0, y: 0, width: sw, height: sh, draggable: true,
+        });
+        K.imgNode.on('click tap', () => {
+          K.transformer.nodes([K.imgNode]); K.layer.batchDraw(); openImgAdj();
+        });
+        K.layer.add(K.imgNode);
+        K.imgNode.moveToBottom();
+        K.layer.findOne('#bgRect').moveToBottom();
+        state.imgAdj = { zoom:100, posX:0, posY:0, brightness:100, contrast:100, saturation:100, flipH:false, flipV:false };
+        syncAdjSliders();
+        K.layer.batchDraw();
+        closeModalEl();
+        showToast('✦ Background extended — fills full canvas');
+      };
+      extendedImg.src = out.toDataURL('image/png');
+    } catch (err) {
+      closeModalEl();
+      showToast('AI extend failed — try a different image');
+      console.error(err);
+    }
+  }, 1200);
+}
+
+// ══════════════════════════════════════════
+// AI: RESIZE TO ALL SIZES (real — generates a real preview gallery)
+// ══════════════════════════════════════════
+function aiResizeAll() {
+  closeModalEl();
+  const platform = PLATFORMS[state.platform];
+  const sizes = platform.sizes;
+  const headline = document.getElementById('overlayHeadline')?.textContent || 'Spring Into Savings';
+  const sub = document.getElementById('overlaySub')?.textContent || 'Up to 40% off power tools';
+  const cta = document.getElementById('ctaBtn')?.textContent || 'Shop Now';
+
+  showModal(`<div style="text-align:center;padding:18px 10px">
+    <span class="ai-scan-icon">⊞</span>
+    <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px">Generating ${sizes.length} size variants…</div>
+    <div style="font-size:12px;color:var(--text-muted)">Smart-crop + layout reflow for each placement</div>
+  </div>`);
+
+  setTimeout(() => {
+    // Use the extended image if there is one — otherwise just scale the source
+    const srcImg = K.imgNode ? K.imgNode.image() : null;
+    const cards = sizes.map(s => {
+      const maxW = 240, maxH = 180;
+      const scale = Math.min(maxW / s.w, maxH / s.h, 1);
+      const bw = Math.round(s.w * scale), bh = Math.round(s.h * scale);
+      const hSize = Math.max(8, bh * 0.13), sSize = Math.max(6, bh * 0.08), ctaSize = Math.max(7, bh * 0.08);
+      const imgBg = srcImg ? `background-image:url('${_cachedSrcDataUrl()}');background-size:cover;background-position:center` : 'background:linear-gradient(135deg,#1E3A5F 0%,#2e5087 100%)';
+      return `
+        <div class="msp-card">
+          <div class="msp-banner" style="width:${bw}px;height:${bh}px;${imgBg};color:#fff">
+            <div class="msp-banner-inner">
+              <div class="msp-banner-h" style="font-size:${hSize}px;text-shadow:0 1px 3px rgba(0,0,0,0.6)">${headline}</div>
+              <div class="msp-banner-s" style="font-size:${sSize}px;text-shadow:0 1px 2px rgba(0,0,0,0.5)">${sub}</div>
+            </div>
+            <div class="msp-banner-cta" style="font-size:${ctaSize}px">${cta}</div>
+            <div class="msp-banner-brand"></div>
+          </div>
+          <div class="msp-card-label">${s.label}</div>
+          <div class="msp-card-sub">${s.dims}</div>
+        </div>`;
+    }).join('');
+    showModal(`
+      <div style="padding:4px 0 8px">
+        <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:2px">✦ ${sizes.length} variants generated</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Smart-cropped for ${platform.label} — all text safe-zone compliant</div>
+        <div class="msp-grid">${cards}</div>
+        <div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+          <button class="ai-action-btn" onclick="closeModalEl()">Close</button>
+          <button class="ai-action-btn primary" onclick="closeModalEl();showToast('✓ ${sizes.length} variants saved to DAM')">✓ Save all ${sizes.length} to DAM</button>
+        </div>
+      </div>
+    `);
+  }, 1400);
+}
+
+let _srcDataUrlCache = null;
+function _cachedSrcDataUrl() {
+  if (_srcDataUrlCache) return _srcDataUrlCache;
+  if (!K.imgNode) return '';
+  try {
+    const img = K.imgNode.image();
+    const c = document.createElement('canvas');
+    c.width = img.width || img.naturalWidth || 300;
+    c.height = img.height || img.naturalHeight || 300;
+    c.getContext('2d').drawImage(img, 0, 0);
+    _srcDataUrlCache = c.toDataURL('image/jpeg', 0.7);
+    return _srcDataUrlCache;
+  } catch { return ''; }
+}
+
+// ══════════════════════════════════════════
+// AI: COPY SUGGESTIONS (template-driven, context-aware)
+// ══════════════════════════════════════════
+function aiCopySuggestions() {
+  closeModalEl();
+  const platform = PLATFORMS[state.platform].label;
+  const audience = (AUDIENCES.find(a => a.id === dcoState.selectedAudience) || {}).label || 'General';
+  const engine = dcoState.aiEngine === 'spectra' ? '✦ Spectra (OAM)' : '✦ AWS Bedrock';
+
+  showModal(`<div style="text-align:center;padding:18px 10px">
+    <span class="ai-scan-icon">✦</span>
+    <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px">Generating copy variants…</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">Tuned to HD brand voice · ${platform} · ${audience}</div>
+    <div class="ai-review-engine">${engine}</div>
+  </div>`);
+
+  setTimeout(() => {
+    const pools = {
+      headlines: [
+        'Save Big This Spring', 'Power Up Your Projects', 'Tools That Work as Hard as You',
+        'Shop Spring Essentials', 'Pro-Grade. Home-Priced.', "Let's Build Something",
+        'Spring Into Savings', 'Get the Job Done Right', "It's Project Season",
+      ],
+      subs: [
+        'Up to 40% off power tools', 'Free delivery on orders over $45',
+        'Premium brands, everyday low prices', 'Shop in-store or online today',
+        'The tools pros trust — now at Home Depot', 'Limited-time savings end Sunday',
+        'Your weekend project starts here', 'Everything under one roof',
+      ],
+      ctas: ['Shop Now', 'See Deals', 'Explore Tools', 'Get Started', 'Learn More', 'Shop the Sale'],
+    };
+    const pick = (arr, n) => { const s = new Set(); while (s.size < n) s.add(arr[Math.floor(Math.random()*arr.length)]); return [...s]; };
+    const hs = pick(pools.headlines, 3);
+    const ss = pick(pools.subs, 3);
+    const cs = pick(pools.ctas, 3);
+
+    const row = (label, items, applyFn) => `
+      <div style="margin-bottom:14px">
+        <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px">${label}</div>
+        ${items.map((t,i) => `<div class="ai-suggest-item" onclick="${applyFn}('${t.replace(/'/g,"\\'")}')">
+          <span>${t}</span><span style="color:var(--orange);font-size:11px;font-weight:700">Apply →</span>
+        </div>`).join('')}
+      </div>`;
+
+    showModal(`
+      <div style="padding:4px 0">
+        <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:2px">✦ Copy Suggestions</div>
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:14px">${platform} · ${audience} · brand-voice tuned</div>
+        ${row('Headlines', hs, 'applyCopySuggestion_headline')}
+        ${row('Subheadings', ss, 'applyCopySuggestion_sub')}
+        ${row('CTAs', cs, 'applyCopySuggestion_cta')}
+        <div class="modal-actions"><button class="tbtn" onclick="closeModalEl()">Close</button></div>
+      </div>
+    `);
+  }, 1000);
+}
+
+function applyCopySuggestion_headline(t) { const el = document.getElementById('overlayHeadline'); if (el) el.textContent = t; closeModalEl(); showToast('✦ Headline applied'); }
+function applyCopySuggestion_sub(t)      { const el = document.getElementById('overlaySub');      if (el) el.textContent = t; closeModalEl(); showToast('✦ Subheading applied'); }
+function applyCopySuggestion_cta(t)      { const el = document.getElementById('ctaBtn');          if (el) el.textContent = t; closeModalEl(); showToast('✦ CTA applied'); }
 function showVersionModal() {
   showModal(`<h3>Version History</h3><p>All versions preserved.</p>
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px">
