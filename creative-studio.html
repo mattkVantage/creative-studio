@@ -416,6 +416,118 @@ body { font-family: 'Helvetica Neue', Arial, Calibri, 'Segoe UI', sans-serif; ba
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-thumb { background: #DDE3EA; border-radius: 3px; }
 
+/* ── Role Switcher ── */
+.role-switch { display: flex; background: var(--bg); border-radius: 6px; padding: 3px; gap: 2px; border: 1px solid var(--border); }
+.rbtn { padding: 5px 11px; font-size: 11.5px; font-weight: 600; border: none; border-radius: 4px; cursor: pointer; font-family: inherit; background: transparent; color: var(--text-muted); transition: all 0.15s; white-space: nowrap; }
+.rbtn:hover { color: var(--text); }
+.rbtn.active { background: var(--white); color: var(--orange); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+/* ── Self-Service constraint chip ── */
+.constraint-banner { background: var(--orange-light); border-bottom: 1px solid #f5c5a3; padding: 6px 14px; font-size: 11.5px; color: var(--orange); display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.constraint-banner .c-pill { background: var(--white); border: 1px solid #f5c5a3; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; }
+.constraint-banner .c-note { color: var(--text-muted); margin-left: auto; font-size: 11px; }
+body.role-supplier-self #uploadZone,
+body.role-supplier-self #imgAdjSection { display: none !important; }
+body.role-supplier-self .overlay-headline[contenteditable],
+body.role-supplier-self .overlay-sub[contenteditable] { pointer-events: none; }
+body.role-supplier-self .panel-left-scroll .upload-zone { display: none; }
+
+/* ── Retailer Approver Queue View ── */
+#approverView { display: none; flex: 1; overflow: hidden; }
+#approverView.active { display: flex; }
+.aq-left { width: 380px; flex-shrink: 0; background: var(--white); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+.aq-header { padding: 16px 18px 12px; border-bottom: 1px solid var(--border); }
+.aq-header h2 { font-size: 15px; font-weight: 800; margin-bottom: 3px; color: var(--text); }
+.aq-header p { font-size: 11.5px; color: var(--text-muted); }
+.aq-filter-tabs { display: flex; padding: 10px 14px; gap: 6px; border-bottom: 1px solid var(--border); }
+.aq-filter-tab { padding: 4px 10px; font-size: 11px; font-weight: 600; border: 1px solid var(--border); background: var(--white); color: var(--text-muted); border-radius: 14px; cursor: pointer; font-family: inherit; }
+.aq-filter-tab.active { background: var(--orange); color: #fff; border-color: var(--orange); }
+.aq-toolbar { padding: 10px 14px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--border); background: var(--bg); }
+.aq-toolbar-info { font-size: 11.5px; color: var(--text-muted); flex: 1; }
+.aq-toolbar button { padding: 5px 11px; font-size: 11.5px; font-weight: 700; border-radius: 5px; font-family: inherit; cursor: pointer; border: 1px solid var(--border); background: var(--white); color: var(--text); }
+.aq-toolbar button.primary { background: var(--orange); color: #fff; border-color: var(--orange); }
+.aq-toolbar button.primary:disabled { background: #e5e5e5; color: #999; border-color: #e5e5e5; cursor: not-allowed; }
+.aq-list { flex: 1; overflow-y: auto; }
+.aq-item { display: flex; align-items: center; gap: 12px; padding: 11px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.12s; }
+.aq-item:hover { background: var(--bg); }
+.aq-item.selected { background: var(--orange-light); }
+.aq-item.checked { background: var(--orange-light); }
+.aq-checkbox { width: 18px; height: 18px; border: 1.5px solid #bbb; border-radius: 4px; background: var(--white); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.12s; }
+.aq-item.checked .aq-checkbox { background: var(--orange); border-color: var(--orange); color: #fff; font-size: 11px; font-weight: 800; }
+.aq-thumb { width: 58px; height: 40px; border-radius: 4px; background: linear-gradient(135deg, #1E3A5F 0%, #2e5087 100%); flex-shrink: 0; position: relative; overflow: hidden; }
+.aq-thumb-inner { padding: 3px 4px; color: #fff; font-size: 6px; font-weight: 700; line-height: 1.1; }
+.aq-thumb-bar { position: absolute; bottom: 0; left: 0; right: 0; height: 6px; background: var(--orange); }
+.aq-info { flex: 1; min-width: 0; }
+.aq-name { font-size: 12.5px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.aq-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+.aq-badge { font-size: 10px; padding: 2px 7px; border-radius: 3px; font-weight: 700; }
+.aq-b-pending { background: #FFF3E0; color: #F57C00; }
+.aq-b-approved { background: #E8F5E9; color: #2E7D32; }
+.aq-b-rev { background: #FFEBEE; color: #E53935; }
+.aq-b-rejected { background: #EEEEEE; color: #616161; }
+.aq-center { flex: 1; display: flex; flex-direction: column; background: var(--bg); overflow: auto; padding: 24px; align-items: center; }
+.aq-empty { text-align: center; color: var(--text-muted); font-size: 13px; margin-top: 80px; }
+.aq-detail-card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 20px; width: 100%; max-width: 640px; margin-bottom: 16px; }
+.aq-detail-card h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; color: var(--text); }
+.aq-detail-meta { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+.aq-preview-banner { display: flex; justify-content: center; padding: 16px; background: var(--bg); border-radius: 6px; margin-bottom: 14px; }
+.aq-action-row { display: flex; gap: 8px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.aq-action-row button { flex: 1; padding: 9px; font-size: 12.5px; font-weight: 700; border-radius: 5px; border: 1px solid var(--border); background: var(--white); color: var(--text); cursor: pointer; font-family: inherit; }
+.aq-action-row button.approve { background: #43A047; color: #fff; border-color: #43A047; }
+.aq-action-row button.revise { background: #fff; color: #E53935; border-color: #FFCDD2; }
+.aq-action-row button.reject { background: #fff; color: #616161; }
+
+/* ── Multi-size preview grid modal ── */
+.msp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; padding: 14px 4px; max-height: 62vh; overflow-y: auto; }
+.msp-card { background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 10px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.msp-card-label { font-size: 11px; font-weight: 700; color: var(--text); }
+.msp-card-sub { font-size: 10px; color: var(--text-muted); }
+.msp-banner { position: relative; background: linear-gradient(135deg, #1E3A5F 0%, #2e5087 100%); border-radius: 3px; overflow: hidden; color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
+.msp-banner-inner { padding: 4% 5%; display: flex; flex-direction: column; gap: 2px; height: 100%; }
+.msp-banner-h { font-size: 9px; font-weight: 800; line-height: 1.1; }
+.msp-banner-s { font-size: 7px; opacity: 0.85; }
+.msp-banner-cta { position: absolute; bottom: 10%; right: 6%; background: var(--orange); color: #fff; padding: 2px 6px; font-size: 7px; font-weight: 700; border-radius: 2px; }
+.msp-banner-brand { position: absolute; bottom: 0; left: 0; right: 0; height: 12%; background: #F96302; }
+
+/* ── Admin View (Template & Copy Designer) ── */
+#adminView { display: none; flex: 1; overflow: hidden; }
+#adminView.active { display: flex; }
+.admin-tabs { display: flex; padding: 0 20px; gap: 4px; background: var(--white); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.admin-tab { padding: 12px 16px; font-size: 12.5px; font-weight: 700; color: var(--text-muted); cursor: pointer; border: none; background: transparent; font-family: inherit; border-bottom: 3px solid transparent; transition: all 0.15s; }
+.admin-tab:hover { color: var(--text); }
+.admin-tab.active { color: var(--orange); border-bottom-color: var(--orange); }
+.admin-body { flex: 1; overflow: auto; padding: 24px; background: var(--bg); }
+.admin-section { max-width: 1100px; margin: 0 auto; }
+.admin-section h2 { font-size: 16px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+.admin-section p.sub { font-size: 12px; color: var(--text-muted); margin-bottom: 18px; }
+.admin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.admin-card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+.admin-card-hd { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.admin-card-title { font-size: 13px; font-weight: 700; color: var(--text); }
+.admin-card-pill { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+.admin-pill-live { background: #E8F5E9; color: #2E7D32; }
+.admin-pill-draft { background: #FFF3E0; color: #F57C00; }
+.admin-card-body { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+.admin-stat-row { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-muted); margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+.admin-card-actions { margin-top: 12px; display: flex; gap: 6px; }
+.admin-card-actions button { flex: 1; padding: 6px; font-size: 11px; font-weight: 700; border: 1px solid var(--border); background: var(--white); border-radius: 4px; cursor: pointer; font-family: inherit; color: var(--text); }
+.admin-card-actions button.primary { background: var(--orange); color: #fff; border-color: var(--orange); }
+.admin-new-btn { background: var(--orange); color: #fff; border: none; padding: 8px 14px; border-radius: 5px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; float: right; margin-bottom: 14px; }
+.admin-table { width: 100%; border-collapse: collapse; background: var(--white); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+.admin-table th { text-align: left; font-size: 10.5px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--bg); }
+.admin-table td { padding: 10px 14px; font-size: 12px; color: var(--text); border-bottom: 1px solid var(--border); }
+.admin-table tr:last-child td { border-bottom: none; }
+.admin-table input, .admin-table textarea { font-family: inherit; font-size: 12px; border: 1px solid var(--border); border-radius: 4px; padding: 5px 8px; width: 100%; color: var(--text); background: var(--white); resize: vertical; }
+.admin-table .tag-pill { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; }
+.tp-headline { background: #DCEEFB; color: #1565C0; }
+.tp-cta { background: #FFF3E0; color: #E65100; }
+.tp-legal { background: #F3E8FF; color: #7B1FA2; }
+.tp-sub { background: #E8F5E9; color: #2E7D32; }
+.admin-row-actions { display: flex; gap: 4px; }
+.admin-row-actions button { padding: 3px 8px; font-size: 10.5px; border: 1px solid var(--border); background: var(--white); border-radius: 3px; cursor: pointer; font-family: inherit; color: var(--text-muted); }
+.admin-row-actions button:hover { color: var(--orange); border-color: var(--orange); }
+.admin-row-actions button.archive:hover { color: #E53935; border-color: #FFCDD2; }
+
 /* ── AI Review Gate ── */
 @keyframes ai-scan-pulse {
   0%,100% { opacity: 1; transform: scale(1); }
@@ -462,6 +574,16 @@ body { font-family: 'Helvetica Neue', Arial, Calibri, 'Segoe UI', sans-serif; ba
 
 <div class="app-shell">
 
+  <!-- ═══ Role constraint banner (Self-Service only) ═══ -->
+  <div id="constraintBanner" class="constraint-banner" style="display:none">
+    <span style="font-size:13px">🔒</span>
+    <strong>Self-Service mode</strong>
+    <span class="c-pill" id="cpillTemplate">Template: Spring Power Tools</span>
+    <span class="c-pill">Approved Copy only</span>
+    <span class="c-pill">Brand-locked zones</span>
+    <span class="c-note">Your creative is validated by AI before reaching the retailer.</span>
+  </div>
+
   <!-- ═══ TOPBAR ═══ -->
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:16px;min-width:0">
@@ -469,17 +591,18 @@ body { font-family: 'Helvetica Neue', Arial, Calibri, 'Segoe UI', sans-serif; ba
       <div class="topbar-divider"></div>
       <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="bannerNameDisplay">Spring Power Tools — 300×250</div>
     </div>
-    <div class="view-toggle">
-      <button class="vtoggle active" id="vtBuilder" onclick="switchView('builder')">Builder</button>
-      <button class="vtoggle" id="vtDco" onclick="switchView('dco')">✦ DCO + AI</button>
-      <button class="vtoggle" id="vtApproval" onclick="switchView('approval')">Approval View</button>
+    <div class="role-switch" id="roleSwitch">
+      <button class="rbtn active" data-role="supplier-self" onclick="setRole('supplier-self')">🏭 Supplier · Self-Service</button>
+      <button class="rbtn" data-role="managed-service" onclick="setRole('managed-service')">👤 Managed Service</button>
+      <button class="rbtn" data-role="approver" onclick="setRole('approver')">✓ Approver</button>
+      <button class="rbtn" data-role="admin" onclick="setRole('admin')">⚙ Admin</button>
     </div>
     <div class="topbar-meta">
-      <span>Home Depot OAM</span>
+      <span id="roleContextLabel">Bosch Tools Inc.</span>
       <div class="topbar-divider"></div>
-      <span>Bosch Tools Inc.</span>
+      <button class="tbtn" style="font-size:11px;padding:4px 10px" onclick="switchView('dco')">✦ DCO + AI</button>
       <div class="topbar-divider"></div>
-      <span id="statusTopbar">● IN REVIEW</span>
+      <span id="statusTopbar">● Draft</span>
     </div>
   </div>
 
@@ -867,6 +990,43 @@ body { font-family: 'Helvetica Neue', Arial, Calibri, 'Segoe UI', sans-serif; ba
     </div>
   </div>
 
+  <!-- ═══ RETAILER APPROVER QUEUE VIEW ═══ -->
+  <div id="approverView">
+    <div class="aq-left">
+      <div class="aq-header">
+        <h2>Approval Queue</h2>
+        <p>Review creatives submitted by suppliers and managed service team.</p>
+      </div>
+      <div class="aq-filter-tabs" id="aqFilterTabs">
+        <button class="aq-filter-tab active" data-filter="pending" onclick="setApproverFilter('pending')">Pending · <span id="aqCountPending">0</span></button>
+        <button class="aq-filter-tab" data-filter="revision" onclick="setApproverFilter('revision')">Revisions · <span id="aqCountRevision">0</span></button>
+        <button class="aq-filter-tab" data-filter="approved" onclick="setApproverFilter('approved')">Approved · <span id="aqCountApproved">0</span></button>
+        <button class="aq-filter-tab" data-filter="rejected" onclick="setApproverFilter('rejected')">Rejected · <span id="aqCountRejected">0</span></button>
+      </div>
+      <div class="aq-toolbar">
+        <span class="aq-toolbar-info" id="aqSelCount">0 selected</span>
+        <button onclick="toggleSelectAllApprover()">Select all</button>
+        <button class="primary" id="aqPreviewBtn" onclick="openMultiSizePreview()" disabled>▦ Preview (0)</button>
+      </div>
+      <div class="aq-list" id="aqList"></div>
+    </div>
+    <div class="aq-center" id="aqCenter">
+      <div class="aq-empty">Select a creative on the left to review — or check multiple to preview sizes together.</div>
+    </div>
+  </div>
+
+  <!-- ═══ RETAILER ADMIN VIEW (Template & Copy Designer) ═══ -->
+  <div id="adminView">
+    <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
+      <div class="admin-tabs">
+        <button class="admin-tab active" id="atabTemplates" onclick="setAdminTab('templates')">📐 Templates</button>
+        <button class="admin-tab" id="atabCopy" onclick="setAdminTab('copy')">📝 Approved Copy Library</button>
+        <button class="admin-tab" id="atabBrand" onclick="setAdminTab('brand')">🎨 Brand Guidelines</button>
+      </div>
+      <div class="admin-body" id="adminBody"></div>
+    </div>
+  </div>
+
 </div>
 
 <!-- Modal -->
@@ -976,16 +1136,61 @@ const INITIAL_COMMENTS = [
 // ── State ──
 const state = {
   view: 'builder',
+  role: 'supplier-self', // 'supplier-self' | 'managed-service' | 'approver' | 'admin'
   platform: 'onsite',
   sizeIdx: 0,
   selectedAsset: 'a1',
   copyFilter: '',
-  workflowStatus: 'review',
+  workflowStatus: 'draft',
   avSelectedVariant: 0,
   comments: [...INITIAL_COMMENTS],
   complianceItems: COMPLIANCE_ITEMS.map(i => ({...i})),
   imgAdj: { zoom:100, posX:0, posY:0, brightness:100, contrast:100, saturation:100, flipH:false, flipV:false },
+  // Approver queue
+  aqFilter: 'pending',
+  aqSelectedId: null,
+  aqCheckedIds: new Set(),
+  // Admin
+  adminTab: 'templates',
 };
+
+// ══════════════════════════════════════════
+// RETAILER APPROVAL QUEUE DATA
+// ══════════════════════════════════════════
+const APPROVAL_QUEUE = [
+  { id:'q1', supplier:'Bosch Tools Inc.',  supplierKind:'supplier',   name:'Spring Power Tools — 300×250', template:'Spring Power Tools', platform:'onsite', w:300, h:250, headline:'Spring Into Savings', sub:'Up to 40% off power tools', cta:'Shop Now', submittedAt:'2 hr ago', status:'pending',  aiScore:94, aiFlags:[] },
+  { id:'q2', supplier:'Rust Oleum',        supplierKind:'supplier',   name:'Spring Paint Sale — 728×90',  template:'Spring Paint Sale',  platform:'onsite', w:728, h:90,  headline:'30% Off Interior Paints', sub:'Premium finishes at unbeatable prices', cta:'Shop Now', submittedAt:'4 hr ago', status:'pending',  aiScore:91, aiFlags:[] },
+  { id:'q3', supplier:'Rust Oleum',        supplierKind:'supplier',   name:'Best Paint Sale — 970×250',    template:'Spring Paint Sale',  platform:'onsite', w:970, h:250, headline:'Best Paint Sale Ever!', sub:'Highest quality at the lowest price', cta:'Shop Now', submittedAt:'1 hr ago', status:'pending',  aiScore:61, aiFlags:['Superlative "Best" needs substantiation','Superlative "lowest" needs substantiation'] },
+  { id:'q4', supplier:'HD Internal (Susan)', supplierKind:'managed',  name:'Memorial Day Hero — 1920×400', template:'Custom (Managed)',   platform:'onsite', w:1920,h:400, headline:'Memorial Day Savings', sub:'Up to 50% off outdoor must-haves', cta:'Shop Deals', submittedAt:'30 min ago', status:'pending', aiScore:88, aiFlags:[] },
+  { id:'q5', supplier:'Samsung',           supplierKind:'supplier',   name:'Galaxy S25 — 300×250',         template:'Seasonal Promo',     platform:'onsite', w:300, h:250, headline:'Galaxy S25 — Now at HD', sub:'Pick up in-store or online', cta:'Shop Now', submittedAt:'1 day ago', status:'approved', aiScore:95, aiFlags:[] },
+  { id:'q6', supplier:'Kohler',            supplierKind:'supplier',   name:'Kitchen Sinks — 300×600',      template:'PLA Default',        platform:'onsite', w:300, h:600, headline:'Bath Fixtures 20% Off', sub:'Upgrade your bathroom today', cta:'Shop Now', submittedAt:'2 days ago', status:'revision', aiScore:78, aiFlags:['Contrast below WCAG AA'] },
+  { id:'q7', supplier:'Kohler',            supplierKind:'supplier',   name:'Best Kitchen Sinks — 728×90',  template:'PLA Default',        platform:'onsite', w:728, h:90,  headline:'Best Kitchen Sinks', sub:'Top-rated by consumers', cta:'Shop Now', submittedAt:'3 days ago', status:'rejected', aiScore:52, aiFlags:['Superlative "Best" not approved'] },
+  { id:'q8', supplier:'HD Internal (Susan)', supplierKind:'managed',  name:'July 4th Hero — 1920×400',     template:'Custom (Managed)',   platform:'onsite', w:1920,h:400, headline:'Star-Spangled Savings', sub:'Celebrate with up to 40% off', cta:'Shop Sale', submittedAt:'5 min ago', status:'pending', aiScore:92, aiFlags:[] },
+];
+
+// ══════════════════════════════════════════
+// ADMIN DATA (Templates + Approved Copy)
+// ══════════════════════════════════════════
+const ADMIN_TEMPLATES = [
+  { id:'t1', name:'Spring Power Tools', status:'live', channels:['Onsite','Meta','DV360'], sizes:14, headlineMax:30, subMax:50, brand:'Bosch + All Tool Suppliers',  useCount:62 },
+  { id:'t2', name:'Spring Paint Sale',  status:'live', channels:['Email','Onsite','Meta','DV360'], sizes:18, headlineMax:30, subMax:50, brand:'Rust Oleum + Paint Suppliers', useCount:84 },
+  { id:'t3', name:'PLA Default',        status:'live', channels:['DV360','Trade Desk'], sizes:8, headlineMax:25, subMax:45, brand:'All Suppliers', useCount:140 },
+  { id:'t4', name:'Seasonal Promo',     status:'live', channels:['Email','Onsite','Meta'], sizes:14, headlineMax:35, subMax:60, brand:'Gold + Platinum Tiers', useCount:47 },
+  { id:'t5', name:'Memorial Day 2026',  status:'draft', channels:['Onsite'], sizes:6, headlineMax:32, subMax:55, brand:'All', useCount:0 },
+];
+
+let ADMIN_COPY = [
+  { id:'c1', tag:'HEADLINE', text:'Spring Into Savings', audience:'DIY', templates:'Spring Power Tools', approvedBy:'Legal · Brand', live:true },
+  { id:'c2', tag:'HEADLINE', text:'Built for the Job Site', audience:'Pro', templates:'Spring Power Tools', approvedBy:'Brand', live:true },
+  { id:'c3', tag:'HEADLINE', text:'30% Off Interior Paints', audience:'Any', templates:'Spring Paint Sale', approvedBy:'Legal (promo subst.)', live:true },
+  { id:'c4', tag:'SUB',      text:'Up to 40% off power tools', audience:'DIY', templates:'Spring Power Tools', approvedBy:'Legal', live:true },
+  { id:'c5', tag:'SUB',      text:'Pro-grade tools, pro pricing', audience:'Pro', templates:'Spring Power Tools', approvedBy:'Brand', live:true },
+  { id:'c6', tag:'CTA',      text:'Shop Now', audience:'Any', templates:'All', approvedBy:'Brand', live:true },
+  { id:'c7', tag:'CTA',      text:'Learn More', audience:'Any', templates:'All', approvedBy:'Brand', live:true },
+  { id:'c8', tag:'CTA',      text:'Shop Deals', audience:'Any', templates:'All', approvedBy:'Brand', live:true },
+  { id:'c9', tag:'LEGAL',    text:'Prices valid while supplies last. homedepot.com', audience:'Any', templates:'All', approvedBy:'Legal', live:true },
+  { id:'c10',tag:'LEGAL',    text:'Offer valid in-store and online. See site for details.', audience:'Any', templates:'All', approvedBy:'Legal', live:true },
+];
 
 // ══════════════════════════════════════════
 // DCO + AI DATA
@@ -1044,14 +1249,406 @@ const dcoState = {
 // ── View switcher ──
 function switchView(v) {
   state.view = v;
-  document.getElementById('builderView').style.display   = v === 'builder'  ? 'flex' : 'none';
-  document.getElementById('dcoView').style.display       = v === 'dco'      ? 'flex' : 'none';
-  document.getElementById('approvalView').style.display  = v === 'approval' ? 'flex' : 'none';
-  document.getElementById('vtBuilder').classList.toggle('active',  v === 'builder');
-  document.getElementById('vtDco').classList.toggle('active',      v === 'dco');
-  document.getElementById('vtApproval').classList.toggle('active', v === 'approval');
+  const views = ['builderView','dcoView','approvalView','approverView','adminView'];
+  views.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const map = { builderView:'builder', dcoView:'dco', approvalView:'approval', approverView:'approver', adminView:'admin' };
+    el.style.display = (map[id] === v) ? 'flex' : 'none';
+  });
   if (v === 'approval') renderApprovalView();
   if (v === 'dco')      renderDCOView();
+  if (v === 'approver') renderApproverView();
+  if (v === 'admin')    renderAdminView();
+}
+
+// ══════════════════════════════════════════
+// ROLE SWITCHER
+// ══════════════════════════════════════════
+const ROLE_MAP = {
+  'supplier-self':   { view:'builder',  label:'Supplier · Self-Service', contextLabel:'Bosch Tools Inc. · Supplier Portal' },
+  'managed-service': { view:'builder',  label:'Managed Service',         contextLabel:'HD Internal · Managed Service Desk' },
+  'approver':        { view:'approver', label:'Retailer Approver',       contextLabel:'Home Depot OAM · Approval Queue' },
+  'admin':           { view:'admin',    label:'Retailer Admin',          contextLabel:'Home Depot OAM · Studio Admin' },
+};
+
+function setRole(r) {
+  if (!ROLE_MAP[r]) return;
+  state.role = r;
+  // Toggle body class for CSS-level constraints
+  document.body.className = document.body.className.replace(/role-[\w-]+/g, '').trim() + ' role-' + r;
+  // Update role buttons
+  document.querySelectorAll('.rbtn').forEach(b => b.classList.toggle('active', b.dataset.role === r));
+  // Update context label + constraint banner
+  const ctxLbl = document.getElementById('roleContextLabel');
+  if (ctxLbl) ctxLbl.textContent = ROLE_MAP[r].contextLabel;
+  document.getElementById('constraintBanner').style.display = (r === 'supplier-self') ? 'flex' : 'none';
+  // Adjust builder toolbar labels for managed service
+  applyRoleToBuilder();
+  // Switch to appropriate view
+  switchView(ROLE_MAP[r].view);
+}
+
+function applyRoleToBuilder() {
+  const btn = document.querySelector('.canvas-toolbar .tbtn.primary');
+  if (!btn) return;
+  if (state.role === 'managed-service') {
+    btn.textContent = '▲ Publish as Approved →';
+    btn.onclick = () => publishAsApproved();
+  } else {
+    btn.textContent = '✦ AI Review + Submit →';
+    btn.onclick = () => runAIReview();
+  }
+}
+
+function publishAsApproved() {
+  const now = 'Apr 9, ' + new Date().toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+  state.workflowStatus = 'approved';
+  state.comments.unshift({ author:'Susan Berenson (OAM · Managed)', time:now,
+    body:'▲ Published directly by Managed Service — no supplier approval needed. Custom creative, not template-bound.', type:'normal' });
+  if (typeof renderComments === 'function') renderComments();
+  if (typeof updateStatusUI === 'function') updateStatusUI('approved','● Approved');
+  ['builderLcSteps','avLcSteps'].forEach(id => { const el = document.getElementById(id); if (el) renderLcSteps(id); });
+  showToast('▲ Published — creative ready for trafficking');
+}
+
+// ══════════════════════════════════════════
+// APPROVER QUEUE VIEW
+// ══════════════════════════════════════════
+function setApproverFilter(f) {
+  state.aqFilter = f;
+  document.querySelectorAll('#aqFilterTabs .aq-filter-tab').forEach(t =>
+    t.classList.toggle('active', t.dataset.filter === f));
+  state.aqSelectedId = null;
+  renderApproverView();
+}
+
+function toggleApproverCheck(id) {
+  if (state.aqCheckedIds.has(id)) state.aqCheckedIds.delete(id);
+  else state.aqCheckedIds.add(id);
+  renderApproverView();
+}
+
+function toggleSelectAllApprover() {
+  const visible = APPROVAL_QUEUE.filter(c => c.status === state.aqFilter);
+  const allChecked = visible.every(c => state.aqCheckedIds.has(c.id));
+  if (allChecked) visible.forEach(c => state.aqCheckedIds.delete(c.id));
+  else visible.forEach(c => state.aqCheckedIds.add(c.id));
+  renderApproverView();
+}
+
+function selectApproverItem(id) {
+  state.aqSelectedId = id;
+  renderApproverView();
+}
+
+function approveQueueItem(id) {
+  const item = APPROVAL_QUEUE.find(c => c.id === id); if (!item) return;
+  item.status = 'approved';
+  state.aqCheckedIds.delete(id);
+  showToast(`✓ Approved: ${item.name}`);
+  renderApproverView();
+}
+
+function reviseQueueItem(id) {
+  const item = APPROVAL_QUEUE.find(c => c.id === id); if (!item) return;
+  item.status = 'revision';
+  state.aqCheckedIds.delete(id);
+  showToast(`⚠ Revision requested: ${item.name}`);
+  renderApproverView();
+}
+
+function rejectQueueItem(id) {
+  const item = APPROVAL_QUEUE.find(c => c.id === id); if (!item) return;
+  item.status = 'rejected';
+  state.aqCheckedIds.delete(id);
+  showToast(`✗ Rejected: ${item.name}`);
+  renderApproverView();
+}
+
+function bulkApproveChecked() {
+  let count = 0;
+  state.aqCheckedIds.forEach(id => {
+    const item = APPROVAL_QUEUE.find(c => c.id === id);
+    if (item && item.status === 'pending') { item.status = 'approved'; count++; }
+  });
+  state.aqCheckedIds.clear();
+  showToast(`✓ Bulk approved ${count} creative${count!==1?'s':''}`);
+  renderApproverView();
+}
+
+function renderApproverView() {
+  // Counts
+  ['pending','revision','approved','rejected'].forEach(s => {
+    const el = document.getElementById('aqCount' + s.charAt(0).toUpperCase()+s.slice(1));
+    if (el) el.textContent = APPROVAL_QUEUE.filter(c => c.status === s).length;
+  });
+  // List
+  const list = APPROVAL_QUEUE.filter(c => c.status === state.aqFilter);
+  const listEl = document.getElementById('aqList');
+  const badgeClass = { pending:'aq-b-pending', approved:'aq-b-approved', revision:'aq-b-rev', rejected:'aq-b-rejected' }[state.aqFilter];
+  const badgeText  = { pending:'Pending', approved:'Approved', revision:'Revision', rejected:'Rejected' }[state.aqFilter];
+  listEl.innerHTML = list.length === 0
+    ? `<div style="padding:28px 16px;text-align:center;color:var(--text-muted);font-size:12px">No creatives in this state.</div>`
+    : list.map(c => `
+      <div class="aq-item ${state.aqCheckedIds.has(c.id)?'checked':''} ${state.aqSelectedId===c.id?'selected':''}" onclick="selectApproverItem('${c.id}')">
+        <div class="aq-checkbox" onclick="event.stopPropagation();toggleApproverCheck('${c.id}')">${state.aqCheckedIds.has(c.id)?'✓':''}</div>
+        <div class="aq-thumb"><div class="aq-thumb-inner">${c.headline}</div><div class="aq-thumb-bar"></div></div>
+        <div class="aq-info">
+          <div class="aq-name">${c.name}</div>
+          <div class="aq-sub">${c.supplier} · ${c.template} · ${c.submittedAt}</div>
+        </div>
+        <span class="aq-badge ${badgeClass}">${badgeText}</span>
+      </div>`).join('');
+
+  // Toolbar
+  const checked = state.aqCheckedIds.size;
+  document.getElementById('aqSelCount').textContent = `${checked} selected`;
+  const previewBtn = document.getElementById('aqPreviewBtn');
+  previewBtn.disabled = checked < 1;
+  previewBtn.textContent = `▦ Preview (${checked})`;
+
+  // Center pane
+  const centerEl = document.getElementById('aqCenter');
+  if (checked >= 2) {
+    centerEl.innerHTML = `<div class="aq-empty"><strong>${checked} creatives selected</strong><div style="margin-top:8px;font-size:12px">Click <strong>▦ Preview</strong> to view all selected sizes side-by-side.</div>${bulkActionBar()}</div>`;
+    return;
+  }
+  if (!state.aqSelectedId) {
+    centerEl.innerHTML = `<div class="aq-empty">Select a creative on the left to review — or check multiple to preview sizes together.</div>`;
+    return;
+  }
+  const sub = APPROVAL_QUEUE.find(c => c.id === state.aqSelectedId);
+  if (!sub) { centerEl.innerHTML = `<div class="aq-empty">Creative not found.</div>`; return; }
+  const supKind = sub.supplierKind === 'managed' ? '👤 Managed Service' : '🏭 Self-Service Supplier';
+  const flagsHtml = sub.aiFlags.length
+    ? `<div style="background:#FFF3E0;border:1px solid #FFCC80;border-radius:6px;padding:10px 12px;font-size:12px;color:#E65100"><strong>⚠ AI flags:</strong><ul style="margin:4px 0 0 18px">${sub.aiFlags.map(f=>`<li>${f}</li>`).join('')}</ul></div>`
+    : `<div style="background:#E8F5E9;border:1px solid #A5D6A7;border-radius:6px;padding:8px 12px;font-size:12px;color:#2E7D32">✓ No AI flags — all automated checks passed.</div>`;
+  const bannerScale = Math.min(520 / sub.w, 300 / sub.h, 1);
+  const bw = Math.round(sub.w * bannerScale), bh = Math.round(sub.h * bannerScale);
+  centerEl.innerHTML = `
+    <div class="aq-detail-card">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+        <div>
+          <h3>${sub.name}</h3>
+          <div class="aq-detail-meta">${sub.supplier} · ${supKind} · Template: ${sub.template} · Submitted ${sub.submittedAt}</div>
+        </div>
+        <div style="background:${sub.aiScore>=85?'#E8F5E9':sub.aiScore>=70?'#FFF8E1':'#FFEBEE'};color:${sub.aiScore>=85?'#2E7D32':sub.aiScore>=70?'#F57C00':'#E53935'};padding:4px 10px;border-radius:12px;font-size:11px;font-weight:800;white-space:nowrap">AI ${sub.aiScore}%</div>
+      </div>
+      <div class="aq-preview-banner">
+        <div style="width:${bw}px;height:${bh}px;background:linear-gradient(135deg,#1E3A5F 0%,#2e5087 100%);border-radius:4px;position:relative;color:#fff;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.16)">
+          <div style="padding:${Math.max(6,bh*0.08)}px ${Math.max(8,bw*0.05)}px">
+            <div style="font-size:${Math.max(11,bh*0.13)}px;font-weight:800;line-height:1.15;max-width:75%">${sub.headline}</div>
+            <div style="font-size:${Math.max(9,bh*0.08)}px;opacity:0.9;margin-top:3px">${sub.sub}</div>
+          </div>
+          <div style="position:absolute;bottom:${Math.max(10,bh*0.18)}px;right:${Math.max(8,bw*0.04)}px;background:var(--orange);padding:${Math.max(3,bh*0.03)}px ${Math.max(8,bw*0.03)}px;font-size:${Math.max(9,bh*0.08)}px;font-weight:700;border-radius:3px">${sub.cta}</div>
+          <div style="position:absolute;bottom:0;left:0;right:0;height:${Math.max(10,bh*0.14)}px;background:#F96302;display:flex;align-items:center;padding:0 ${Math.max(6,bw*0.03)}px;font-size:${Math.max(8,bh*0.07)}px;font-weight:900">THE HOME DEPOT®</div>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">Dimensions: <strong>${sub.w} × ${sub.h}</strong> · Platform: ${sub.platform.toUpperCase()}</div>
+      ${flagsHtml}
+      ${sub.status === 'pending' ? `
+        <div class="aq-action-row">
+          <button class="revise" onclick="reviseQueueItem('${sub.id}')">⚠ Request Revision</button>
+          <button class="reject" onclick="rejectQueueItem('${sub.id}')">✗ Reject</button>
+          <button class="approve" onclick="approveQueueItem('${sub.id}')">✓ Approve</button>
+        </div>` : `
+        <div style="margin-top:10px;padding:10px 12px;background:var(--bg);border-radius:6px;font-size:12px;color:var(--text-muted)">
+          Status: <strong style="color:var(--text)">${sub.status}</strong>
+        </div>`}
+    </div>
+  `;
+}
+
+function bulkActionBar() {
+  const eligible = [...state.aqCheckedIds].filter(id => {
+    const it = APPROVAL_QUEUE.find(c => c.id === id);
+    return it && it.status === 'pending';
+  });
+  if (eligible.length === 0) return '';
+  return `<div style="margin-top:18px"><button class="tbtn primary" onclick="bulkApproveChecked()">✓ Bulk approve ${eligible.length} pending</button></div>`;
+}
+
+// ══════════════════════════════════════════
+// MULTI-SIZE PREVIEW (grid modal)
+// ══════════════════════════════════════════
+function openMultiSizePreview(ids) {
+  const checkedIds = ids || [...state.aqCheckedIds];
+  const creatives = checkedIds.map(id => APPROVAL_QUEUE.find(c => c.id === id)).filter(Boolean);
+  if (creatives.length === 0) { showToast('Select at least one creative'); return; }
+  const cards = creatives.map(c => {
+    const maxW = 260, maxH = 180;
+    const scale = Math.min(maxW / c.w, maxH / c.h, 1);
+    const bw = Math.round(c.w * scale), bh = Math.round(c.h * scale);
+    const hSize = Math.max(7, bh * 0.13), sSize = Math.max(6, bh * 0.08);
+    return `
+      <div class="msp-card">
+        <div class="msp-banner" style="width:${bw}px;height:${bh}px">
+          <div class="msp-banner-inner">
+            <div class="msp-banner-h" style="font-size:${hSize}px">${c.headline}</div>
+            <div class="msp-banner-s" style="font-size:${sSize}px">${c.sub}</div>
+          </div>
+          <div class="msp-banner-cta">${c.cta}</div>
+          <div class="msp-banner-brand"></div>
+        </div>
+        <div class="msp-card-label">${c.w}×${c.h}</div>
+        <div class="msp-card-sub">${c.supplier} · ${c.template}</div>
+      </div>`;
+  }).join('');
+  showModal(`
+    <div style="padding:4px 0 8px">
+      <div style="font-size:15px;font-weight:800;color:var(--text);margin-bottom:2px">▦ Multi-size Preview</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:10px">${creatives.length} creative${creatives.length!==1?'s':''} — side-by-side comparison</div>
+      <div class="msp-grid">${cards}</div>
+      <div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+        <button class="ai-action-btn" onclick="closeModalEl()">Close</button>
+        <button class="ai-action-btn primary" onclick="bulkApproveChecked();closeModalEl()">✓ Approve all pending</button>
+      </div>
+    </div>
+  `);
+}
+
+// ══════════════════════════════════════════
+// ADMIN VIEW (Templates + Approved Copy)
+// ══════════════════════════════════════════
+function setAdminTab(tab) {
+  state.adminTab = tab;
+  ['templates','copy','brand'].forEach(t => {
+    const el = document.getElementById('atab' + (t === 'copy' ? 'Copy' : t === 'brand' ? 'Brand' : 'Templates'));
+    if (el) el.classList.toggle('active', t === tab);
+  });
+  renderAdminView();
+}
+
+function renderAdminView() {
+  const body = document.getElementById('adminBody');
+  if (state.adminTab === 'templates') {
+    body.innerHTML = `
+      <div class="admin-section">
+        <button class="admin-new-btn" onclick="createNewTemplate()">+ New Template</button>
+        <h2>Templates</h2>
+        <p class="sub">Define structure, sizes, brand zones, and constraints. Suppliers select from published templates.</p>
+        <div class="admin-grid">
+          ${ADMIN_TEMPLATES.map(t => `
+            <div class="admin-card">
+              <div class="admin-card-hd">
+                <span class="admin-card-title">${t.name}</span>
+                <span class="admin-card-pill ${t.status==='live'?'admin-pill-live':'admin-pill-draft'}">${t.status==='live'?'Live':'Draft'}</span>
+              </div>
+              <div class="admin-card-body">
+                <div>Channels: ${t.channels.join(' · ')}</div>
+                <div>Sizes: ${t.sizes} · Headline ≤${t.headlineMax} · Sub ≤${t.subMax} chars</div>
+                <div>Brand: ${t.brand}</div>
+              </div>
+              <div class="admin-stat-row">
+                <span>${t.useCount} creatives built</span>
+                <span>Last edited 2 days ago</span>
+              </div>
+              <div class="admin-card-actions">
+                <button onclick="editTemplate('${t.id}')">Edit</button>
+                <button class="primary" onclick="previewTemplate('${t.id}')">Preview</button>
+              </div>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  } else if (state.adminTab === 'copy') {
+    body.innerHTML = `
+      <div class="admin-section">
+        <button class="admin-new-btn" onclick="addCopyRow()">+ New Copy</button>
+        <h2>Approved Copy Library</h2>
+        <p class="sub">Pre-approved headlines, subheadings, CTAs, and legal text. Self-service suppliers pick from this list only.</p>
+        <table class="admin-table">
+          <thead><tr>
+            <th style="width:90px">Type</th>
+            <th>Text</th>
+            <th style="width:110px">Audience</th>
+            <th style="width:170px">Templates</th>
+            <th style="width:140px">Approved By</th>
+            <th style="width:100px">Actions</th>
+          </tr></thead>
+          <tbody>
+            ${ADMIN_COPY.map(c => `
+              <tr data-id="${c.id}">
+                <td><span class="tag-pill tp-${c.tag.toLowerCase()}">${c.tag}</span></td>
+                <td><input value="${c.text.replace(/"/g,'&quot;')}" onchange="updateCopyField('${c.id}','text',this.value)"></td>
+                <td><input value="${c.audience}" onchange="updateCopyField('${c.id}','audience',this.value)"></td>
+                <td><input value="${c.templates}" onchange="updateCopyField('${c.id}','templates',this.value)"></td>
+                <td style="font-size:11px;color:var(--text-muted)">${c.approvedBy}</td>
+                <td>
+                  <div class="admin-row-actions">
+                    <button onclick="duplicateCopy('${c.id}')">Copy</button>
+                    <button class="archive" onclick="archiveCopy('${c.id}')">Archive</button>
+                  </div>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>`;
+  } else {
+    body.innerHTML = `
+      <div class="admin-section">
+        <h2>Brand Guidelines</h2>
+        <p class="sub">Global brand constraints applied to every template. AI validates creatives against these rules.</p>
+        <div class="admin-grid">
+          <div class="admin-card">
+            <div class="admin-card-title" style="margin-bottom:10px">Colors</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <div style="text-align:center"><div style="width:48px;height:48px;background:#F96302;border-radius:6px;border:1px solid var(--border)"></div><div style="font-size:10px;margin-top:4px">#F96302</div></div>
+              <div style="text-align:center"><div style="width:48px;height:48px;background:#FFFFFF;border-radius:6px;border:1px solid var(--border)"></div><div style="font-size:10px;margin-top:4px">#FFFFFF</div></div>
+              <div style="text-align:center"><div style="width:48px;height:48px;background:#333333;border-radius:6px;border:1px solid var(--border)"></div><div style="font-size:10px;margin-top:4px">#333333</div></div>
+            </div>
+          </div>
+          <div class="admin-card">
+            <div class="admin-card-title" style="margin-bottom:10px">Typography</div>
+            <div class="admin-card-body">Primary: Helvetica Neue Bold<br>Secondary: Helvetica Neue Regular<br>Min size: 9pt</div>
+          </div>
+          <div class="admin-card">
+            <div class="admin-card-title" style="margin-bottom:10px">Rules</div>
+            <div class="admin-card-body">
+              • No unsubstantiated superlatives ("Best", "Lowest")<br>
+              • Brand bar required on all placements<br>
+              • Min contrast ratio 4.5:1 (WCAG AA)<br>
+              • Logo safe-zone: 8px padding
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }
+}
+
+function createNewTemplate() {
+  showToast('New template wizard — prototype');
+}
+function editTemplate(id) {
+  const t = ADMIN_TEMPLATES.find(x => x.id === id);
+  showToast(`Editing "${t.name}" — prototype`);
+}
+function previewTemplate(id) {
+  const t = ADMIN_TEMPLATES.find(x => x.id === id);
+  showToast(`Preview "${t.name}" — prototype`);
+}
+function updateCopyField(id, field, value) {
+  const c = ADMIN_COPY.find(x => x.id === id);
+  if (c) { c[field] = value; showToast('✓ Copy updated'); }
+}
+function duplicateCopy(id) {
+  const c = ADMIN_COPY.find(x => x.id === id);
+  if (!c) return;
+  const newId = 'c' + (ADMIN_COPY.length + 1);
+  ADMIN_COPY.push({ ...c, id: newId, text: c.text + ' (copy)' });
+  showToast('✓ Duplicated');
+  renderAdminView();
+}
+function archiveCopy(id) {
+  ADMIN_COPY = ADMIN_COPY.filter(c => c.id !== id);
+  showToast('Archived from library');
+  renderAdminView();
+}
+function addCopyRow() {
+  const newId = 'c' + Date.now();
+  ADMIN_COPY.unshift({ id:newId, tag:'HEADLINE', text:'New headline…', audience:'Any', templates:'All', approvedBy:'Pending', live:false });
+  showToast('+ New copy row added');
+  renderAdminView();
 }
 
 // ══════════════════════════════════════════
@@ -1339,6 +1936,8 @@ function init() {
   renderComments();
   updateCanvas();
   applyLayerOrder();
+  // Role init — default to Supplier Self-Service (most common demo scenario)
+  setRole('supplier-self');
 }
 
 // ── Lifecycle steps ──
