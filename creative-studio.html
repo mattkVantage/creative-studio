@@ -175,6 +175,23 @@ body { font-family: 'Helvetica Neue', Arial, Calibri, 'Segoe UI', sans-serif; ba
 /* z-index managed dynamically by layer panel JS */
 .canvas-text-overlay, .canvas-cta-btn, .canvas-legal, .canvas-brand-bar { z-index: 10; }
 
+/* ── Crop mode ── */
+.crop-actionbar { position: absolute; top: 8px; left: 50%; transform: translateX(-50%); z-index: 200; background: #202020; border-radius: 6px; padding: 6px 8px; display: flex; gap: 6px; align-items: center; box-shadow: 0 4px 16px rgba(0,0,0,0.35); font-family: inherit; }
+.crop-actionbar .cab-label { color: #fff; font-size: 11px; font-weight: 700; padding: 0 6px; letter-spacing: 0.3px; }
+.crop-actionbar button { padding: 5px 10px; font-size: 11.5px; font-weight: 700; border-radius: 4px; cursor: pointer; border: none; font-family: inherit; }
+.crop-actionbar button.apply { background: var(--orange); color: #fff; }
+.crop-actionbar button.apply:hover { background: var(--orange-hover); }
+.crop-actionbar button.cancel { background: rgba(255,255,255,0.12); color: #fff; }
+.crop-actionbar button.cancel:hover { background: rgba(255,255,255,0.22); }
+.crop-presets { display: flex; gap: 3px; padding: 0 4px; border-right: 1px solid rgba(255,255,255,0.18); margin-right: 2px; }
+.crop-preset { padding: 4px 7px; font-size: 10.5px; font-weight: 600; background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.82); border: none; border-radius: 3px; cursor: pointer; font-family: inherit; }
+.crop-preset:hover { background: rgba(255,255,255,0.18); color: #fff; }
+.crop-preset.active { background: var(--orange); color: #fff; }
+body.crop-mode .canvas-text-overlay,
+body.crop-mode .canvas-cta-btn,
+body.crop-mode .canvas-legal,
+body.crop-mode .canvas-brand-bar { pointer-events: none; opacity: 0.35; }
+
 /* ── Layers panel ── */
 .layers-list { padding: 0 14px 12px; display: flex; flex-direction: column; gap: 4px; }
 .layer-row { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border: 1px solid #DDE3EA; border-radius: 6px; background: #fff; cursor: default; transition: background 0.12s; }
@@ -676,6 +693,10 @@ body.role-supplier-self .panel-left-scroll .upload-zone { display: none; }
           <div class="adj-row">
             <div class="adj-label-row"><span class="adj-label">Saturation</span><span class="adj-value" id="adjSatVal">100%</span></div>
             <input type="range" class="adj-slider" id="adjSat" min="0" max="200" value="100" oninput="updateAdj('saturation',+this.value)">
+          </div>
+          <!-- Crop -->
+          <div class="adj-btn-row">
+            <button class="adj-btn" id="adjCropBtn" onclick="enterCropMode()" style="flex:2">✂ Crop Image…</button>
           </div>
           <!-- Flip + Reset -->
           <div class="adj-btn-row">
@@ -2304,6 +2325,228 @@ function applyImageAdj(doCache = true) {
   K.imgNode.contrast(a.contrast - 100);               // -80 to 80
   K.imgNode.saturation((a.saturation - 100) / 100);   // -1 to 1
 
+  K.layer && K.layer.batchDraw();
+}
+
+// ══════════════════════════════════════════
+// IMAGE CROP (Konva overlay rect + apply via .crop())
+// ══════════════════════════════════════════
+const CROP = { active:false, rect:null, shade:null, xform:null, aspect:null };
+
+function enterCropMode() {
+  if (!K.imgNode || !K.stage) { showToast('Select an image first'); return; }
+  if (CROP.active) return;
+  CROP.active = true;
+  document.body.classList.add('crop-mode');
+
+  const sw = K.stage.width(), sh = K.stage.height();
+
+  // Disable dragging + hide the image transformer while cropping
+  K.imgNode.draggable(false);
+  if (K.transformer) K.transformer.nodes([]);
+
+  // Dark shade around the crop rect (drawn with 4 rects, updated in sync)
+  CROP.shade = {
+    top:    new Konva.Rect({ fill:'rgba(0,0,0,0.55)', listening:false }),
+    bottom: new Konva.Rect({ fill:'rgba(0,0,0,0.55)', listening:false }),
+    left:   new Konva.Rect({ fill:'rgba(0,0,0,0.55)', listening:false }),
+    right:  new Konva.Rect({ fill:'rgba(0,0,0,0.55)', listening:false }),
+  };
+  Object.values(CROP.shade).forEach(r => K.layer.add(r));
+
+  // Crop rectangle — starts at inset from stage
+  const inset = Math.round(Math.min(sw, sh) * 0.12);
+  CROP.rect = new Konva.Rect({
+    x: inset, y: inset, width: sw - inset*2, height: sh - inset*2,
+    stroke: '#C4511A', strokeWidth: 2, dash: [6, 4],
+    draggable: true, listening: true, name: 'cropRect',
+  });
+  K.layer.add(CROP.rect);
+
+  // Grid lines inside crop (rule of thirds) - redrawn on resize/drag
+  CROP.grid = new Konva.Group({ listening:false });
+  K.layer.add(CROP.grid);
+
+  CROP.xform = new Konva.Transformer({
+    nodes:[CROP.rect], rotateEnabled:false, keepRatio:false,
+    borderStroke:'#C4511A', borderStrokeWidth:1,
+    anchorStroke:'#C4511A', anchorFill:'#fff', anchorSize:10, anchorCornerRadius:2,
+    enabledAnchors:['top-left','top-right','bottom-left','bottom-right','middle-left','middle-right','top-center','bottom-center'],
+    boundBoxFunc: (oldBox, newBox) => {
+      // Clamp to stage
+      if (newBox.x < 0) { newBox.width += newBox.x; newBox.x = 0; }
+      if (newBox.y < 0) { newBox.height += newBox.y; newBox.y = 0; }
+      if (newBox.x + newBox.width > sw)  newBox.width  = sw - newBox.x;
+      if (newBox.y + newBox.height > sh) newBox.height = sh - newBox.y;
+      if (newBox.width < 20 || newBox.height < 20) return oldBox;
+      if (CROP.aspect) {
+        // Enforce aspect ratio (w/h)
+        newBox.height = newBox.width / CROP.aspect;
+        if (newBox.y + newBox.height > sh) {
+          newBox.height = sh - newBox.y;
+          newBox.width = newBox.height * CROP.aspect;
+        }
+      }
+      return newBox;
+    },
+  });
+  K.layer.add(CROP.xform);
+
+  CROP.rect.on('dragmove transform', updateCropOverlay);
+  CROP.rect.on('dragend transformend', () => { CROP.rect.scaleX(1); CROP.rect.scaleY(1); updateCropOverlay(); });
+
+  updateCropOverlay();
+  renderCropActionBar();
+  K.layer.batchDraw();
+}
+
+function updateCropOverlay() {
+  if (!CROP.active || !CROP.rect) return;
+  const sw = K.stage.width(), sh = K.stage.height();
+  // Actual rect (with scale applied during transform)
+  const r = {
+    x: CROP.rect.x(),
+    y: CROP.rect.y(),
+    w: CROP.rect.width()  * CROP.rect.scaleX(),
+    h: CROP.rect.height() * CROP.rect.scaleY(),
+  };
+  CROP.shade.top.setAttrs   ({ x:0, y:0,       width:sw,  height:r.y });
+  CROP.shade.bottom.setAttrs({ x:0, y:r.y+r.h, width:sw,  height:sh-(r.y+r.h) });
+  CROP.shade.left.setAttrs  ({ x:0, y:r.y,     width:r.x, height:r.h });
+  CROP.shade.right.setAttrs ({ x:r.x+r.w, y:r.y, width:sw-(r.x+r.w), height:r.h });
+  // Keep shade + xform on top of image
+  Object.values(CROP.shade).forEach(s => s.moveToTop());
+  CROP.rect.moveToTop();
+  // Rebuild grid (3x3)
+  CROP.grid.destroyChildren();
+  for (let i=1; i<3; i++) {
+    CROP.grid.add(new Konva.Line({ points:[r.x + r.w*i/3, r.y, r.x + r.w*i/3, r.y+r.h], stroke:'rgba(255,255,255,0.5)', strokeWidth:1 }));
+    CROP.grid.add(new Konva.Line({ points:[r.x, r.y + r.h*i/3, r.x+r.w, r.y + r.h*i/3], stroke:'rgba(255,255,255,0.5)', strokeWidth:1 }));
+  }
+  CROP.grid.moveToTop();
+  CROP.xform && CROP.xform.moveToTop();
+  K.layer.batchDraw();
+}
+
+function setCropAspect(ratio) {
+  CROP.aspect = ratio; // number or null for freeform
+  document.querySelectorAll('.crop-preset').forEach(b => b.classList.toggle('active', b.dataset.ratio === String(ratio)));
+  if (ratio && CROP.rect) {
+    const sw = K.stage.width(), sh = K.stage.height();
+    // Fit current height to ratio
+    let w = CROP.rect.width() * CROP.rect.scaleX();
+    let h = w / ratio;
+    if (h > sh - CROP.rect.y()) { h = sh - CROP.rect.y(); w = h * ratio; }
+    CROP.rect.scaleX(1); CROP.rect.scaleY(1);
+    CROP.rect.width(w); CROP.rect.height(h);
+    updateCropOverlay();
+  }
+}
+
+function renderCropActionBar() {
+  const existing = document.getElementById('cropActionBar');
+  if (existing) existing.remove();
+  const bar = document.createElement('div');
+  bar.id = 'cropActionBar';
+  bar.className = 'crop-actionbar';
+  bar.innerHTML = `
+    <span class="cab-label">✂ Crop</span>
+    <div class="crop-presets">
+      <button class="crop-preset active" data-ratio="null" onclick="setCropAspect(null)">Free</button>
+      <button class="crop-preset" data-ratio="1" onclick="setCropAspect(1)">1:1</button>
+      <button class="crop-preset" data-ratio="${4/3}" onclick="setCropAspect(4/3)">4:3</button>
+      <button class="crop-preset" data-ratio="${16/9}" onclick="setCropAspect(16/9)">16:9</button>
+      <button class="crop-preset" data-ratio="${3/2}" onclick="setCropAspect(3/2)">3:2</button>
+      <button class="crop-preset" data-ratio="fit" onclick="setCropAspectFit()">Fit Ad</button>
+    </div>
+    <button class="cancel" onclick="cancelCrop()">Cancel</button>
+    <button class="apply"  onclick="applyCrop()">Apply Crop ✓</button>
+  `;
+  document.getElementById('canvasOuter').appendChild(bar);
+}
+
+function setCropAspectFit() {
+  const sw = K.stage.width(), sh = K.stage.height();
+  setCropAspect(sw / sh);
+  document.querySelectorAll('.crop-preset').forEach(b => b.classList.remove('active'));
+  const btn = document.querySelector('.crop-preset[data-ratio="fit"]');
+  if (btn) btn.classList.add('active');
+}
+
+function cancelCrop() {
+  _teardownCrop();
+  showToast('Crop cancelled');
+}
+
+function applyCrop() {
+  if (!CROP.active || !CROP.rect || !K.imgNode) { _teardownCrop(); return; }
+  // Crop rect in stage coords
+  const sw = K.stage.width(), sh = K.stage.height();
+  const cx = CROP.rect.x();
+  const cy = CROP.rect.y();
+  const cw = CROP.rect.width()  * CROP.rect.scaleX();
+  const ch = CROP.rect.height() * CROP.rect.scaleY();
+
+  // Convert to image-space (accounting for image position + current displayed size + flip)
+  const img = K.imgNode.image();
+  const iw = img.width, ih = img.height;
+  const dispW = K.imgNode.width()  * Math.abs(K.imgNode.scaleX());
+  const dispH = K.imgNode.height() * Math.abs(K.imgNode.scaleY());
+  // Top-left of the displayed image in stage coords (honoring any negative scale = flip, which is centered via konva; we handle by using absolute bbox)
+  const box = K.imgNode.getClientRect({ skipTransform: false });
+  const relX = (cx - box.x) / box.width;   // 0..1 within displayed image
+  const relY = (cy - box.y) / box.height;
+  const relW = cw / box.width;
+  const relH = ch / box.height;
+
+  // Respect flip in crop mapping
+  const flipH = state.imgAdj.flipH, flipV = state.imgAdj.flipV;
+  const srcX = (flipH ? 1 - (relX + relW) : relX) * iw;
+  const srcY = (flipV ? 1 - (relY + relH) : relY) * ih;
+  const srcW = relW * iw;
+  const srcH = relH * ih;
+
+  // Apply via Konva's source-side crop, then resize/fit to stage
+  K.imgNode.crop({ x: Math.max(0,srcX), y: Math.max(0,srcY), width: Math.max(1,srcW), height: Math.max(1,srcH) });
+
+  // After cropping, the image's intrinsic displayed size should fit to stage like "cover"
+  const newScale = Math.max(sw / srcW, sh / srcH);
+  const newW = srcW * newScale, newH = srcH * newScale;
+  K.imgNode.width(srcW);
+  K.imgNode.height(srcH);
+  // Reset zoom/pan, keep flip
+  state.imgAdj.zoom = Math.round(newScale * 100);
+  state.imgAdj.posX = 0; state.imgAdj.posY = 0;
+  // Reposition: center at stage
+  K.imgNode.x((sw - newW) / 2);
+  K.imgNode.y((sh - newH) / 2);
+  K.imgNode.scaleX(newScale * (flipH ? -1 : 1));
+  K.imgNode.scaleY(newScale * (flipV ? -1 : 1));
+
+  // Re-cache so filters re-apply
+  K.imgNode.cache();
+  K.imgNode.filters([Konva.Filters.Brighten, Konva.Filters.Contrast, Konva.Filters.HSL]);
+  K.imgNode.brightness((state.imgAdj.brightness - 100) / 100);
+  K.imgNode.contrast(state.imgAdj.contrast - 100);
+  K.imgNode.saturation((state.imgAdj.saturation - 100) / 100);
+
+  _teardownCrop();
+  syncAdjSliders();
+  K.layer.batchDraw();
+  showToast('✓ Image cropped');
+}
+
+function _teardownCrop() {
+  CROP.active = false;
+  document.body.classList.remove('crop-mode');
+  const bar = document.getElementById('cropActionBar');
+  if (bar) bar.remove();
+  if (CROP.xform) { CROP.xform.destroy(); CROP.xform = null; }
+  if (CROP.rect)  { CROP.rect.destroy();  CROP.rect  = null; }
+  if (CROP.grid)  { CROP.grid.destroy();  CROP.grid  = null; }
+  if (CROP.shade) { Object.values(CROP.shade).forEach(r => r.destroy()); CROP.shade = null; }
+  CROP.aspect = null;
+  if (K.imgNode) K.imgNode.draggable(true);
   K.layer && K.layer.batchDraw();
 }
 
