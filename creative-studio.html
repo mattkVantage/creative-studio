@@ -1199,9 +1199,9 @@ const APPROVAL_QUEUE = [
   { id:'q2', supplier:'Rust Oleum',        supplierKind:'supplier',   name:'Spring Paint Sale — 728×90',  template:'Spring Paint Sale',  platform:'onsite', w:728, h:90,  headline:'30% Off Interior Paints', sub:'Premium finishes at unbeatable prices', cta:'Shop Now', submittedAt:'4 hr ago', status:'pending',  aiScore:91, aiFlags:[] },
   { id:'q3', supplier:'Rust Oleum',        supplierKind:'supplier',   name:'Best Paint Sale — 970×250',    template:'Spring Paint Sale',  platform:'onsite', w:970, h:250, headline:'Best Paint Sale Ever!', sub:'Highest quality at the lowest price', cta:'Shop Now', submittedAt:'1 hr ago', status:'pending',  aiScore:61, aiFlags:['Superlative "Best" needs substantiation','Superlative "lowest" needs substantiation'] },
   { id:'q4', supplier:'HD Internal (Susan)', supplierKind:'managed',  name:'Memorial Day Hero — 1920×400', template:'Custom (Managed)',   platform:'onsite', w:1920,h:400, headline:'Memorial Day Savings', sub:'Up to 50% off outdoor must-haves', cta:'Shop Deals', submittedAt:'30 min ago', status:'pending', aiScore:88, aiFlags:[] },
-  { id:'q5', supplier:'Samsung',           supplierKind:'supplier',   name:'Galaxy S25 — 300×250',         template:'Seasonal Promo',     platform:'onsite', w:300, h:250, headline:'Galaxy S25 — Now at HD', sub:'Pick up in-store or online', cta:'Shop Now', submittedAt:'1 day ago', status:'approved', aiScore:95, aiFlags:[] },
-  { id:'q6', supplier:'Kohler',            supplierKind:'supplier',   name:'Kitchen Sinks — 300×600',      template:'PLA Default',        platform:'onsite', w:300, h:600, headline:'Bath Fixtures 20% Off', sub:'Upgrade your bathroom today', cta:'Shop Now', submittedAt:'2 days ago', status:'revision', aiScore:78, aiFlags:['Contrast below WCAG AA'] },
-  { id:'q7', supplier:'Kohler',            supplierKind:'supplier',   name:'Best Kitchen Sinks — 728×90',  template:'PLA Default',        platform:'onsite', w:728, h:90,  headline:'Best Kitchen Sinks', sub:'Top-rated by consumers', cta:'Shop Now', submittedAt:'3 days ago', status:'rejected', aiScore:52, aiFlags:['Superlative "Best" not approved'] },
+  { id:'q5', supplier:'Samsung',           supplierKind:'supplier',   name:'Galaxy S25 — 300×250',         template:'Seasonal Promo',     platform:'onsite', w:300, h:250, headline:'Galaxy S25 — Now at HD', sub:'Pick up in-store or online', cta:'Shop Now', submittedAt:'1 day ago', status:'approved', aiScore:95, aiFlags:[], history:[{action:'approved', note:'Brand assets verified, legal cleared for carrier-neutral messaging.', reviewer:'Susan Berenson (OAM)', at:'Apr 8, 3:42 PM'}] },
+  { id:'q6', supplier:'Kohler',            supplierKind:'supplier',   name:'Kitchen Sinks — 300×600',      template:'PLA Default',        platform:'onsite', w:300, h:600, headline:'Bath Fixtures 20% Off', sub:'Upgrade your bathroom today', cta:'Shop Now', submittedAt:'2 days ago', status:'revision', aiScore:78, aiFlags:['Contrast below WCAG AA'], history:[{action:'revision', note:'CTA text contrast fails WCAG AA against the blue background — please darken or lift. Also headline says "Bath Fixtures" but creative name is Kitchen Sinks.', reviewer:'Susan Berenson (OAM)', at:'Apr 7, 11:18 AM'}] },
+  { id:'q7', supplier:'Kohler',            supplierKind:'supplier',   name:'Best Kitchen Sinks — 728×90',  template:'PLA Default',        platform:'onsite', w:728, h:90,  headline:'Best Kitchen Sinks', sub:'Top-rated by consumers', cta:'Shop Now', submittedAt:'3 days ago', status:'rejected', aiScore:52, aiFlags:['Superlative "Best" not approved'], history:[{action:'rejected', note:'Superlative claim "Best" requires substantiation per Legal. "Top-rated by consumers" also needs a citation source. Re-submit with approved copy from the library.', reviewer:'Susan Berenson (OAM)', at:'Apr 6, 4:05 PM'}] },
   { id:'q8', supplier:'HD Internal (Susan)', supplierKind:'managed',  name:'July 4th Hero — 1920×400',     template:'Custom (Managed)',   platform:'onsite', w:1920,h:400, headline:'Star-Spangled Savings', sub:'Celebrate with up to 40% off', cta:'Shop Sale', submittedAt:'5 min ago', status:'pending', aiScore:92, aiFlags:[] },
 ];
 
@@ -1379,9 +1379,24 @@ function selectApproverItem(id) {
   renderApproverView();
 }
 
+function _aqNowStamp() {
+  return new Date().toLocaleString('en-US', { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' });
+}
+function _aqReviewer() { return 'Susan Berenson (OAM)'; }
+function _aqReadNote() {
+  const el = document.getElementById('aqNoteInput');
+  return el ? el.value.trim() : '';
+}
+function _aqPushHistory(item, action, note) {
+  item.history = item.history || [];
+  item.history.unshift({ action, note: note || '', reviewer: _aqReviewer(), at: _aqNowStamp() });
+}
+
 function approveQueueItem(id) {
   const item = APPROVAL_QUEUE.find(c => c.id === id); if (!item) return;
+  const note = _aqReadNote();
   item.status = 'approved';
+  _aqPushHistory(item, 'approved', note || 'All elements cleared — approved for trafficking.');
   state.aqCheckedIds.delete(id);
   showToast(`✓ Approved: ${item.name}`);
   renderApproverView();
@@ -1389,7 +1404,10 @@ function approveQueueItem(id) {
 
 function reviseQueueItem(id) {
   const item = APPROVAL_QUEUE.find(c => c.id === id); if (!item) return;
+  const note = _aqReadNote();
+  if (!note) { showToast('Please add a revision note first.'); const n=document.getElementById('aqNoteInput'); if (n) n.focus(); return; }
   item.status = 'revision';
+  _aqPushHistory(item, 'revision', note);
   state.aqCheckedIds.delete(id);
   showToast(`⚠ Revision requested: ${item.name}`);
   renderApproverView();
@@ -1397,17 +1415,25 @@ function reviseQueueItem(id) {
 
 function rejectQueueItem(id) {
   const item = APPROVAL_QUEUE.find(c => c.id === id); if (!item) return;
+  const note = _aqReadNote();
+  if (!note) { showToast('Please add a reason before rejecting.'); const n=document.getElementById('aqNoteInput'); if (n) n.focus(); return; }
   item.status = 'rejected';
+  _aqPushHistory(item, 'rejected', note);
   state.aqCheckedIds.delete(id);
   showToast(`✗ Rejected: ${item.name}`);
   renderApproverView();
 }
 
 function bulkApproveChecked() {
+  const note = _aqReadNote();
   let count = 0;
   state.aqCheckedIds.forEach(id => {
     const item = APPROVAL_QUEUE.find(c => c.id === id);
-    if (item && item.status === 'pending') { item.status = 'approved'; count++; }
+    if (item && item.status === 'pending') {
+      item.status = 'approved';
+      _aqPushHistory(item, 'approved', note || 'Bulk approved — all checks cleared.');
+      count++;
+    }
   });
   state.aqCheckedIds.clear();
   showToast(`✓ Bulk approved ${count} creative${count!==1?'s':''}`);
@@ -1488,6 +1514,10 @@ function renderApproverView() {
         <button class="tbtn" onclick="openMultiSizePreview(['${sub.id}'])">▦ Preview in grid</button>
       </div>
       ${sub.status === 'pending' ? `
+        <div style="margin-top:14px">
+          <label style="display:block;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px">Review Note <span style="color:#E53935;text-transform:none;letter-spacing:0">(required for revision / reject)</span></label>
+          <textarea id="aqNoteInput" placeholder="Add a note — e.g. 'Headline claim needs substantiation per Legal', 'Logo clear-space violated on mobile', 'Approved — brand compliant.'" style="width:100%;min-height:70px;padding:9px 10px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:12px;color:var(--text);resize:vertical;box-sizing:border-box"></textarea>
+        </div>
         <div class="aq-action-row">
           <button class="revise" onclick="reviseQueueItem('${sub.id}')">⚠ Request Revision</button>
           <button class="reject" onclick="rejectQueueItem('${sub.id}')">✗ Reject</button>
@@ -1496,6 +1526,20 @@ function renderApproverView() {
         <div style="margin-top:10px;padding:10px 12px;background:var(--bg);border-radius:6px;font-size:12px;color:var(--text-muted)">
           Status: <strong style="color:var(--text)">${sub.status}</strong>
         </div>`}
+      ${(sub.history && sub.history.length) ? `
+        <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+          <div style="font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:8px">Action History (${sub.history.length})</div>
+          ${sub.history.map(h => {
+            const color = h.action==='approved' ? '#2E7D32' : h.action==='revision' ? '#F57C00' : h.action==='rejected' ? '#E53935' : 'var(--text)';
+            const bg    = h.action==='approved' ? '#E8F5E9' : h.action==='revision' ? '#FFF8E1' : h.action==='rejected' ? '#FFEBEE' : 'var(--bg)';
+            const icon  = h.action==='approved' ? '✓' : h.action==='revision' ? '⚠' : h.action==='rejected' ? '✗' : '•';
+            return `<div style="background:${bg};border-left:3px solid ${color};border-radius:4px;padding:8px 10px;margin-bottom:6px;font-size:12px">
+              <div style="display:flex;justify-content:space-between;gap:8px;margin-bottom:3px"><strong style="color:${color}">${icon} ${h.action.charAt(0).toUpperCase()+h.action.slice(1)}</strong><span style="color:var(--text-muted);font-size:11px">${h.at}</span></div>
+              <div style="color:var(--text);margin-bottom:2px">${h.note}</div>
+              <div style="color:var(--text-muted);font-size:11px">— ${h.reviewer}</div>
+            </div>`;
+          }).join('')}
+        </div>` : ''}
     </div>
   `;
 }
@@ -1506,7 +1550,11 @@ function bulkActionBar() {
     return it && it.status === 'pending';
   });
   if (eligible.length === 0) return '';
-  return `<div style="margin-top:18px"><button class="tbtn primary" onclick="bulkApproveChecked()">✓ Bulk approve ${eligible.length} pending</button></div>`;
+  return `<div style="margin-top:18px;max-width:480px;margin-left:auto;margin-right:auto">
+    <label style="display:block;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:5px;text-align:left">Bulk Note (optional)</label>
+    <textarea id="aqNoteInput" placeholder="Optional note applied to all ${eligible.length} approval${eligible.length!==1?'s':''}…" style="width:100%;min-height:54px;padding:9px 10px;border:1px solid var(--border);border-radius:6px;font-family:inherit;font-size:12px;color:var(--text);resize:vertical;box-sizing:border-box;margin-bottom:10px"></textarea>
+    <button class="tbtn primary" onclick="bulkApproveChecked()">✓ Bulk approve ${eligible.length} pending</button>
+  </div>`;
 }
 
 // ══════════════════════════════════════════
